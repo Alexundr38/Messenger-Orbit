@@ -34,6 +34,14 @@ add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/space/SpaceObjectEntity.cpp
         src/space/SpaceObjectEntity.h
         src/utils/PathResolver.cpp
+        src/simulation/Simulation.cpp
+        src/simulation/Simulation.h
+        src/space/NewtonFormula.cpp
+        src/space/NewtonFormula.h
+        src/utils/Constants.h
+        src/utils/IntegratingMethods3d.cpp
+        src/utils/IntegratingMethods3d.h
+        src/simulation/SimulationBuilder.h
 )
 target_include_directories(MessengerOrbit PRIVATE ${cspice_SOURCE_DIR}/include)
 target_link_directories(MessengerOrbit PRIVATE ${cspice_SOURCE_DIR}/lib)

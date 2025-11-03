@@ -4,6 +4,26 @@
 
 #include "SpaceObject.h"
 
+void SpaceObject::set_object_name(const std::string& object_name)
+{
+    this->object_name = object_name;
+}
+
+void SpaceObject::set_gravitational_parameter(SpiceDouble gravitational_parameter)
+{
+    this->gravitational_parameter = gravitational_parameter;
+}
+
+std::string SpaceObject::get_object_name() const
+{
+    return object_name;
+}
+
+SpiceDouble SpaceObject::get_gravitational_parameter() const
+{
+    return gravitational_parameter;
+}
+
 std::vector<BodyState> SpaceObject::get_body_states() const
 {
     std::vector<BodyState> array(body_states.size());

@@ -3,7 +3,11 @@ forward-task:
     tls-path: "forward-task/naif0012.tls" # хранит в себе информацию для преобразования utc в et(tdb) и обратно
   space-object-manager:
     bsp-path: "forward-task/de440.bsp" # хранит в себе x y z vx vy vz
-    tpc-path: "forward-task/gm-de440.tpc" # хранит в себе gm разных объектов
+    tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     reference-frame: "J2000"
     aberration-correction: "NONE"
     observer-body: "SUN"
+  simulation:
+    start-date: "2011-03-18 00:45:00.000" #utc
+    step: "0000-01-01T00:10:00.000" # 10 минут
+    end-date: "2015-04-30 19:26:02.000"

@@ -17,13 +17,12 @@ struct BodyState
     Vec3d position;
     Vec3d velocity;
     SpiceDouble time;
-    SpiceDouble light_time;
 
-    BodyState() : position(), velocity(), time(), light_time(0)
+    BodyState() : position(), velocity(), time()
     {
     }
 
-    BodyState(const Vec3d& position, const Vec3d& velocity, SpiceDouble time, SpiceDouble light_time);
+    BodyState(const Vec3d& position, const Vec3d& velocity, SpiceDouble time);
     friend std::ostream& operator<<(std::ostream& os, const BodyState& state);
 };
 

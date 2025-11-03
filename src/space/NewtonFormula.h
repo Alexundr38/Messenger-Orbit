@@ -1,0 +1,30 @@
+//
+// Created by magofrays on 11/3/25.
+//
+
+#ifndef MESSENGERORBIT_NEWTONFORMULA_H
+#define MESSENGERORBIT_NEWTONFORMULA_H
+#include "SpaceObject.h"
+
+
+class NewtonFormula : public SpaceObject
+{
+    std::vector<SpaceObject*> force_bodies;
+    SpiceDouble step;
+    BodyState start_state;
+
+    [[nodiscard]] BodyState next_step(const BodyState & current_state) const;
+    static Vec3d integrate(const Vec3d& derivative, SpiceDouble step);
+    BodyState calculate_to_target(BodyState current_state, SpiceDouble target_time);
+    static BodyState interpolate(const BodyState& first, const BodyState& second, SpiceDouble current_time);
+
+public:
+    NewtonFormula(std::vector<SpaceObject*> force_bodies, const std::string& object_name, const BodyState& start_state,
+                  SpiceDouble step);
+
+
+    BodyState get_body_state(SpiceDouble tdb);
+};
+
+
+#endif //MESSENGERORBIT_NEWTONFORMULA_H

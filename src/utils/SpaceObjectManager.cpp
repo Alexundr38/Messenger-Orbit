@@ -31,12 +31,13 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
     BodyState body_state;
     body_state.time = tdb;
     SpiceDouble state[6];
+    SpiceDouble lt;
     spkezr_c(target_body.c_str(), tdb,
         instance.reference_frame.c_str(),
         instance.aberration_correction.c_str(),
         instance.observer_body.c_str(),
         state,
-        &body_state.light_time);
+        &lt);
     body_state.position = {state[0], state[1], state[2]};
     body_state.velocity = {state[3], state[4], state[5]};
     return body_state;
