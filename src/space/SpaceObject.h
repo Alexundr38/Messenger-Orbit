@@ -15,6 +15,7 @@ class SpaceObject : public Renderable
     protected:
     std::map<SpiceDouble, BodyState> body_states;
     std::string object_name;
+    bool caching = std::stoi(PropertiesReader::get_property("forward-task", "simulation", "caching"));
     SpiceDouble gravitational_parameter = 0;
 
 public:

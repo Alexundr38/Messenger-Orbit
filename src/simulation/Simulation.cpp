@@ -25,7 +25,7 @@ void Simulation::run(std::atomic<bool>& simulation_running)
     while (current_date < end_date && simulation_running)
     {
         next_step();
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
 }
 

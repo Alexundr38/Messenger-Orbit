@@ -13,6 +13,7 @@ RenderSystem::RenderSystem()
 {
     RenderFunctions::init();
     RenderFunctions::set_perspective(45.0f, 16.0f/9.0f, 0.1f, 100.0f);
+    proportion = std::stod(PropertiesReader::get_property("render", "proportion"));
 }
 
 RenderSystem& RenderSystem::get_instance()
@@ -44,8 +45,8 @@ void RenderSystem::render()
         glLoadMatrixf(glm::value_ptr(camera->GetViewMatrix()));
         for (auto render_object : render_objects)
         {
-            auto pos = render_object->get_current_body_state().position/1e8;
-            RenderFunctions::draw_circle(pos, Vec3d(229, 236, 248)/255, 0.005);
+            auto pos = render_object->get_current_body_state().position/proportion;
+            RenderFunctions::draw_circle(pos, render_object->get_color(), render_object->get_size());
         }
     }
     RenderFunctions::post_render();

@@ -40,14 +40,12 @@ Vec3d IntegratingMethods3d::dopri8_method(double h, const std::function<Vec3d(Ve
     return dopri8_method(h, vec_function, pos);
 }
 
-Vec3d IntegratingMethods3d::rk4_method(double h, const std::function<Vec3d(Vec3d, double)>& vec_function, const Vec3d& pos, double t)
-{
-    Vec3d k1 = vec_function(pos, t);
-    Vec3d k2 = vec_function(pos + k1 * (h * 0.5), t + h * 0.5);
-    Vec3d k3 = vec_function(pos + k2 * (h * 0.5), t + h * 0.5);
-    Vec3d k4 = vec_function(pos + k3 * h, t + h);
-    return (k1 + k2 * 2.0 + k3 * 2.0 + k4) * (h / 6.0);
-}
+// Vec3d IntegratingMethods3d::rk4_method(double h, const std::function<Vec3d(Vec3d, double)>& vec_function, const Vec3d& pos, double current_time)
+// {
+//     Vec3d k1 = vec_function(pos, h)*h;
+//     Vec3d k2 = vec_function(pos + 0.5*k1, h+0.5h);
+//     return (k1 + k2 * 2.0 + k3 * 2.0 + k4) * (h / 6.0);
+// }
 
 BodyState IntegratingMethods3d::rk4_system_method(
     double h,

@@ -35,6 +35,7 @@ std::vector<BodyState> SpaceObject::get_body_states() const
 
 void SpaceObject::add_body_state(const BodyState& body_state)
 {
+    if (caching)
     body_states[body_state.time] = body_state;
 }
 

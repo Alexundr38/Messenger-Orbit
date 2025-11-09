@@ -14,6 +14,7 @@ class NewtonFormula : public SpaceObject
     BodyState start_state;
 
     [[nodiscard]] BodyState next_step(const BodyState & current_state) const;
+    [[nodiscard]] Vec3d calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const;
     static Vec3d integrate(const Vec3d& derivative, SpiceDouble step);
     BodyState calculate_to_target(BodyState current_state, SpiceDouble target_time);
     static BodyState interpolate(const BodyState& first, const BodyState& second, SpiceDouble current_time);

@@ -11,9 +11,12 @@ forward-task:
     start-date: "2011-03-18 00:45:00.000" #utc
     step: "2000-01-01 12:00:10" # 10 секунд
     end-date: "2015-04-30 19:26:02.000"
-    caching: true
+    caching: 0
+    messenger-color: 255 0 0
 
 render:
   width: 1920
   height: 1080
   background: 20 20 20
+  proportion: 1e8
+  planets-color: 0 255 0

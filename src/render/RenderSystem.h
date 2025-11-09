@@ -11,8 +11,8 @@
 class RenderSystem
 {
     std::vector<Renderable*> render_objects;
-    Camera * camera;
-
+    Camera * camera = nullptr;
+    double proportion;
     RenderSystem();
 public:
     static RenderSystem& get_instance();

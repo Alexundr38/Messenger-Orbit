@@ -9,37 +9,59 @@
 #include "../utils/IntegratingMethods3d.h"
 #include <utility>
 
-BodyState NewtonFormula::next_step(const BodyState& current_state) const
-{
-    // Функция, возвращающая производные системы: [v, a]
-    auto system_derivative = [this](const BodyState& state) -> BodyState {
-        Vec3d acceleration(0, 0, 0);
-        for (const auto& force_body : force_bodies) {
-            BodyState force_body_state = force_body->get_body_state(state.time); // Используем время состояния
-            Vec3d r_vec = force_body_state.position - state.position;
-            double distance = r_vec.norm();
+BodyState NewtonFormula::next_step(const BodyState& current_state) const {
+    Vec3d k1_pos, k1_vel;
+    Vec3d k2_pos, k2_vel;
+    Vec3d k3_pos, k3_vel;
+    Vec3d k4_pos, k4_vel;
 
-            // Защита от деления на ноль
-            if (distance < 1e-9) continue;
+    // k1
+    k1_vel = calculate_acceleration(current_state.time, current_state.position);
+    k1_pos = current_state.velocity;  // dx/dt = v
 
-            const double r_cubed = distance * distance * distance;
-            acceleration += force_body->get_gravitational_parameter() * r_vec / r_cubed;
-        }
-        // Возвращаем производные: dr/dt = v, dv/dt = a
-        return BodyState(state.velocity, acceleration, 1.0); // dt/dt = 1
-    };
+    // k2
+    Vec3d pos_k2 = current_state.position + k1_pos * (step * 0.5);
+    Vec3d vel_k2 = current_state.velocity + k1_vel * (step * 0.5);
+    k2_vel = calculate_acceleration(current_state.time + step * 0.5, pos_k2);
+    k2_pos = vel_k2;  // dx/dt = v (текущая скорость на подэтапе)
 
-    // Интегрируем всю систему за один шаг
-    BodyState increment = IntegratingMethods3d::rk4_system_method(
-        step, system_derivative, current_state);
+    // k3
+    Vec3d pos_k3 = current_state.position + k2_pos * (step * 0.5);
+    Vec3d vel_k3 = current_state.velocity + k2_vel * (step * 0.5);
+    k3_vel = calculate_acceleration(current_state.time + step * 0.5, pos_k3);
+    k3_pos = vel_k3;
 
-    // Обновляем состояние
-    const Vec3d new_position = current_state.position + increment.position;
-    const Vec3d new_velocity = current_state.velocity + increment.velocity;
-    const SpiceDouble new_time = current_state.time + increment.time; // Учитываем временной шаг
+    // k4
+    Vec3d pos_k4 = current_state.position + k3_pos * step;
+    Vec3d vel_k4 = current_state.velocity + k3_vel * step;
+    k4_vel = calculate_acceleration(current_state.time + step, pos_k4);
+    k4_pos = vel_k4;
 
-    return BodyState(new_position, new_velocity, new_time);
+    // Итоговое положение и скорость
+    Vec3d new_position = current_state.position +
+        (k1_pos + 2.0*k2_pos + 2.0*k3_pos + k4_pos) * (step / 6.0);
+    Vec3d new_velocity = current_state.velocity +
+        (k1_vel + 2.0*k2_vel + 2.0*k3_vel + k4_vel) * (step / 6.0);
+
+    return BodyState(new_position, new_velocity, current_state.time + step);
 }
+
+Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
+    Vec3d acceleration;
+    for (SpaceObject* force_body : force_bodies) {
+        BodyState force_body_state = force_body->get_body_state(time);
+        Vec3d r_vec = current_position - force_body_state.position; // Вектор ОТ источника К телу
+        double r = r_vec.norm();
+
+        if (r > 1e-10) {
+            double r_cubed = r * r * r;
+            double mu = force_body->get_gravitational_parameter();
+            acceleration -= mu * r_vec / r_cubed; // Ускорение направлено к источнику
+        }
+    }
+    return acceleration;
+}
+
 Vec3d NewtonFormula::integrate(const Vec3d& derivative, const SpiceDouble step)
 {
     return derivative * step;
@@ -95,9 +117,14 @@ void NewtonFormula::set_start_state(const BodyState& start_state)
 
 BodyState NewtonFormula::get_body_state(const SpiceDouble tdb)
 {
+    auto current = get_current_body_state();
+    if (tdb == current.time)
+    {
+        return current;
+    }
     auto exact = body_states.find(tdb);
     if (exact != body_states.end()) {
-        this->current_body_state = exact->second;
+        set_current_body_state(exact->second);
         return exact->second;
     }
 
@@ -107,11 +134,11 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb)
             throw std::runtime_error("No body states available");
         }
         auto last = body_states.rbegin();
-        calculate_to_target(last->second, tdb);
+        calculate_to_target(last->second, tdb); // fix for caching
 
         exact = body_states.find(tdb);
         if (exact != body_states.end()) {
-            this->current_body_state = exact->second;
+            set_current_body_state(exact->second);
             return exact->second;
         }
         upper = body_states.upper_bound(tdb);

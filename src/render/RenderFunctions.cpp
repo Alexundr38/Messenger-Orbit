@@ -109,6 +109,27 @@ void RenderFunctions::draw_circle(Vec3d pos, Vec3d color, float radius)
     glEnd();
 }
 
+void RenderFunctions::draw_dot(const Vec3d& pos, const Vec3d& color, float point_size)
+{
+    auto& instance = get_instance();
+
+    // Устанавливаем цвет точки
+    glColor3f(color.x, color.y, color.z);
+
+    // Устанавливаем размер точки (в пикселях)
+    glPointSize(point_size);
+
+    // Рисуем одну точку
+    glBegin(GL_POINTS);
+    glVertex3f(static_cast<float>(pos.x),
+               static_cast<float>(pos.y),
+               static_cast<float>(pos.z));
+    glEnd();
+
+    // (Опционально) сбросить размер точки, если нужно
+    // glPointSize(1.0f);
+}
+
 void RenderFunctions::rotate(const Vec3d& rotate)
 {
     glRotatef(rotate.x, 1, 0, 0);

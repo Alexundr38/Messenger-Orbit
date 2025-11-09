@@ -37,16 +37,20 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     {
         std::cout << body->get_body_state(simulation->start_date) << std::endl;
     }
+    auto parts = PropertiesReader::get_property_array(' ', "forward-task", "simulation", "messenger-color");
+
 
     BodyState start_state_messenger = SpaceObjectManager::get_body_state_at_time(simulation->start_date, "MERCURY");
     start_state_messenger.position += Vec3d(200, 0, 0);
-    start_state_messenger.velocity += Vec3d(0.0, 2.89, 0.1);
+    start_state_messenger.velocity += Vec3d(0.0, 2.9, 0.1);
     SpaceObject *messenger = new NewtonFormula(
         simulation_bodies,
         "MESSENGER",
         start_state_messenger,
         simulation->step
     );
+    Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
+    messenger->set_color(messenger_color);
     simulation_bodies.push_back(messenger);
 
 

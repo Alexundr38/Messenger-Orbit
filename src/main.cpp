@@ -23,29 +23,6 @@
 #include "simulation/MessengerSimulationBuilder.h"
 #include "simulation/SimulationBuilder.h"
 
-
-// int main(int argc, char* argv[])
-// {
-//     // Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-//     // RenderSystem::get_instance().set_camera(&camera);
-//     // CameraController::init(&camera);
-//
-//     // Сначала проверим симуляцию в главном потоке
-//     Simulation *simulation = MessengerSimulationBuilder().buildSimulation();
-//
-//     std::cout << "Testing simulation in main thread..." << std::endl;
-//     try {
-//         simulation->run();  // Запускаем в главном потоке для теста
-//     } catch (const std::exception& e) {
-//         std::cerr << "Simulation error: " << e.what() << std::endl;
-//         delete simulation;
-//         return -1;
-//     }
-//
-//     return 0;
-// }
-
-
 int main(int argc, char* argv[])
 {
     Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -65,7 +42,7 @@ int main(int argc, char* argv[])
     {
         CameraController::update();
         RenderSystem::get_instance().render();
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(2));
     }
     simulation_running = false;
     if (simulation_thread.joinable()) {
