@@ -21,9 +21,10 @@ class NewtonFormula : public SpaceObject
 public:
     NewtonFormula(std::vector<SpaceObject*> force_bodies, const std::string& object_name, const BodyState& start_state,
                   SpiceDouble step);
+    void add_force_body(SpaceObject* force_body);
+    void set_start_state(const BodyState& start_state);
 
-
-    BodyState get_body_state(SpiceDouble tdb);
+    BodyState get_body_state(SpiceDouble tdb) override;
 };
 
 

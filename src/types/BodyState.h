@@ -24,6 +24,21 @@ struct BodyState
 
     BodyState(const Vec3d& position, const Vec3d& velocity, SpiceDouble time);
     friend std::ostream& operator<<(std::ostream& os, const BodyState& state);
+    BodyState operator+(const BodyState& other) const {
+        return BodyState(
+            position + other.position,
+            velocity + other.velocity,
+            time + other.time
+        );
+    }
+
+    BodyState operator*(double scalar) const {
+        return BodyState(
+            position * scalar,
+            velocity * scalar,
+            time * scalar
+        );
+    }
 };
 
 

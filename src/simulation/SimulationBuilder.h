@@ -11,9 +11,7 @@ class SimulationBuilder
 {
 public:
     virtual ~SimulationBuilder() = default;
-
-private:
-    virtual Simulation buildSimulation();
+    virtual Simulation* buildSimulation() = 0;
 };
 
 

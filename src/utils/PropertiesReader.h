@@ -20,6 +20,9 @@ public:
     static std::string get_property(Keys&&... keys);
 
     template <class ... Keys>
+    static std::vector<std::string> get_property_array(char delimiter, Keys&&... keys);
+
+    template <class ... Keys>
     static std::string get_property_path(Keys&&... keys);
 };
 
@@ -43,6 +46,20 @@ std::string PropertiesReader::get_property(Keys&&... keys)
     }
 
     throw std::runtime_error("Property not found");
+}
+
+template <class ... Keys>
+std::vector<std::string> PropertiesReader::get_property_array(const char delimiter, Keys&&... keys)
+{
+    auto value = get_property(std::forward<Keys>(keys)...);
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(value);
+    while (std::getline(tokenStream, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
+
 }
 
 template <class ... Keys>

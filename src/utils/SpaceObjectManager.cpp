@@ -13,6 +13,7 @@
 SpaceObjectManager::SpaceObjectManager()
 {
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "bsp-path").c_str());
+    std::cout << PropertiesReader::get_property_path("forward-task", "space-object-manager", "tpc-path").c_str() << std::endl;
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "tpc-path").c_str());
     reference_frame = PropertiesReader::get_property("forward-task", "space-object-manager", "reference-frame");
     aberration_correction = PropertiesReader::get_property("forward-task", "space-object-manager", "aberration-correction");
@@ -50,6 +51,7 @@ BodyState SpaceObjectManager::get_body_state_at_time(const std::string& utc, con
 
 SpiceDouble SpaceObjectManager::get_body_gm(const std::string& target_body)
 {
+    auto instance = get_instance();
     SpiceInt dim;
     SpiceDouble gm[1];
     bodvrd_c(target_body.c_str(), "GM", 1, &dim, gm);

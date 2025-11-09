@@ -4,26 +4,42 @@
 
 #include "NewtonFormula.h"
 #include <cmath>
+#include <iostream>
+
 #include "../utils/IntegratingMethods3d.h"
 #include <utility>
 
 BodyState NewtonFormula::next_step(const BodyState& current_state) const
 {
-    Vec3d acceleration;
-    for (const auto force_body : force_bodies )
-    {
-        BodyState force_body_state = force_body->get_body_state(current_state.time); // исправить
-        Vec3d r_vec = force_body_state.position - current_state.position;
-        const SpiceDouble r_cubed = std::pow(r_vec.norm(), 3);
-        acceleration -= force_body->get_gravitational_parameter()*(r_vec)/r_cubed;
-    }
-    const Vec3d velocity = current_state.velocity + IntegratingMethods3d::rk4_method(step, integrate, acceleration);
-    const Vec3d position = current_state.position + IntegratingMethods3d::rk4_method(step, integrate, velocity);
-    const SpiceDouble time = current_state.time + step;
-    return BodyState(position, velocity, time);
+    // Функция, возвращающая производные системы: [v, a]
+    auto system_derivative = [this](const BodyState& state) -> BodyState {
+        Vec3d acceleration(0, 0, 0);
+        for (const auto& force_body : force_bodies) {
+            BodyState force_body_state = force_body->get_body_state(state.time); // Используем время состояния
+            Vec3d r_vec = force_body_state.position - state.position;
+            double distance = r_vec.norm();
 
+            // Защита от деления на ноль
+            if (distance < 1e-9) continue;
+
+            const double r_cubed = distance * distance * distance;
+            acceleration += force_body->get_gravitational_parameter() * r_vec / r_cubed;
+        }
+        // Возвращаем производные: dr/dt = v, dv/dt = a
+        return BodyState(state.velocity, acceleration, 1.0); // dt/dt = 1
+    };
+
+    // Интегрируем всю систему за один шаг
+    BodyState increment = IntegratingMethods3d::rk4_system_method(
+        step, system_derivative, current_state);
+
+    // Обновляем состояние
+    const Vec3d new_position = current_state.position + increment.position;
+    const Vec3d new_velocity = current_state.velocity + increment.velocity;
+    const SpiceDouble new_time = current_state.time + increment.time; // Учитываем временной шаг
+
+    return BodyState(new_position, new_velocity, new_time);
 }
-
 Vec3d NewtonFormula::integrate(const Vec3d& derivative, const SpiceDouble step)
 {
     return derivative * step;
@@ -59,31 +75,52 @@ NewtonFormula::NewtonFormula(
     ) : force_bodies(std::move(force_bodies)), step(step)
 {
     add_body_state(start_state);
-    set_object_name(object_name);
+    this->start_state = start_state;
+    Renderable::set_current_body_state(start_state);
+    SpaceObject::set_object_name(object_name);
+}
+
+void NewtonFormula::add_force_body(SpaceObject* force_body)
+{
+    force_bodies.push_back(force_body);
+}
+
+void NewtonFormula::set_start_state(const BodyState& start_state)
+{
+    this->start_state = start_state;
+    Renderable::set_current_body_state(start_state);
+    body_states.clear();
+    add_body_state(start_state);
 }
 
 BodyState NewtonFormula::get_body_state(const SpiceDouble tdb)
 {
     auto exact = body_states.find(tdb);
     if (exact != body_states.end()) {
+        this->current_body_state = exact->second;
         return exact->second;
     }
 
     auto upper = body_states.upper_bound(tdb);
     if (upper == body_states.end()) {
-        calculate_to_target(
-            body_states.lower_bound(tdb)->second,
-            tdb
-            );
+        if (body_states.empty()) {
+            throw std::runtime_error("No body states available");
+        }
+        auto last = body_states.rbegin();
+        calculate_to_target(last->second, tdb);
+
         exact = body_states.find(tdb);
         if (exact != body_states.end()) {
+            this->current_body_state = exact->second;
             return exact->second;
         }
         upper = body_states.upper_bound(tdb);
     }
-    return interpolate(
+    BodyState body = interpolate(
         std::prev(upper)->second,
         upper->second, tdb
         );
+    this->current_body_state = body;
+    return body;
 }
 

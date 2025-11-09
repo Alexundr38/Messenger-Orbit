@@ -20,11 +20,13 @@ BodyState SpaceObjectEntity::get_body_state(SpiceDouble tdb)
 {
     try
     {
-        return SpaceObject::get_body_state(tdb);
+        current_body_state = SpaceObject::get_body_state(tdb);
+        return current_body_state;
     }catch (std::runtime_error &e)
     {
         BodyState new_state = SpaceObjectManager::get_body_state_at_time(tdb, object_name);
         add_body_state(new_state);
+        current_body_state = new_state;
         return new_state;
     }
 }

@@ -11,9 +11,9 @@
 class SpaceObjectEntity: public SpaceObject
 {
 public:
-    void set_object_name(const std::string& object_name);
+    void set_object_name(const std::string& object_name) override;
     explicit SpaceObjectEntity(const std::string& object_name);
-    BodyState get_body_state(SpiceDouble tdb);
+    BodyState get_body_state(SpiceDouble tdb) override;
 };
 
 
