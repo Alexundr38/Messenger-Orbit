@@ -6,7 +6,7 @@ forward-task:
     tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     reference-frame: "J2000"
     aberration-correction: "NONE"
-    observer-body: "SOLAR SYSTEM BARYCENTER"
+    observer-body: "SOLAR SYSTEM BARYCENTER" #1
   simulation:
     start-date: "2011-03-18 00:45:00.000" #utc
     step: "2000-01-01 12:00:00" # 63 секунды
