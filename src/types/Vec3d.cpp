@@ -13,7 +13,6 @@ double Vec3d::norm() const {
     return std::sqrt(x*x + y*y + z*z);
 }
 
-// Операторы-члены класса
 Vec3d& Vec3d::operator+=(const Vec3d& other) {
     x += other.x;
     y += other.y;

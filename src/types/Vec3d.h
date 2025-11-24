@@ -12,7 +12,7 @@ struct Vec3d
     Vec3d();
     Vec3d(double x,  double y, double z);
 
-    double norm () const;
+    [[nodiscard]] double norm () const;
     Vec3d& operator+=(const Vec3d& other);
     Vec3d& operator-=(const Vec3d& other);
     Vec3d& operator*=(double scalar);

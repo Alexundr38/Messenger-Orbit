@@ -25,10 +25,10 @@ SpiceDouble TimeConverter::to_tdb(const std::string& utc)
     return et;
 }
 
-std::string TimeConverter::to_utc(const SpiceDouble et)
+std::string TimeConverter::to_utc(const SpiceDouble tdb)
 {
     char buffer[50];
-    et2utc_c(et, "C", 3, sizeof(buffer), buffer);
+    et2utc_c(tdb, "C", 3, sizeof(buffer), buffer);
     return std::string(buffer);
 }
 

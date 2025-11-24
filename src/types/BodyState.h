@@ -17,22 +17,27 @@ struct BodyState
     Vec3d position;
     Vec3d velocity;
     SpiceDouble time;
-    SpiceDouble light_time;
 
-    BodyState() : position(), velocity(), time(), light_time(0)
+    BodyState() : position(), velocity(), time()
     {
     }
 
-    BodyState(const Vec3d& position, const Vec3d& velocity, SpiceDouble time, SpiceDouble light_time);
-    friend std::ostream& operator<<(std::ostream& os, const BodyState& state) {
-        os << std::fixed << std::setprecision(6);
-        os << "Time: " << state.time << " TDB\n";
-        os << "Light time: " << state.light_time << " s\n";
-        os << "Position: (" << state.position.x << ", "
-           << state.position.y << ", " << state.position.z << ") km\n";
-        os << "Velocity: (" << state.velocity.x << ", "
-           << state.velocity.y << ", " << state.velocity.z << ") km/s";
-        return os;
+    BodyState(const Vec3d& position, const Vec3d& velocity, SpiceDouble time);
+    friend std::ostream& operator<<(std::ostream& os, const BodyState& state);
+    BodyState operator+(const BodyState& other) const {
+        return BodyState(
+            position + other.position,
+            velocity + other.velocity,
+            time + other.time
+        );
+    }
+
+    BodyState operator*(double scalar) const {
+        return BodyState(
+            position * scalar,
+            velocity * scalar,
+            time * scalar
+        );
     }
 };
 

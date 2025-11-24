@@ -1,8 +1,22 @@
 forward-task:
   time-converter:
-    tls-path: "forward-task/naif0012.tls"
-  space-body-manager:
-    bsp-path: "forward-task/de440.bsp"
+    tls-path: "forward-task/naif0012.tls" # хранит в себе информацию для преобразования utc в et(tdb) и обратно
+  space-object-manager:
+    bsp-path: "forward-task/de440s.bsp" # хранит в себе x y z vx vy vz
+    tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     reference-frame: "J2000"
     aberration-correction: "NONE"
-    observer-body: "SUN"
+    observer-body: "SOLAR SYSTEM BARYCENTER" #1
+  simulation:
+    start-date: "2011-03-18 01:10:00.000" #utc
+    step: "2000-01-01 11:59:59" # 43 секунды
+    end-date: "2015-04-30 19:26:02.000" # конец симмуляции
+    caching: 1 # отключение кэширования пока не реализовано(состояния сохраняются в оперативной памяти)
+    messenger-color: 255 0 0 # цвет спутника
+
+render:
+  width: 1920
+  height: 1080
+  background: 20 20 20
+  proportion: 1e8 # делим расстояние между планетами, чтобы все уместилось на экран
+  planets-color: 0 255 0 # цвет планет

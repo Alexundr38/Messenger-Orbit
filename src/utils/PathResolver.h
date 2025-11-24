@@ -11,32 +11,13 @@
 
 class PathResolver
 {
-
     std::filesystem::path program_path;
-    PathResolver()
-    {
-        program_path = std::filesystem::canonical("/proc/self/exe").parent_path();
-    }
-    static PathResolver& get_instance() {
-        static PathResolver instance;
-        return instance;
-    }
+    PathResolver();
+    static PathResolver& get_instance();
 
-    public:
-
-
-    [[nodiscard]] static std::string get_program_path()
-    {
-        return get_instance().program_path.string();
-    }
-
-    [[nodiscard]] static std::string get_data(const std::string& path)
-    {
-        return ( get_instance().program_path / "../data"/ path).lexically_normal().string();
-    }
-
-
-
+public:
+    [[nodiscard]] static std::string get_program_path();
+    [[nodiscard]] static std::string get_data(const std::string& path);
 };
 
 

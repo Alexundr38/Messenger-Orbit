@@ -16,26 +16,68 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
 )
 
+FetchContent_Declare(
+        glfw
+        URL https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz
+)
+FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG master
+)
+
+
+FetchContent_MakeAvailable(glfw)
+FetchContent_MakeAvailable(glm)
+
+find_package(OpenGL REQUIRED)
 FetchContent_MakeAvailable(cspice yaml-cpp)
 
 add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/types/BodyState.cpp
         src/types/BodyState.h
-        src/types/BodyData.cpp
-        src/types/BodyData.h
+        src/space/SpaceObject.cpp
+        src/space/SpaceObject.h
         src/utils/PropertiesReader.h
         src/utils/PathResolver.h
         src/main.cpp
-        src/space/SpaceBodyManager.cpp
-        src/space/SpaceBodyManager.h
+        src/utils/SpaceObjectManager.cpp
+        src/utils/SpaceObjectManager.h
         src/utils/TimeConverter.cpp
         src/utils/TimeConverter.h
         src/utils/PropertiesReader.cpp
+        src/space/SpaceObjectEntity.cpp
+        src/space/SpaceObjectEntity.h
+        src/utils/PathResolver.cpp
+        src/simulation/Simulation.cpp
+        src/simulation/Simulation.h
+        src/space/NewtonFormula.cpp
+        src/space/NewtonFormula.h
+        src/utils/Constants.h
+        src/utils/IntegratingMethods3d.cpp
+        src/utils/IntegratingMethods3d.h
+        src/simulation/SimulationBuilder.h
+        src/simulation/MessengerSimulationBuilder.cpp
+        src/simulation/MessengerSimulationBuilder.h
+        src/render/RenderSystem.cpp
+        src/render/RenderSystem.h
+        src/render/Renderable.h
+        src/render/RenderFunctions.cpp
+        src/render/RenderFunctions.h
+        src/render/Camera.cpp
+        src/render/Camera.h
+        src/render/CameraController.cpp
+        src/render/CameraController.h
 )
-target_include_directories(MessengerOrbit PRIVATE ${cspice_SOURCE_DIR}/include)
+target_include_directories(MessengerOrbit PRIVATE
+        ${cspice_SOURCE_DIR}/include
+        ${glm_SOURCE_DIR}  )
 target_link_directories(MessengerOrbit PRIVATE ${cspice_SOURCE_DIR}/lib)
 target_link_libraries(
         MessengerOrbit
+        OpenGL::OpenGL
         -l:cspice.a
         yaml-cpp
-        m)
+        glfw
+        m
+)
