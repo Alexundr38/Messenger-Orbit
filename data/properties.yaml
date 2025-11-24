@@ -8,8 +8,8 @@ forward-task:
     aberration-correction: "NONE"
     observer-body: "SOLAR SYSTEM BARYCENTER" #1
   simulation:
-    start-date: "2011-03-18 00:45:00.000" #utc
-    step: "2000-01-01 12:00:00" # 63 секунды
+    start-date: "2011-03-18 01:10:00.000" #utc
+    step: "2000-01-01 11:59:59" # 43 секунды
     end-date: "2015-04-30 19:26:02.000" # конец симмуляции
     caching: 1 # отключение кэширования пока не реализовано(состояния сохраняются в оперативной памяти)
     messenger-color: 255 0 0 # цвет спутника

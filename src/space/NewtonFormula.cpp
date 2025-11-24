@@ -10,53 +10,131 @@
 #include <utility>
 
 BodyState NewtonFormula::next_step(const BodyState& current_state) const {
-    Vec3d k1_pos, k1_vel;
-    Vec3d k2_pos, k2_vel;
-    Vec3d k3_pos, k3_vel;
-    Vec3d k4_pos, k4_vel;
+        const double h = step;
+        const Vec3d& y0_pos = current_state.position;
+        const Vec3d& y0_vel = current_state.velocity;
+        const double t0 = current_state.time;
 
-    // k1
-    k1_vel = calculate_acceleration(current_state.time, current_state.position);
-    k1_pos = current_state.velocity;  // dx/dt = v
+        std::vector<Vec3d> k_pos(13), k_vel(13);
 
-    // k2
-    Vec3d pos_k2 = current_state.position + k1_pos * (step * 0.5);
-    Vec3d vel_k2 = current_state.velocity + k1_vel * (step * 0.5);
-    k2_vel = calculate_acceleration(current_state.time + step * 0.5, pos_k2);
-    k2_pos = vel_k2;  // dx/dt = v (текущая скорость на подэтапе)
+        // k1
+        k_vel[0] = calculate_acceleration(t0, y0_pos);
+        k_pos[0] = y0_vel;
 
-    // k3
-    Vec3d pos_k3 = current_state.position + k2_pos * (step * 0.5);
-    Vec3d vel_k3 = current_state.velocity + k2_vel * (step * 0.5);
-    k3_vel = calculate_acceleration(current_state.time + step * 0.5, pos_k3);
-    k3_pos = vel_k3;
+        // k2
+        Vec3d pos2 = y0_pos + k_pos[0] * (h * b21);
+        Vec3d vel2 = y0_vel + k_vel[0] * (h * b21);
+        k_vel[1] = calculate_acceleration(t0 + h * a2, pos2);
+        k_pos[1] = vel2;
 
-    // k4
-    Vec3d pos_k4 = current_state.position + k3_pos * step;
-    Vec3d vel_k4 = current_state.velocity + k3_vel * step;
-    k4_vel = calculate_acceleration(current_state.time + step, pos_k4);
-    k4_pos = vel_k4;
+        // k3
+        Vec3d pos3 = y0_pos + k_pos[0] * (h * b31) + k_pos[1] * (h * b32);
+        Vec3d vel3 = y0_vel + k_vel[0] * (h * b31) + k_vel[1] * (h * b32);
+        k_vel[2] = calculate_acceleration(t0 + h * a3, pos3);
+        k_pos[2] = vel3;
 
-    // Итоговое положение и скорость
-    Vec3d new_position = current_state.position +
-        (k1_pos + 2.0*k2_pos + 2.0*k3_pos + k4_pos) * (step / 6.0);
-    Vec3d new_velocity = current_state.velocity +
-        (k1_vel + 2.0*k2_vel + 2.0*k3_vel + k4_vel) * (step / 6.0);
+        // k4
+        Vec3d pos4 = y0_pos + k_pos[0] * (h * b41) + k_pos[2] * (h * b43);
+        Vec3d vel4 = y0_vel + k_vel[0] * (h * b41) + k_vel[2] * (h * b43);
+        k_vel[3] = calculate_acceleration(t0 + h * a4, pos4);
+        k_pos[3] = vel4;
 
-    return BodyState(new_position, new_velocity, current_state.time + step);
+        // k5
+        Vec3d pos5 = y0_pos + k_pos[0] * (h * b51) + k_pos[2] * (h * b53) + k_pos[3] * (h * b54);
+        Vec3d vel5 = y0_vel + k_vel[0] * (h * b51) + k_vel[2] * (h * b53) + k_vel[3] * (h * b54);
+        k_vel[4] = calculate_acceleration(t0 + h * a5, pos5);
+        k_pos[4] = vel5;
+
+        // k6
+        Vec3d pos6 = y0_pos + k_pos[0] * (h * b61) + k_pos[3] * (h * b64) + k_pos[4] * (h * b65);
+        Vec3d vel6 = y0_vel + k_vel[0] * (h * b61) + k_vel[3] * (h * b64) + k_vel[4] * (h * b65);
+        k_vel[5] = calculate_acceleration(t0 + h * a6, pos6);
+        k_pos[5] = vel6;
+
+        // k7
+        Vec3d pos7 = y0_pos + k_pos[0] * (h * b71) + k_pos[3] * (h * b74) + k_pos[4] * (h * b75) + k_pos[5] * (h * b76);
+        Vec3d vel7 = y0_vel + k_vel[0] * (h * b71) + k_vel[3] * (h * b74) + k_vel[4] * (h * b75) + k_vel[5] * (h * b76);
+        k_vel[6] = calculate_acceleration(t0 + h * a7, pos7);
+        k_pos[6] = vel7;
+
+        // k8
+        Vec3d pos8 = y0_pos + k_pos[0] * (h * b81) + k_pos[3] * (h * b84) + k_pos[4] * (h * b85) +
+                    k_pos[5] * (h * b86) + k_pos[6] * (h * b87);
+        Vec3d vel8 = y0_vel + k_vel[0] * (h * b81) + k_vel[3] * (h * b84) + k_vel[4] * (h * b85) +
+                    k_vel[5] * (h * b86) + k_vel[6] * (h * b87);
+        k_vel[7] = calculate_acceleration(t0 + h * a8, pos8);
+        k_pos[7] = vel8;
+
+        // k9
+        Vec3d pos9 = y0_pos + k_pos[0] * (h * b91) + k_pos[3] * (h * b94) + k_pos[4] * (h * b95) +
+                    k_pos[5] * (h * b96) + k_pos[6] * (h * b97) + k_pos[7] * (h * b98);
+        Vec3d vel9 = y0_vel + k_vel[0] * (h * b91) + k_vel[3] * (h * b94) + k_vel[4] * (h * b95) +
+                    k_vel[5] * (h * b96) + k_vel[6] * (h * b97) + k_vel[7] * (h * b98);
+        k_vel[8] = calculate_acceleration(t0 + h * a9, pos9);
+        k_pos[8] = vel9;
+
+        // k10
+        Vec3d pos10 = y0_pos + k_pos[0] * (h * b101) + k_pos[3] * (h * b104) + k_pos[4] * (h * b105) +
+                     k_pos[5] * (h * b106) + k_pos[6] * (h * b107) + k_pos[7] * (h * b108) + k_pos[8] * (h * b109);
+        Vec3d vel10 = y0_vel + k_vel[0] * (h * b101) + k_vel[3] * (h * b104) + k_vel[4] * (h * b105) +
+                     k_vel[5] * (h * b106) + k_vel[6] * (h * b107) + k_vel[7] * (h * b108) + k_vel[8] * (h * b109);
+        k_vel[9] = calculate_acceleration(t0 + h * a10, pos10);
+        k_pos[9] = vel10;
+
+        // k11
+        Vec3d pos11 = y0_pos + k_pos[0] * (h * b111) + k_pos[3] * (h * b114) + k_pos[4] * (h * b115) +
+                     k_pos[5] * (h * b116) + k_pos[6] * (h * b117) + k_pos[7] * (h * b118) + k_pos[8] * (h * b119) +
+                     k_pos[9] * (h * b1110);
+        Vec3d vel11 = y0_vel + k_vel[0] * (h * b111) + k_vel[3] * (h * b114) + k_vel[4] * (h * b115) +
+                     k_vel[5] * (h * b116) + k_vel[6] * (h * b117) + k_vel[7] * (h * b118) + k_vel[8] * (h * b119) +
+                     k_vel[9] * (h * b1110);
+        k_vel[10] = calculate_acceleration(t0 + h * a11, pos11);
+        k_pos[10] = vel11;
+
+        // k12
+        Vec3d pos12 = y0_pos + k_pos[0] * (h * b121) + k_pos[3] * (h * b124) + k_pos[4] * (h * b125) +
+                     k_pos[5] * (h * b126) + k_pos[6] * (h * b127) + k_pos[7] * (h * b128) + k_pos[8] * (h * b129) +
+                     k_pos[9] * (h * b1210) + k_pos[10] * (h * b1211);
+        Vec3d vel12 = y0_vel + k_vel[0] * (h * b121) + k_vel[3] * (h * b124) + k_vel[4] * (h * b125) +
+                     k_vel[5] * (h * b126) + k_vel[6] * (h * b127) + k_vel[7] * (h * b128) + k_vel[8] * (h * b129) +
+                     k_vel[9] * (h * b1210) + k_vel[10] * (h * b1211);
+        k_vel[11] = calculate_acceleration(t0 + h * a12, pos12);
+        k_pos[11] = vel12;
+
+        // k13
+        Vec3d pos13 = y0_pos + k_pos[0] * (h * b131) + k_pos[3] * (h * b134) + k_pos[4] * (h * b135) +
+                     k_pos[5] * (h * b136) + k_pos[6] * (h * b137) + k_pos[7] * (h * b138) + k_pos[8] * (h * b139) +
+                     k_pos[9] * (h * b1310) + k_pos[10] * (h * b1311);
+        Vec3d vel13 = y0_vel + k_vel[0] * (h * b131) + k_vel[3] * (h * b134) + k_vel[4] * (h * b135) +
+                     k_vel[5] * (h * b136) + k_vel[6] * (h * b137) + k_vel[7] * (h * b138) + k_vel[8] * (h * b139) +
+                     k_vel[9] * (h * b1310) + k_vel[10] * (h * b1311);
+        k_vel[12] = calculate_acceleration(t0 + h * a13, pos13);
+        k_pos[12] = vel13;
+
+        // Комбинируем с весами 8-го порядка
+        Vec3d new_pos = y0_pos + h * (
+            k_pos[0] * c1 + k_pos[5] * c6 + k_pos[6] * c7 + k_pos[7] * c8 +
+            k_pos[8] * c9 + k_pos[9] * c10 + k_pos[10] * c11 + k_pos[11] * c12 + k_pos[12] * c13
+        );
+
+        Vec3d new_vel = y0_vel + h * (
+            k_vel[0] * c1 + k_vel[5] * c6 + k_vel[6] * c7 + k_vel[7] * c8 +
+            k_vel[8] * c9 + k_vel[9] * c10 + k_vel[10] * c11 + k_vel[11] * c12 + k_vel[12] * c13
+        );
+
+        return BodyState(new_pos, new_vel, t0 + h);
 }
 
 Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
     Vec3d acceleration;
-    for (SpaceObject* force_body : force_bodies) {
-        BodyState force_body_state = force_body->get_body_state(time);
-        Vec3d r_vec = current_position - force_body_state.position; // Вектор ОТ источника К телу
+    for (SpaceObject* body : force_bodies) {
+        BodyState body_state = body->get_body_state(time);
+        Vec3d r_vec = body_state.position - current_position;
         double r = r_vec.norm();
 
         if (r > 1e-10) {
-            double r_cubed = r * r * r;
-            double mu = force_body->get_gravitational_parameter();
-            acceleration -= mu * r_vec / r_cubed; // Ускорение направлено к источнику
+            double mu = body->get_gravitational_parameter();
+            acceleration += mu * r_vec / (r * r * r);
         }
     }
     return acceleration;

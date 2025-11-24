@@ -35,14 +35,16 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     simulation_bodies.push_back(new SpaceObjectEntity("NEPTUNE BARYCENTER"));
     for (auto body : simulation_bodies)
     {
+        std::cout << body->get_object_name() << std::endl;
         std::cout << body->get_body_state(simulation->start_date) << std::endl;
     }
     auto parts = PropertiesReader::get_property_array(' ', "forward-task", "simulation", "messenger-color");
 
 
-    BodyState start_state_messenger = SpaceObjectManager::get_body_state_at_time(simulation->start_date, "MERCURY");
-    start_state_messenger.position += Vec3d(200, 0, 0);
-    start_state_messenger.velocity += Vec3d(0.0, 2.9, 0.1);
+    BodyState start_state_messenger;
+    start_state_messenger.time = TimeConverter::to_tdb(start_date);
+    start_state_messenger.position = Vec3d(9.550067806899118e5, 4.600907778618815e7, 3.613570817987552e6);
+    start_state_messenger.velocity = Vec3d(-5.951679809132351e1, 3.285768007622105, 2.843431738797426);
     SpaceObject *messenger = new NewtonFormula(
         simulation_bodies,
         "MESSENGER",
