@@ -1,0 +1,8 @@
+forward-task:
+  time-converter:
+    tls-path: "forward-task/naif0012.tls"
+  space-body-manager:
+    bsp-path: "forward-task/de440.bsp"
+    reference-frame: "J2000"
+    aberration-correction: "NONE"
+    observer-body: "SUN"

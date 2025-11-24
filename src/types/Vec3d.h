@@ -2,8 +2,8 @@
 // Created by magofrays on 10/25/25.
 //
 
-#ifndef MAGGELAN_ORBIT_VEC3D_H
-#define MAGGELAN_ORBIT_VEC3D_H
+#ifndef MESSENGERORBIT_VEC3D_H
+#define MESSENGERORBIT_VEC3D_H
 
 
 struct Vec3d
@@ -25,4 +25,4 @@ Vec3d operator*(const Vec3d& a, double scalar);
 Vec3d operator*(double scalar, const Vec3d& a);
 Vec3d operator/(const Vec3d& a, double scalar);
 
-#endif //MAGGELAN_ORBIT_VEC3D_H
+#endif //MESSENGERORBIT_VEC3D_H

@@ -2,8 +2,8 @@
 // Created by magofrays on 10/26/25.
 //
 
-#ifndef MAGELLANORBIT_BODYDATA_H
-#define MAGELLANORBIT_BODYDATA_H
+#ifndef MESSENGERORBIT_BODYDATA_H
+#define MESSENGERORBIT_BODYDATA_H
 #include <vector>
 
 #include "BodyState.h"
@@ -19,4 +19,4 @@ class BodyData
 };
 
 
-#endif //MAGELLANORBIT_BODYDATA_H
+#endif //MESSENGERORBIT_BODYDATA_H
