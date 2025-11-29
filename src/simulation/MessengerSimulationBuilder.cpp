@@ -9,6 +9,7 @@
 #include "../space/SpaceObjectEntity.h"
 #include "../utils/PropertiesReader.h"
 #include "../utils/TimeConverter.h"
+#include "../utils/SpaceObjectManager.h"
 
 MessengerSimulationBuilder::MessengerSimulationBuilder()
 {
@@ -27,24 +28,26 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     simulation_bodies.push_back(new SpaceObjectEntity("SUN"));
     simulation_bodies.push_back(new SpaceObjectEntity("MERCURY BARYCENTER"));
     simulation_bodies.push_back(new SpaceObjectEntity("VENUS BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("EARTH"));
+    simulation_bodies.push_back(new SpaceObjectEntity("EARTH BARYCENTER"));
     simulation_bodies.push_back(new SpaceObjectEntity("MARS BARYCENTER"));
     simulation_bodies.push_back(new SpaceObjectEntity("JUPITER BARYCENTER"));
     simulation_bodies.push_back(new SpaceObjectEntity("SATURN BARYCENTER"));
     simulation_bodies.push_back(new SpaceObjectEntity("URANUS BARYCENTER"));
     simulation_bodies.push_back(new SpaceObjectEntity("NEPTUNE BARYCENTER"));
-    for (auto body : simulation_bodies)
-    {
-        std::cout << body->get_object_name() << std::endl;
-        std::cout << body->get_body_state(simulation->start_date) << std::endl;
-    }
+
     auto parts = PropertiesReader::get_property_array(' ', "forward-task", "simulation", "messenger-color");
 
 
+    SpiceDouble time = TimeConverter::to_tdb(start_date);
     BodyState start_state_messenger;
-    start_state_messenger.time = TimeConverter::to_tdb(start_date);
-    start_state_messenger.position = Vec3d(9.550067806899118e5, 4.600907778618815e7, 3.613570817987552e6);
-    start_state_messenger.velocity = Vec3d(-5.951679809132351e1, 3.285768007622105, 2.843431738797426);
+    BodyState sun_to_mercury = SpaceObjectManager::get_body_state_at_time(time, "MERCURY BARYCENTER", "SOLAR SYSTEM BARYCENTER");
+    start_state_messenger.time = time;
+    // start_state_messenger.position = Vec3d(-5.722522581859005e7, -2.925719361472505e7, 2.824904562073328e6);
+    // start_state_messenger.velocity = Vec3d(1.229621272836882e1, -4.130426880709913e1, -6.225956904516666);
+    // start_state_messenger.position -= sun_to_mercury.position;
+    // start_state_messenger.velocity -= sun_to_mercury.velocity;
+    start_state_messenger.position = Vec3d(2639.0, 0.0, 0.0); // km
+    start_state_messenger.velocity = Vec3d(0.0, 2.889, 0.0);
     SpaceObject *messenger = new NewtonFormula(
         simulation_bodies,
         "MESSENGER",
@@ -59,6 +62,12 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     for (size_t i = 0; i < simulation_bodies.size(); ++i)
     {
         RenderSystem::get_instance().register_object(simulation_bodies[i]);
+
+    }
+    for (auto body : simulation_bodies)
+    {
+        std::cout << body->get_object_name() << std::endl;
+        std::cout << body->get_body_state(simulation->start_date) << std::endl;
     }
     simulation->spaceObjects = simulation_bodies;
     return simulation;

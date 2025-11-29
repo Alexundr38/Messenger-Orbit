@@ -4,6 +4,7 @@
 
 #include "TimeConverter.h"
 #include <SpiceUsr.h>
+#include "SpiceGuard.h"
 #include "PropertiesReader.h"
 
 TimeConverter::TimeConverter()
@@ -27,7 +28,9 @@ SpiceDouble TimeConverter::to_tdb(const std::string& utc)
 
 std::string TimeConverter::to_utc(const SpiceDouble tdb)
 {
-    char buffer[50];
+    std::lock_guard<std::mutex> lock(spice_mutex);
+    get_instance();
+    char buffer[256];
     et2utc_c(tdb, "C", 3, sizeof(buffer), buffer);
     return std::string(buffer);
 }

@@ -8,6 +8,7 @@
 
 #include "RenderFunctions.h"
 #include "glm/gtc/type_ptr.hpp"
+#include "../utils/TimeConverter.h"
 
 RenderSystem::RenderSystem()
 {
@@ -43,11 +44,18 @@ void RenderSystem::render()
     RenderFunctions::pre_render();
     {
         glLoadMatrixf(glm::value_ptr(camera->GetViewMatrix()));
+        SpiceDouble simulation_time_tdb;
         for (auto render_object : render_objects)
         {
+            simulation_time_tdb = render_object->get_current_body_state().time;
             auto pos = render_object->get_current_body_state().position/proportion;
             RenderFunctions::draw_circle(pos, render_object->get_color(), render_object->get_size());
         }
+        std::string utc_string = TimeConverter::to_utc(simulation_time_tdb);
+        std::ostringstream oss;
+        oss << utc_string;
+        glfwSetWindowTitle(RenderFunctions::get_window(), oss.str().c_str());
+
     }
     RenderFunctions::post_render();
 }

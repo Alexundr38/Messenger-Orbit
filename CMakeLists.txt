@@ -68,6 +68,7 @@ add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/render/Camera.h
         src/render/CameraController.cpp
         src/render/CameraController.h
+        src/utils/SpiceGuard.h
 )
 target_include_directories(MessengerOrbit PRIVATE
         ${cspice_SOURCE_DIR}/include

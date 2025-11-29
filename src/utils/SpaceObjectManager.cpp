@@ -6,7 +6,7 @@
 #include <SpiceUsr.h>
 
 #include <utility>
-
+#include "SpiceGuard.h"
 #include "TimeConverter.h"
 #include "PropertiesReader.h"
 
@@ -28,6 +28,7 @@ SpaceObjectManager& SpaceObjectManager::get_instance()
 
 BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std::string& target_body)
 {
+    std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
     BodyState body_state;
     body_state.time = tdb;
@@ -44,6 +45,26 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
     return body_state;
 }
 
+BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std::string& target_body,
+    const std::string& observer_body)
+{
+    std::lock_guard<std::mutex> lock(spice_mutex);
+    auto instance = get_instance();
+    BodyState body_state;
+    body_state.time = tdb;
+    SpiceDouble state[6];
+    SpiceDouble lt;
+    spkezr_c(target_body.c_str(), tdb,
+        instance.reference_frame.c_str(),
+        instance.aberration_correction.c_str(),
+        observer_body.c_str(),
+        state,
+        &lt);
+    body_state.position = {state[0], state[1], state[2]};
+    body_state.velocity = {state[3], state[4], state[5]};
+    return body_state;
+}
+
 BodyState SpaceObjectManager::get_body_state_at_time(const std::string& utc, const std::string& target_body)
 {
     return get_body_state_at_time(TimeConverter::to_tdb(utc), target_body);
@@ -51,6 +72,7 @@ BodyState SpaceObjectManager::get_body_state_at_time(const std::string& utc, con
 
 SpiceDouble SpaceObjectManager::get_body_gm(const std::string& target_body)
 {
+    std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
     SpiceInt dim;
     SpiceDouble gm[1];

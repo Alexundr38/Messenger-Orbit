@@ -11,17 +11,9 @@
 #include "simulation/MessengerSimulationBuilder.h"
 #include "simulation/SimulationBuilder.h"
 
-#include <thread>
 #include <atomic>
 #include <iostream>
 
-#include "render/CameraController.h"
-#include "render/RenderFunctions.h"
-#include <glm/gtc/type_ptr.hpp>
-
-#include "render/RenderSystem.h"
-#include "simulation/MessengerSimulationBuilder.h"
-#include "simulation/SimulationBuilder.h"
 
 int main(int argc, char* argv[])
 {
@@ -42,7 +34,7 @@ int main(int argc, char* argv[])
     {
         CameraController::update();
         RenderSystem::get_instance().render();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000/144));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000/60));
     }
     simulation_running = false;
     if (simulation_thread.joinable()) {
@@ -50,6 +42,5 @@ int main(int argc, char* argv[])
     }
 
     delete simulation;
-
     return 0;
 }

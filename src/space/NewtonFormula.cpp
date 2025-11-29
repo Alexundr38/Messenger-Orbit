@@ -134,7 +134,8 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
 
         if (r > 1e-10) {
             double mu = body->get_gravitational_parameter();
-            acceleration += mu * r_vec / (r * r * r);
+            double r3 = r * r * r;
+            acceleration += mu * r_vec / r3;
         }
     }
     return acceleration;

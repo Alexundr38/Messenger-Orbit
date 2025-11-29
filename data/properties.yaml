@@ -6,10 +6,10 @@ forward-task:
     tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     reference-frame: "J2000"
     aberration-correction: "NONE"
-    observer-body: "SOLAR SYSTEM BARYCENTER" #1
+    observer-body: "MERCURY BARYCENTER" #1
   simulation:
-    start-date: "2011-03-18 01:10:00.000" #utc
-    step: "2000-01-01 11:59:59" # 43 секунды
+    start-date: "2012-01-01 00:00:00.000" #utc
+    step: "2000-01-01 11:59:58" # 43 секунды
     end-date: "2015-04-30 19:26:02.000" # конец симмуляции
     caching: 1 # отключение кэширования пока не реализовано(состояния сохраняются в оперативной памяти)
     messenger-color: 255 0 0 # цвет спутника
