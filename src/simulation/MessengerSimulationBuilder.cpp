@@ -44,16 +44,22 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     start_state_messenger.time = time;
     // start_state_messenger.position = Vec3d(-5.722522581859005e7, -2.925719361472505e7, 2.824904562073328e6);
     // start_state_messenger.velocity = Vec3d(1.229621272836882e1, -4.130426880709913e1, -6.225956904516666);
-    // start_state_messenger.position -= sun_to_mercury.position;
-    // start_state_messenger.velocity -= sun_to_mercury.velocity;
-    start_state_messenger.position = Vec3d(2639.0, 0.0, 0.0); // km
-    start_state_messenger.velocity = Vec3d(0.0, 2.889, 0.0);
-    SpaceObject *messenger = new NewtonFormula(
+    // start_state_messenger.position += sun_to_mercury.position;
+    // start_state_messenger.velocity += sun_to_mercury.velocity;
+    start_state_messenger.position += Vec3d(2639.0, 0.0, 0.0);
+    start_state_messenger.velocity += Vec3d(0.0, 2.889, 0.0);
+
+    NewtonFormula *messenger = new NewtonFormula(
         simulation_bodies,
         "MESSENGER",
         start_state_messenger,
         simulation->step
     );
+    messenger->set_newton_methods(true);
+    messenger->set_stiffness_threshold(0.1);
+    // messenger->set_implicit_methods(false);
+    // messenger->set_use_corrector(true);
+    // messenger->set_newton_methods(false);
     Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
     messenger->set_color(messenger_color);
     simulation_bodies.push_back(messenger);
