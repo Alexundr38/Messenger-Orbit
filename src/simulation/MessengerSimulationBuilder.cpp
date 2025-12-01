@@ -42,12 +42,12 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     BodyState start_state_messenger;
     BodyState sun_to_mercury = SpaceObjectManager::get_body_state_at_time(time, "MERCURY BARYCENTER", "SOLAR SYSTEM BARYCENTER");
     start_state_messenger.time = time;
-    // start_state_messenger.position = Vec3d(-2.542254508658978e7, -6.518039293313727e7, -2.984068917059869e6);
-    // start_state_messenger.velocity = Vec3d(3.211271957987503e1, -1.487615082776353e1, -4.325541672118495);
+    start_state_messenger.position = Vec3d(1.720997744411687E2, -1.069890504504989e3, 2.669916542738690E3);
+    start_state_messenger.velocity = Vec3d(-3.500275520598676, 2.871081348963887E-1, 3.302986684169092E-1);
     // start_state_messenger.position -= sun_to_mercury.position;
     // start_state_messenger.velocity -= sun_to_mercury.velocity;
-    start_state_messenger.position += Vec3d(2639.0, 0.0, 0.0);
-    start_state_messenger.velocity += Vec3d(0.0, 2.889, 0.0);
+    // start_state_messenger.position += Vec3d(2639.0, 0.0, 0.0);
+    // start_state_messenger.velocity += Vec3d(0.0, 2.889, 0.0);
 
     NewtonFormula *messenger = new NewtonFormula(
         simulation_bodies,

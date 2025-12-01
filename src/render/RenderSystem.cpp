@@ -50,7 +50,7 @@ void RenderSystem::render()
         {
             simulation_time_tdb = render_object->get_current_body_state().time;
             auto pos = render_object->get_current_body_state().position/proportion;
-            RenderFunctions::draw_sphere_points(pos, render_object->get_color(), render_object->get_size() / proportion);
+            RenderFunctions::draw_sphere_wireframe(pos, render_object->get_color(), render_object->get_size() / proportion);
 
         }
         std::string utc_string = TimeConverter::to_utc(simulation_time_tdb);

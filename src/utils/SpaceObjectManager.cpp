@@ -62,6 +62,8 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
         &lt);
     body_state.position = {state[0], state[1], state[2]};
     body_state.velocity = {state[3], state[4], state[5]};
+    body_state.position /= 149597870.7;
+    body_state.velocity = (body_state.velocity*86400)/149597870.7;
     return body_state;
 }
 
