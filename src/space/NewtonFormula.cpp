@@ -69,11 +69,13 @@ void NewtonFormula::set_object_name(const std::string& object_name) {
 BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
     auto current = get_current_body_state();
     if (tdb == current.time) {
+        std::cout << current.position.x << " " << current.position.y << " " << current.position.z << " " << std::endl;
         return current;
     }
     auto exact = body_states.find(tdb);
     if (exact != body_states.end()) {
         set_current_body_state(exact->second);
+        std::cout << exact->second.position.x << " " << exact->second.position.y << " " << exact->second.position.z << " " << std::endl;
         return exact->second;
     }
 
@@ -88,6 +90,7 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
         exact = body_states.find(tdb);
         if (exact != body_states.end()) {
             set_current_body_state(exact->second);
+            std::cout << exact->second.position.x << " " << exact->second.position.y << " " << exact->second.position.z << " " << std::endl;
             return exact->second;
         }
         upper = body_states.upper_bound(tdb);
@@ -97,6 +100,8 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
         upper->second, tdb
     );
     set_current_body_state(body);
+    std::cout << body.position.x << " " << body.position.y << " " << body.position.z << " " << std::endl;
+
     return body;
 }
 
@@ -216,7 +221,7 @@ BodyState NewtonFormula::next_step(const BodyState& current_state) const {
     if (use_corrector) {
         return trapezoidal_corrector_newton(current_state, predictor_state);
     }
-
+    std::cout << predictor_state.position.x << " " << predictor_state.position.y << " " << predictor_state.position.z << " " << std::endl;
     return predictor_state;
 }
 
