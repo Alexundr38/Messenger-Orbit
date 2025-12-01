@@ -19,6 +19,10 @@ public:
     static void pre_render();
     static void set_perspective(float fov_degrees, float aspect, float near, float far);
     static void post_render();
+    static void draw_sphere_wireframe(Vec3d pos, Vec3d color, float radius);
+    static void draw_sphere_triangles(Vec3d pos, Vec3d color, float radius);
+    static void draw_sphere_points(Vec3d pos, Vec3d color, float radius);
+    static void draw_sphere_quads(Vec3d pos, Vec3d color, float radius);
     static void draw_circle(Vec3d pos, Vec3d color, float radius);
     static void draw_dot(const Vec3d& pos, const Vec3d& color, float point_size);
     static void rotate(const Vec3d& rotate);

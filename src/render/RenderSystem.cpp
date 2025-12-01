@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "RenderFunctions.h"
+#include "../space/SpaceObject.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "../utils/TimeConverter.h"
 
@@ -49,7 +50,8 @@ void RenderSystem::render()
         {
             simulation_time_tdb = render_object->get_current_body_state().time;
             auto pos = render_object->get_current_body_state().position/proportion;
-            RenderFunctions::draw_circle(pos, render_object->get_color(), render_object->get_size());
+            RenderFunctions::draw_sphere_points(pos, render_object->get_color(), render_object->get_size() / proportion);
+
         }
         std::string utc_string = TimeConverter::to_utc(simulation_time_tdb);
         std::ostringstream oss;

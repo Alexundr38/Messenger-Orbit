@@ -42,10 +42,10 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     BodyState start_state_messenger;
     BodyState sun_to_mercury = SpaceObjectManager::get_body_state_at_time(time, "MERCURY BARYCENTER", "SOLAR SYSTEM BARYCENTER");
     start_state_messenger.time = time;
-    // start_state_messenger.position = Vec3d(-5.722522581859005e7, -2.925719361472505e7, 2.824904562073328e6);
-    // start_state_messenger.velocity = Vec3d(1.229621272836882e1, -4.130426880709913e1, -6.225956904516666);
-    // start_state_messenger.position += sun_to_mercury.position;
-    // start_state_messenger.velocity += sun_to_mercury.velocity;
+    // start_state_messenger.position = Vec3d(-2.542254508658978e7, -6.518039293313727e7, -2.984068917059869e6);
+    // start_state_messenger.velocity = Vec3d(3.211271957987503e1, -1.487615082776353e1, -4.325541672118495);
+    // start_state_messenger.position -= sun_to_mercury.position;
+    // start_state_messenger.velocity -= sun_to_mercury.velocity;
     start_state_messenger.position += Vec3d(2639.0, 0.0, 0.0);
     start_state_messenger.velocity += Vec3d(0.0, 2.889, 0.0);
 
@@ -55,14 +55,23 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
         start_state_messenger,
         simulation->step
     );
+    // NewtonFormula *messenger2 = new NewtonFormula(
+    //     simulation_bodies,
+    //     "MESSENGER",
+    //     start_state_messenger,
+    //     simulation->step
+    // );
+
     messenger->set_newton_methods(true);
     messenger->set_stiffness_threshold(0.1);
-    // messenger->set_implicit_methods(false);
-    // messenger->set_use_corrector(true);
-    // messenger->set_newton_methods(false);
+    // messenger2->set_implicit_methods(false);
+    // messenger2->set_use_corrector(true);
+    // messenger2->set_newton_methods(false);
     Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
     messenger->set_color(messenger_color);
+    // messenger2->set_color(messenger_color);
     simulation_bodies.push_back(messenger);
+    // simulation_bodies.push_back(messenger2);
 
 
     for (size_t i = 0; i < simulation_bodies.size(); ++i)

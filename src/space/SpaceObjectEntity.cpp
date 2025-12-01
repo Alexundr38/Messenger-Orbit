@@ -14,6 +14,7 @@ SpaceObjectEntity::SpaceObjectEntity(const std::string& object_name)
 {
     this->object_name = object_name;
     this->gravitational_parameter = SpaceObjectManager::get_body_gm(object_name);
+    this->size = SpaceObjectManager::get_body_radius(object_name);
 }
 
 BodyState SpaceObjectEntity::get_body_state(SpiceDouble tdb)

@@ -9,21 +9,18 @@
 #include <deque>
 
 class NewtonFormula : public SpaceObject {
-private:
+
     std::vector<SpaceObject*> force_bodies;
     double step;
     BodyState start_state;
 
-    // Флаги для выбора методов
     bool use_implicit_methods;
     bool use_corrector;
     bool use_newton_methods;
     double stiffness_threshold;
 
-    // Предыдущие состояния для методов предиктор-корректор
     std::deque<BodyState> previous_states;
 
-    // Методы с использованием Ньютона
     BodyState next_step_implicit_newton(const BodyState& current_state) const;
     BodyState trapezoidal_corrector_newton(const BodyState& current_state,
                                           const BodyState& predictor_state) const;
@@ -31,13 +28,12 @@ private:
     BodyState dopri8_newton_corrector(const BodyState& current_state) const;
     BodyState adaptive_newton_method(const BodyState& current_state) const;
 
-    // Вспомогательные методы
     Mat3d calculate_acceleration_jacobian(SpiceDouble time, const Vec3d& position) const;
     double estimate_stiffness(const BodyState& state) const;
     BodyState next_step_explicit_euler(const BodyState& current_state) const;
 
 protected:
-    // Наследуем body_states и current_body_state от SpaceObject
+
     using SpaceObject::body_states;
     using SpaceObject::current_body_state;
 

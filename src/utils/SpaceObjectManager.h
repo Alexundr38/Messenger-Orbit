@@ -23,6 +23,7 @@ class SpaceObjectManager
     [[nodiscard]] static BodyState get_body_state_at_time(SpiceDouble tdb, const std::string& target_body, const std::string& observer_body);
     [[nodiscard]] static BodyState get_body_state_at_time(const std::string& utc, const std::string& target_body);
     [[nodiscard]] static SpiceDouble get_body_gm(const std::string& target_body);
+    static SpiceDouble get_body_radius(const std::string& target_body);
 };
 
 

@@ -38,7 +38,7 @@ public:
     }
 
 protected:
-    float size = 0.01;
+    float size = 1;
     std::mutex state_mutex;
 
 public:

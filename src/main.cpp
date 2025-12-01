@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
     {
         CameraController::update();
         RenderSystem::get_instance().render();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000/60));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(30));
     }
     simulation_running = false;
     if (simulation_thread.joinable()) {

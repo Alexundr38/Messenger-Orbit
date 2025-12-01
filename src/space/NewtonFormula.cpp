@@ -55,6 +55,7 @@ NewtonFormula::NewtonFormula(
     use_implicit_methods(false), use_corrector(false),
     use_newton_methods(false), stiffness_threshold(1.0)
 {
+    this->size = 100;
     SpaceObject::set_object_name(object_name);
     SpaceObject::add_body_state(start_state);
     SpaceObject::set_current_body_state(start_state);

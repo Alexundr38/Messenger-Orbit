@@ -13,8 +13,8 @@
 SpaceObjectManager::SpaceObjectManager()
 {
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "bsp-path").c_str());
-    std::cout << PropertiesReader::get_property_path("forward-task", "space-object-manager", "tpc-path").c_str() << std::endl;
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "tpc-path").c_str());
+    furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "sizes").c_str());
     reference_frame = PropertiesReader::get_property("forward-task", "space-object-manager", "reference-frame");
     aberration_correction = PropertiesReader::get_property("forward-task", "space-object-manager", "aberration-correction");
     observer_body = PropertiesReader::get_property("forward-task", "space-object-manager", "observer-body");
@@ -78,5 +78,16 @@ SpiceDouble SpaceObjectManager::get_body_gm(const std::string& target_body)
     SpiceDouble gm[1];
     bodvrd_c(target_body.c_str(), "GM", 1, &dim, gm);
     return gm[0];
+}
+
+SpiceDouble SpaceObjectManager::get_body_radius(const std::string& target_body)
+{
+    std::lock_guard<std::mutex> lock(spice_mutex);
+    auto instance = get_instance();
+    std::string body_name = target_body.substr(0, target_body.find(' '));
+    SpiceInt dim;
+    SpiceDouble radii[3];
+    bodvrd_c(body_name.c_str(), "RADII", 3, &dim, radii);
+    return (radii[0] + radii[1]) / 2.0;
 }
 

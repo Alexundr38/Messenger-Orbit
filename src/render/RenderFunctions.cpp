@@ -79,6 +79,126 @@ void RenderFunctions::post_render()
     glfwPollEvents();
 }
 
+auto RenderFunctions::draw_sphere_wireframe(Vec3d pos, Vec3d color, float radius) -> void
+{
+    auto& instance = get_instance();  // Вызываем get_instance() в начале
+
+    glColor3f(color.x, color.y, color.z);
+
+    int stacks = 16;
+    int slices = 32;
+
+    // Меридианы (долготы)
+    for (int i = 0; i < slices; ++i) {
+        float theta = 2.0f * M_PI * i / slices;
+        glBegin(GL_LINE_STRIP);
+        for (int j = 0; j <= stacks; ++j) {
+            float phi = M_PI * j / stacks;
+            float x = pos.x + radius * sin(phi) * cos(theta);
+            float y = pos.y + radius * sin(phi) * sin(theta);
+            float z = pos.z + radius * cos(phi);
+            glVertex3f(x, y, z);
+        }
+        glEnd();
+    }
+
+    // Параллели (широты)
+    for (int j = 0; j < stacks; ++j) {
+        float phi = M_PI * j / stacks;
+        glBegin(GL_LINE_LOOP);
+        for (int i = 0; i <= slices; ++i) {
+            float theta = 2.0f * M_PI * i / slices;
+            float x = pos.x + radius * sin(phi) * cos(theta);
+            float y = pos.y + radius * sin(phi) * sin(theta);
+            float z = pos.z + radius * cos(phi);
+            glVertex3f(x, y, z);
+        }
+        glEnd();
+    }
+}
+
+void RenderFunctions::draw_sphere_triangles(Vec3d pos, Vec3d color, float radius)
+{
+    auto& instance = get_instance();  // Вызываем get_instance() в начале
+
+    glColor3f(color.x, color.y, color.z);
+
+    int stacks = 16;
+    int slices = 32;
+
+    for (int i = 0; i < stacks; ++i) {
+        float phi1 = M_PI * i / stacks;
+        float phi2 = M_PI * (i + 1) / stacks;
+
+        glBegin(GL_TRIANGLE_STRIP);
+        for (int j = 0; j <= slices; ++j) {
+            float theta = 2.0f * M_PI * j / slices;
+
+            for (int k = 0; k < 2; ++k) {
+                float phi = (k == 0) ? phi1 : phi2;
+                float x = pos.x + radius * sin(phi) * cos(theta);
+                float y = pos.y + radius * sin(phi) * sin(theta);
+                float z = pos.z + radius * cos(phi);
+                glVertex3f(x, y, z);
+            }
+        }
+        glEnd();
+    }
+}
+
+void RenderFunctions::draw_sphere_points(Vec3d pos, Vec3d color, float radius)
+{
+    auto& instance = get_instance();  // Вызываем get_instance() в начале
+
+    glColor3f(color.x, color.y, color.z);
+    glPointSize(2.0f);
+
+    int stacks = 16;
+    int slices = 32;
+
+    glBegin(GL_POINTS);
+    for (int i = 0; i <= stacks; ++i) {
+        float phi = M_PI * i / stacks;
+        for (int j = 0; j <= slices; ++j) {
+            float theta = 2.0f * M_PI * j / slices;
+            float x = pos.x + radius * sin(phi) * cos(theta);
+            float y = pos.y + radius * sin(phi) * sin(theta);
+            float z = pos.z + radius * cos(phi);
+            glVertex3f(x, y, z);
+        }
+    }
+    glEnd();
+}
+
+void RenderFunctions::draw_sphere_quads(Vec3d pos, Vec3d color, float radius)
+{
+    auto& instance = get_instance();  // Вызываем get_instance() в начале
+
+    glColor3f(color.x, color.y, color.z);
+
+    int stacks = 16;
+    int slices = 32;
+
+    for (int i = 0; i < stacks; ++i) {
+        float phi1 = M_PI * i / stacks;
+        float phi2 = M_PI * (i + 1) / stacks;
+
+        glBegin(GL_QUAD_STRIP);
+        for (int j = 0; j <= slices; ++j) {
+            float theta = 2.0f * M_PI * j / slices;
+
+            for (int k = 0; k < 2; ++k) {
+                float phi = (k == 0) ? phi1 : phi2;
+                float x = pos.x + radius * sin(phi) * cos(theta);
+                float y = pos.y + radius * sin(phi) * sin(theta);
+                float z = pos.z + radius * cos(phi);
+                glVertex3f(x, y, z);
+            }
+        }
+        glEnd();
+    }
+}
+
 void RenderFunctions::draw_circle(Vec3d pos, Vec3d color, float radius)
 {
     auto& instance = get_instance();

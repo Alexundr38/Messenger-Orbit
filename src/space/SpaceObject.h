@@ -19,6 +19,7 @@ class SpaceObject : public Renderable
     SpiceDouble gravitational_parameter = 0;
 
 public:
+    virtual ~SpaceObject() = default;
     virtual void set_object_name(const std::string& object_name);
     void set_gravitational_parameter(SpiceDouble gravitational_parameter);
     [[nodiscard]] std::string get_object_name() const;
