@@ -8,5 +8,7 @@
 #define DP_TOL      1e-13
 #define TOL     1e-4;
 #define GRAVITY_CONSTANT 6.67430e-11
+#define au 149597870.7
+#define day 86400
 
 #endif //MESSENGERORBIT_CONSTANTS_H
