@@ -15,48 +15,48 @@
 
 class Mat3d {
 public:
-    double m[3][3];
+    long double m[3][3];
 
     Mat3d();
-    Mat3d(double m00, double m01, double m02,
-          double m10, double m11, double m12,
-          double m20, double m21, double m22);
+    Mat3d(long double m00, long double m01, long double m02,
+          long double m10, long double m11, long double m12,
+          long double m20, long double m21, long double m22);
     Mat3d(const Mat3d& other);
 
     static Mat3d Zero();
     static Mat3d Identity();
-    static Mat3d Diagonal(double d0, double d1, double d2);
+    static Mat3d Diagonal(long double d0, long double d1, long double d2);
 
-    double& operator()(int i, int j);
-    const double& operator()(int i, int j) const;
-    double* operator[](int i);
-    const double* operator[](int i) const;
+    long double& operator()(int i, int j);
+    const long double& operator()(int i, int j) const;
+    long double* operator[](int i);
+    const long double* operator[](int i) const;
 
     Mat3d operator+(const Mat3d& other) const;
     Mat3d operator-(const Mat3d& other) const;
     Mat3d operator*(const Mat3d& other) const;
-    Mat3d operator*(double scalar) const;
-    Mat3d operator/(double scalar) const;
+    Mat3d operator*(long double scalar) const;
+    Mat3d operator/(long double scalar) const;
 
     Mat3d& operator=(const Mat3d& other);
     Mat3d& operator+=(const Mat3d& other);
     Mat3d& operator-=(const Mat3d& other);
     Mat3d& operator*=(const Mat3d& other);
-    Mat3d& operator*=(double scalar);
-    Mat3d& operator/=(double scalar);
+    Mat3d& operator*=(long double scalar);
+    Mat3d& operator/=(long double scalar);
 
     Vec3d operator*(const Vec3d& vec) const;
 
     Mat3d transpose() const;
 
-    double determinant() const;
+    long double determinant() const;
 
     Mat3d inverse() const;
 
-    double trace() const;
+    long double trace() const;
 
-    double norm() const;
-    double spectralNorm() const;
+    long double norm() const;
+    long double spectralNorm() const;
 
     bool eigen(Vec3d& eigenvalues, Mat3d& eigenvectors) const;
 
@@ -64,14 +64,14 @@ public:
 
     Mat3d antisymmetricPart() const;
 
-    bool isSymmetric(double tolerance = 1e-12) const;
-    bool isZero(double tolerance = 1e-12) const;
-    bool isIdentity(double tolerance = 1e-12) const;
+    bool isSymmetric(long double tolerance = 1e-12) const;
+    bool isZero(long double tolerance = 1e-12) const;
+    bool isIdentity(long double tolerance = 1e-12) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Mat3d& mat);
 };
 
-Mat3d operator*(double scalar, const Mat3d& mat);
+Mat3d operator*(long double scalar, const Mat3d& mat);
 Vec3d operator*(const Vec3d& vec, const Mat3d& mat);
 
 #endif // MAT3D_H
