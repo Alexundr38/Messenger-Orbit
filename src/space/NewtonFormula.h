@@ -11,9 +11,6 @@
 class NewtonFormula : public SpaceObject {
 
     std::vector<SpaceObject*> force_bodies;
-    double step;
-    BodyState start_state;
-
     bool use_implicit_methods;
     bool use_corrector;
     bool use_newton_methods;
@@ -33,9 +30,8 @@ class NewtonFormula : public SpaceObject {
     BodyState next_step_explicit_euler(const BodyState& current_state) const;
 
 protected:
-
-    using SpaceObject::body_states;
-    using SpaceObject::current_body_state;
+    double step;
+    BodyState start_state;
 
 public:
     NewtonFormula(

@@ -15,6 +15,8 @@ void Simulation::next_step()
 
     for (size_t i = 0; i < spaceObjects.size(); i++) {
         spaceObjects[i]->get_body_state(current_date);
+
+        // std::cout << s << std::endl;
     }
     current_date += step;
 }

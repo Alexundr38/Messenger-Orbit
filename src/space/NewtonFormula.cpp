@@ -219,20 +219,16 @@ BodyState NewtonFormula::trapezoidal_corrector_newton(const BodyState& current_s
 
     BodyState corrected = predictor_state;
 
-    // 1 коррекция обычно достаточно для RK4
     Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
     Vec3d accel_predicted = calculate_acceleration(t_next, corrected.position);
 
-    // Формула корректора трапеций (один шаг)
     Vec3d corrected_vel = current_state.velocity +
                          (h / 2.0) * (accel_current + accel_predicted);
 
     Vec3d corrected_pos = current_state.position +
                          (h / 2.0) * (current_state.velocity + corrected_vel);
 
-    // Дополнительная итерация для улучшения точности
     if (use_newton_methods) {
-        // Второй шаг коррекции
         Vec3d accel_corrected = calculate_acceleration(t_next, corrected_pos);
         corrected_vel = current_state.velocity +
                        (h / 2.0) * (accel_current + accel_corrected);
@@ -338,7 +334,7 @@ BodyState NewtonFormula::next_step_explicit_euler(const BodyState& current_state
 Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
     Vec3d acceleration;
     for (SpaceObject* body : force_bodies) {
-        BodyState body_state = body->get_body_state(time);
+        BodyState body_state = body->get_body_state(time*day);
         Vec3d r_vec = body_state.position - current_position;
         long double r = r_vec.norm();
 

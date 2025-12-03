@@ -10,6 +10,8 @@
 #include "../space/SpaceObject.h"
 
 
+class NewtonFormula;
+
 struct Simulation
 {
     Simulation() = default;

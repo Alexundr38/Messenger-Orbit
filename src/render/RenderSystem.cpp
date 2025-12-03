@@ -56,10 +56,9 @@ void RenderSystem::render()
     RenderFunctions::pre_render();
     {
         glLoadMatrixf(glm::value_ptr(camera->GetViewMatrix()));
-        SpiceDouble simulation_time_tdb;
+        SpiceDouble simulation_time_tdb = render_objects[0]->get_current_body_state().time;
         for (auto render_object : render_objects)
         {
-            simulation_time_tdb = render_object->get_current_body_state().time;
             auto pos = render_object->get_current_body_state().position/proportion;
             RenderFunctions::draw_sphere_wireframe(pos, render_object->get_color(), render_object->get_size()/au/proportion);
             auto history = render_object->get_render_snapshot();

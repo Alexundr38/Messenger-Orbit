@@ -69,6 +69,8 @@ add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/utils/SpiceGuard.h
         src/types/Mat3d.cpp
         src/types/Mat3d.h
+        src/space/NewtonFormulaProxy.cpp
+        src/space/NewtonFormulaProxy.h
 )
 target_include_directories(MessengerOrbit PRIVATE
         ${cspice_SOURCE_DIR}/include

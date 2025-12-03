@@ -10,7 +10,8 @@
 #include "../utils/Constants.h"
 #include "../utils/PropertiesReader.h"
 #include "../utils/TimeConverter.h"
-#include "../utils/SpaceObjectManager.h"
+#include "../space/NewtonFormulaProxy.h"
+
 
 MessengerSimulationBuilder::MessengerSimulationBuilder()
 {
@@ -22,9 +23,10 @@ MessengerSimulationBuilder::MessengerSimulationBuilder()
 Simulation* MessengerSimulationBuilder::buildSimulation()
 {
     simulation = new Simulation();
-    simulation->start_date = TimeConverter::to_tdb(start_date)/day;
+    auto j2000 = TimeConverter::to_tdb(PropertiesReader::get_property("forward-task", "simulation", "j2000"));
+    simulation->start_date = TimeConverter::to_tdb(start_date)-j2000;
     simulation->current_date = simulation->start_date;
-    simulation->step = TimeConverter::to_tdb(step)/day;
+    simulation->step = TimeConverter::to_tdb(step);
     simulation->end_date = TimeConverter::to_tdb(end_date);
     simulation_bodies.push_back(new SpaceObjectEntity("SUN"));
     simulation_bodies.push_back(new SpaceObjectEntity("MERCURY BARYCENTER"));
@@ -39,21 +41,21 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     auto parts = PropertiesReader::get_property_array(' ', "forward-task", "simulation", "messenger-color");
 
 
-    SpiceDouble time = TimeConverter::to_tdb(start_date)/day;
+    SpiceDouble time = TimeConverter::to_tdb(start_date) - j2000;
     BodyState start_state_messenger;
-    start_state_messenger.time = time;
-    start_state_messenger.position = Vec3d(1.720997744411687E2, -1.069890504504989e3, 2.669916542738690E3)/au;
-    start_state_messenger.velocity = (Vec3d(-3.500275520598676, 2.871081348963887E-1, 3.302986684169092E-1)*day)/au;
+    start_state_messenger.time = time/day;
+    start_state_messenger.position = Vec3d(1.150415935974740E-6, -7.151776288651341E-06,  1.784728973912254E-05);
+    start_state_messenger.velocity = Vec3d(-2.021578272234898E-03,  1.658188230820052E-04,  1.907634434747403E-04);
 
-    NewtonFormula *messenger2 = new NewtonFormula(
+    NewtonFormulaProxy *messenger2 = new NewtonFormulaProxy(
         simulation_bodies,
         "MESSENGER",
         start_state_messenger,
-        simulation->step
+        simulation->step/day
     );
 
     messenger2->set_implicit_methods(false);
-    messenger2->set_use_corrector(false);
+    messenger2->set_use_corrector(true);
     messenger2->set_newton_methods(false);
     Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
     messenger2->set_color(messenger_color);

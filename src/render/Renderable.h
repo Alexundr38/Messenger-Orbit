@@ -75,6 +75,7 @@ public:
     }
 
     std::shared_ptr<const std::vector<Vec3d>> get_render_snapshot() const {
+        std::lock_guard lock(history_mutex);
         return render_snapshot;
     }
 };

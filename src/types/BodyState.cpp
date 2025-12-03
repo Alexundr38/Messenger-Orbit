@@ -15,7 +15,7 @@ BodyState::BodyState(const Vec3d& position, const Vec3d& velocity, const SpiceDo
 
 std::ostream& operator<<(std::ostream& os, const BodyState& state)
 {
-    os << std::fixed << std::setprecision(6);
+    os << std::fixed << std::setprecision(12);
     os << "Time: " << state.time << " TDB\n";
     os << "Position: (" << state.position.x << ", "
         << state.position.y << ", " << state.position.z << ") km\n";

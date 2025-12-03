@@ -43,9 +43,9 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
         state,
         &lt);
     body_state.position = {state[0], state[1], state[2]};
-    body_state.velocity = {state[3], state[4], state[5]};
-    body_state.position = body_state.position/ au;
-    body_state.velocity = (body_state.velocity*day)/au;
+    // body_state.velocity = {state[3], state[4], state[5]};
+    body_state.position /= au;
+    // body_state.velocity = (body_state.velocity*day)/au;
     return body_state;
 }
 
@@ -65,9 +65,9 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
         state,
         &lt);
     body_state.position = {state[0], state[1], state[2]};
-    body_state.velocity = {state[3], state[4], state[5]};
+    // body_state.velocity = {state[3], state[4], state[5]};
     body_state.position = body_state.position / au;
-    body_state.velocity = (body_state.velocity*day)/au;
+    // body_state.velocity = (body_state.velocity)/au;
     return body_state;
 }
 
@@ -85,8 +85,8 @@ SpiceDouble SpaceObjectManager::get_body_gm(const std::string& target_body)
     SpiceInt dim;
     SpiceDouble gm_km3_s2[1];
     bodvrd_c(target_body.c_str(), "GM", 1, &dim, gm_km3_s2);
-    long double mass_ratio = gm_km3_s2[0] * GM_SUN_AU3_DAY2;
-    return (mass_ratio / GM_SUN_KM3_S2);
+    long double mass_ratio = gm_km3_s2[0]*GM_SUN_AU3_DAY2;
+    return mass_ratio/GM_SUN_KM3_S2;
 }
 
 

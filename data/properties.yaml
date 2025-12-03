@@ -2,7 +2,7 @@ forward-task:
   time-converter:
     tls-path: "forward-task/naif0012.tls" # хранит в себе информацию для преобразования utc в et(tdb) и обратно
   space-object-manager:
-    bsp-path: "forward-task/de440s.bsp" # хранит в себе x y z vx vy vz
+    bsp-path: "forward-task/de442s.bsp" # хранит в себе x y z vx vy vz
     tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     sizes: "forward-task/pck00011.tpc" # радиусы планет
     reference-frame: "J2000"
@@ -10,7 +10,8 @@ forward-task:
     observer-body: "MERCURY BARYCENTER" #1
   simulation:
     start-date: "2013-01-01 00:00:00.000" #utc
-    step: "2000-01-01 11:59:00" # 43 секунды
+    step: "2000-01-01 11:58:58" # 43 секунды
+    j2000: "2000-01-01 12:00:00"
     end-date: "2015-04-30 19:26:02.000" # конец симмуляции
     caching: 1 # отключение кэширования пока не реализовано(состояния сохраняются в оперативной памяти)
     messenger-color: 255 0 0 # цвет спутника
