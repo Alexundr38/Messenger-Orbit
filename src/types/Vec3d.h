@@ -7,17 +7,17 @@
 
 struct Vec3d
 {
-    double x, y, z;
+    long double x, y, z;
     Vec3d();
-    Vec3d(double x,  double y, double z);
+    Vec3d(long double x,  long double y, long double z);
 
-    [[nodiscard]] double norm () const;
-    [[nodiscard]] double squaredNorm() const;
+    [[nodiscard]] long double norm () const;
+    [[nodiscard]] long double squaredNorm() const;
     [[nodiscard]] Vec3d normalized() const;
     void normalize();
 
     // Скалярное произведение
-    [[nodiscard]] double dot(const Vec3d& other) const;
+    [[nodiscard]] long double dot(const Vec3d& other) const;
 
     // Векторное произведение
     [[nodiscard]] Vec3d cross(const Vec3d& other) const;
@@ -25,8 +25,8 @@ struct Vec3d
     // Операторы присваивания
     Vec3d& operator+=(const Vec3d& other);
     Vec3d& operator-=(const Vec3d& other);
-    Vec3d& operator*=(double scalar);
-    Vec3d& operator/=(double scalar);
+    Vec3d& operator*=(long double scalar);
+    Vec3d& operator/=(long double scalar);
 
     // Унарные операторы
     Vec3d operator-() const;
@@ -35,12 +35,12 @@ struct Vec3d
 // Бинарные операторы
 Vec3d operator+(const Vec3d& a, const Vec3d& b);
 Vec3d operator-(const Vec3d& a, const Vec3d& b);
-Vec3d operator*(const Vec3d& a, double scalar);
-Vec3d operator*(double scalar, const Vec3d& a);
-Vec3d operator/(const Vec3d& a, double scalar);
+Vec3d operator*(const Vec3d& a, long double scalar);
+Vec3d operator*(long double scalar, const Vec3d& a);
+Vec3d operator/(const Vec3d& a, long double scalar);
 
 // Скалярное произведение
-double dot(const Vec3d& a, const Vec3d& b);
+long double dot(const Vec3d& a, const Vec3d& b);
 
 // Векторное произведение
 Vec3d cross(const Vec3d& a, const Vec3d& b);

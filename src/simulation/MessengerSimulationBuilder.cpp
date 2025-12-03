@@ -42,8 +42,8 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     SpiceDouble time = TimeConverter::to_tdb(start_date)/day;
     BodyState start_state_messenger;
     start_state_messenger.time = time;
-    start_state_messenger.position = Vec3d(1.720997744411687E2, -1.069890504504989e3, 2.669916542738690E3)/149597870.7;
-    start_state_messenger.velocity = (Vec3d(-3.500275520598676, 2.871081348963887E-1, 3.302986684169092E-1)*86400)/149597870.7;
+    start_state_messenger.position = Vec3d(1.720997744411687E2, -1.069890504504989e3, 2.669916542738690E3)/au;
+    start_state_messenger.velocity = (Vec3d(-3.500275520598676, 2.871081348963887E-1, 3.302986684169092E-1)*day)/au;
 
     NewtonFormula *messenger2 = new NewtonFormula(
         simulation_bodies,
@@ -53,7 +53,7 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     );
 
     messenger2->set_implicit_methods(false);
-    messenger2->set_use_corrector(true);
+    messenger2->set_use_corrector(false);
     messenger2->set_newton_methods(false);
     Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
     messenger2->set_color(messenger_color);

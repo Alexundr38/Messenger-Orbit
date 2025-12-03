@@ -24,14 +24,6 @@ SpiceDouble SpaceObject::get_gravitational_parameter() const
     return gravitational_parameter;
 }
 
-std::vector<BodyState> SpaceObject::get_body_states() const
-{
-    std::vector<BodyState> array(body_states.size());
-    for (const auto& pair : body_states) {
-        array.push_back(pair.second);
-    }
-    return array;
-}
 
 void SpaceObject::add_body_state(const BodyState& body_state)
 {

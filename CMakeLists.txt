@@ -54,8 +54,6 @@ add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/space/NewtonFormula.cpp
         src/space/NewtonFormula.h
         src/utils/Constants.h
-        src/utils/IntegratingMethods3d.cpp
-        src/utils/IntegratingMethods3d.h
         src/simulation/SimulationBuilder.h
         src/simulation/MessengerSimulationBuilder.cpp
         src/simulation/MessengerSimulationBuilder.h

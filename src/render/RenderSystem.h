@@ -19,6 +19,7 @@ public:
     void register_object(Renderable* obj);
     void set_camera(Camera* camera);
     void unregister_object(const Renderable* obj);
+    void draw_path(const std::shared_ptr<const std::vector<Vec3d>>& history);
     void render();
 };
 

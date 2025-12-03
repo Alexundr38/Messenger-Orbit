@@ -24,7 +24,7 @@ public:
     void set_gravitational_parameter(SpiceDouble gravitational_parameter);
     [[nodiscard]] std::string get_object_name() const;
     [[nodiscard]] SpiceDouble get_gravitational_parameter() const;
-    [[nodiscard]] std::vector<BodyState> get_body_states() const;
+
     void add_body_state(const BodyState& body_state);
     virtual BodyState get_body_state(SpiceDouble tdb);
 };

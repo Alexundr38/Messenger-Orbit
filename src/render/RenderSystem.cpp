@@ -41,6 +41,16 @@ void RenderSystem::unregister_object(const Renderable* obj)
     if (it != render_objects.end()) render_objects.erase(it);
 }
 
+void RenderSystem::draw_path(const std::shared_ptr<const std::vector<Vec3d>>& history)
+{
+    if (!history) return;
+    for (int i = 0; i < history->size(); i++)
+    {
+        Vec3d point = history->at(i);
+        RenderFunctions::draw_dot(point/proportion, Vec3d(1, 0, 1), 1);
+    }
+}
+
 void RenderSystem::render()
 {
     RenderFunctions::pre_render();
@@ -52,7 +62,8 @@ void RenderSystem::render()
             simulation_time_tdb = render_object->get_current_body_state().time;
             auto pos = render_object->get_current_body_state().position/proportion;
             RenderFunctions::draw_sphere_wireframe(pos, render_object->get_color(), render_object->get_size()/au/proportion);
-
+            auto history = render_object->get_render_snapshot();
+            draw_path(history);
         }
         std::string utc_string = TimeConverter::to_utc(simulation_time_tdb);
         std::ostringstream oss;

@@ -9,6 +9,7 @@
 #include <mutex>
 #include "../utils/PropertiesReader.h"
 #include "../types/BodyState.h"
+#include "../utils/Constants.h"
 
 class Renderable
 {
@@ -16,6 +17,9 @@ protected:
     std::vector<Vec3d> history;
     BodyState current_body_state;
     Vec3d color;
+    std::vector<Vec3d> history_private;
+    mutable std::mutex history_mutex;
+    std::shared_ptr<const std::vector<Vec3d>> render_snapshot;
 
 public:
     void set_size(float size)
@@ -46,7 +50,7 @@ public:
     Renderable()
     {
         auto parts = PropertiesReader::get_property_array(' ', "render", "planets-color");
-        color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
+        color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/color_max;
     }
     virtual BodyState get_current_body_state()
     {
@@ -58,6 +62,20 @@ public:
     {
         std::lock_guard<std::mutex> lock(state_mutex);
         current_body_state = body_state;
+    }
+
+    void add_history_point(const Vec3d& point) {
+        std::lock_guard lock(history_mutex);
+        history_private.push_back(point);
+
+        if (history_private.size() % 100 == 0) {
+            auto new_snapshot = std::make_shared<std::vector<Vec3d>>(history_private);
+            render_snapshot = new_snapshot;
+        }
+    }
+
+    std::shared_ptr<const std::vector<Vec3d>> get_render_snapshot() const {
+        return render_snapshot;
     }
 };
 

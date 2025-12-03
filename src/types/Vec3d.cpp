@@ -5,13 +5,13 @@
 
 Vec3d::Vec3d() : x(0), y(0), z(0) {}
 
-Vec3d::Vec3d(double x, double y, double z) : x(x), y(y), z(z) {}
+Vec3d::Vec3d(long double x, long double y, long double z) : x(x), y(y), z(z) {}
 
-double Vec3d::norm() const {
+long double Vec3d::norm() const {
     return std::sqrt(x*x + y*y + z*z);
 }
 
-double Vec3d::squaredNorm() const {
+long double Vec3d::squaredNorm() const {
     return x*x + y*y + z*z;
 }
 
@@ -24,7 +24,7 @@ Vec3d Vec3d::normalized() const {
 }
 
 void Vec3d::normalize() {
-    double n = norm();
+    long double n = norm();
     if (n > 0) {
         x /= n;
         y /= n;
@@ -32,7 +32,7 @@ void Vec3d::normalize() {
     }
 }
 
-double Vec3d::dot(const Vec3d& other) const {
+long double Vec3d::dot(const Vec3d& other) const {
     return x * other.x + y * other.y + z * other.z;
 }
 
@@ -58,14 +58,14 @@ Vec3d& Vec3d::operator-=(const Vec3d& other) {
     return *this;
 }
 
-Vec3d& Vec3d::operator*=(double scalar) {
+Vec3d& Vec3d::operator*=(long double scalar) {
     x *= scalar;
     y *= scalar;
     z *= scalar;
     return *this;
 }
 
-Vec3d& Vec3d::operator/=(double scalar) {
+Vec3d& Vec3d::operator/=(long double scalar) {
     x /= scalar;
     y /= scalar;
     z /= scalar;
@@ -85,20 +85,19 @@ Vec3d operator-(const Vec3d& a, const Vec3d& b) {
     return Vec3d(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
-Vec3d operator*(const Vec3d& a, double scalar) {
+Vec3d operator*(const Vec3d& a, long double scalar) {
     return Vec3d(a.x * scalar, a.y * scalar, a.z * scalar);
 }
 
-Vec3d operator*(double scalar, const Vec3d& a) {
+Vec3d operator*(long double scalar, const Vec3d& a) {
     return Vec3d(a.x * scalar, a.y * scalar, a.z * scalar);
 }
 
-Vec3d operator/(const Vec3d& a, double scalar) {
+Vec3d operator/(const Vec3d& a, long double scalar) {
     return Vec3d(a.x / scalar, a.y / scalar, a.z / scalar);
 }
 
-// Внешние функции
-double dot(const Vec3d& a, const Vec3d& b) {
+long double dot(const Vec3d& a, const Vec3d& b) {
     return a.dot(b);
 }
 

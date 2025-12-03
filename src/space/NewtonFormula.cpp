@@ -76,6 +76,7 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
     if (exact != body_states.end()) {
         set_current_body_state(exact->second);
         std::cout << exact->second.position.x << " " << exact->second.position.y << " " << exact->second.position.z << " " << std::endl;
+        add_history_point(exact->second.position);
         return exact->second;
     }
 
@@ -91,6 +92,7 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
         if (exact != body_states.end()) {
             set_current_body_state(exact->second);
             std::cout << exact->second.position.x << " " << exact->second.position.y << " " << exact->second.position.z << " " << std::endl;
+            add_history_point(exact->second.position);
             return exact->second;
         }
         upper = body_states.upper_bound(tdb);
@@ -101,7 +103,7 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
     );
     set_current_body_state(body);
     std::cout << body.position.x << " " << body.position.y << " " << body.position.z << " " << std::endl;
-
+    add_history_point(body.position);
     return body;
 }
 
@@ -118,110 +120,49 @@ BodyState NewtonFormula::next_step(const BodyState& current_state) const {
         return next_step_implicit_newton(current_state);
     }
 
-    const double h = step;
+    const long double h = step;  // предполагается, что step уже в сутках
     const Vec3d& y0_pos = current_state.position;
     const Vec3d& y0_vel = current_state.velocity;
-    const double t0 = current_state.time;
+    const long double t0 = current_state.time;
 
-    std::vector<Vec3d> k_pos(13), k_vel(13);
+    // RK4 коэффициенты
+    Vec3d k1_pos, k1_vel, k2_pos, k2_vel, k3_pos, k3_vel, k4_pos, k4_vel;
 
-    k_vel[0] = calculate_acceleration(t0, y0_pos);
-    k_pos[0] = y0_vel;
+    // Этап 1
+    k1_vel = calculate_acceleration(t0, y0_pos);
+    k1_pos = y0_vel;
 
-    Vec3d pos2 = y0_pos + k_pos[0] * (h * b21);
-    Vec3d vel2 = y0_vel + k_vel[0] * (h * b21);
-    k_vel[1] = calculate_acceleration(t0 + h * a2, pos2);
-    k_pos[1] = vel2;
+    // Этап 2
+    Vec3d pos2 = y0_pos + h * 0.5f * k1_pos;
+    Vec3d vel2 = y0_vel + h * 0.5f * k1_vel;
+    k2_vel = calculate_acceleration(t0 + h * 0.5, pos2);
+    k2_pos = vel2;
 
-    Vec3d pos3 = y0_pos + k_pos[0] * (h * b31) + k_pos[1] * (h * b32);
-    Vec3d vel3 = y0_vel + k_vel[0] * (h * b31) + k_vel[1] * (h * b32);
-    k_vel[2] = calculate_acceleration(t0 + h * a3, pos3);
-    k_pos[2] = vel3;
+    // Этап 3
+    Vec3d pos3 = y0_pos + h * 0.5f * k2_pos;
+    Vec3d vel3 = y0_vel + h * 0.5f * k2_vel;
+    k3_vel = calculate_acceleration(t0 + h * 0.5, pos3);
+    k3_pos = vel3;
 
-    Vec3d pos4 = y0_pos + k_pos[0] * (h * b41) + k_pos[2] * (h * b43);
-    Vec3d vel4 = y0_vel + k_vel[0] * (h * b41) + k_vel[2] * (h * b43);
-    k_vel[3] = calculate_acceleration(t0 + h * a4, pos4);
-    k_pos[3] = vel4;
+    // Этап 4
+    Vec3d pos4 = y0_pos + h * k3_pos;
+    Vec3d vel4 = y0_vel + h * k3_vel;
+    k4_vel = calculate_acceleration(t0 + h, pos4);
+    k4_pos = vel4;
 
-    Vec3d pos5 = y0_pos + k_pos[0] * (h * b51) + k_pos[2] * (h * b53) + k_pos[3] * (h * b54);
-    Vec3d vel5 = y0_vel + k_vel[0] * (h * b51) + k_vel[2] * (h * b53) + k_vel[3] * (h * b54);
-    k_vel[4] = calculate_acceleration(t0 + h * a5, pos5);
-    k_pos[4] = vel5;
-
-    Vec3d pos6 = y0_pos + k_pos[0] * (h * b61) + k_pos[3] * (h * b64) + k_pos[4] * (h * b65);
-    Vec3d vel6 = y0_vel + k_vel[0] * (h * b61) + k_vel[3] * (h * b64) + k_vel[4] * (h * b65);
-    k_vel[5] = calculate_acceleration(t0 + h * a6, pos6);
-    k_pos[5] = vel6;
-
-    Vec3d pos7 = y0_pos + k_pos[0] * (h * b71) + k_pos[3] * (h * b74) + k_pos[4] * (h * b75) + k_pos[5] * (h * b76);
-    Vec3d vel7 = y0_vel + k_vel[0] * (h * b71) + k_vel[3] * (h * b74) + k_vel[4] * (h * b75) + k_vel[5] * (h * b76);
-    k_vel[6] = calculate_acceleration(t0 + h * a7, pos7);
-    k_pos[6] = vel7;
-
-    Vec3d pos8 = y0_pos + k_pos[0] * (h * b81) + k_pos[3] * (h * b84) + k_pos[4] * (h * b85) +
-                k_pos[5] * (h * b86) + k_pos[6] * (h * b87);
-    Vec3d vel8 = y0_vel + k_vel[0] * (h * b81) + k_vel[3] * (h * b84) + k_vel[4] * (h * b85) +
-                k_vel[5] * (h * b86) + k_vel[6] * (h * b87);
-    k_vel[7] = calculate_acceleration(t0 + h * a8, pos8);
-    k_pos[7] = vel8;
-
-    Vec3d pos9 = y0_pos + k_pos[0] * (h * b91) + k_pos[3] * (h * b94) + k_pos[4] * (h * b95) +
-                k_pos[5] * (h * b96) + k_pos[6] * (h * b97) + k_pos[7] * (h * b98);
-    Vec3d vel9 = y0_vel + k_vel[0] * (h * b91) + k_vel[3] * (h * b94) + k_vel[4] * (h * b95) +
-                k_vel[5] * (h * b96) + k_vel[6] * (h * b97) + k_vel[7] * (h * b98);
-    k_vel[8] = calculate_acceleration(t0 + h * a9, pos9);
-    k_pos[8] = vel9;
-
-    Vec3d pos10 = y0_pos + k_pos[0] * (h * b101) + k_pos[3] * (h * b104) + k_pos[4] * (h * b105) +
-                 k_pos[5] * (h * b106) + k_pos[6] * (h * b107) + k_pos[7] * (h * b108) + k_pos[8] * (h * b109);
-    Vec3d vel10 = y0_vel + k_vel[0] * (h * b101) + k_vel[3] * (h * b104) + k_vel[4] * (h * b105) +
-                 k_vel[5] * (h * b106) + k_vel[6] * (h * b107) + k_vel[7] * (h * b108) + k_vel[8] * (h * b109);
-    k_vel[9] = calculate_acceleration(t0 + h * a10, pos10);
-    k_pos[9] = vel10;
-
-    Vec3d pos11 = y0_pos + k_pos[0] * (h * b111) + k_pos[3] * (h * b114) + k_pos[4] * (h * b115) +
-                 k_pos[5] * (h * b116) + k_pos[6] * (h * b117) + k_pos[7] * (h * b118) + k_pos[8] * (h * b119) +
-                 k_pos[9] * (h * b1110);
-    Vec3d vel11 = y0_vel + k_vel[0] * (h * b111) + k_vel[3] * (h * b114) + k_vel[4] * (h * b115) +
-                 k_vel[5] * (h * b116) + k_vel[6] * (h * b117) + k_vel[7] * (h * b118) + k_vel[8] * (h * b119) +
-                 k_vel[9] * (h * b1110);
-    k_vel[10] = calculate_acceleration(t0 + h * a11, pos11);
-    k_pos[10] = vel11;
-
-    Vec3d pos12 = y0_pos + k_pos[0] * (h * b121) + k_pos[3] * (h * b124) + k_pos[4] * (h * b125) +
-                 k_pos[5] * (h * b126) + k_pos[6] * (h * b127) + k_pos[7] * (h * b128) + k_pos[8] * (h * b129) +
-                 k_pos[9] * (h * b1210) + k_pos[10] * (h * b1211);
-    Vec3d vel12 = y0_vel + k_vel[0] * (h * b121) + k_vel[3] * (h * b124) + k_vel[4] * (h * b125) +
-                 k_vel[5] * (h * b126) + k_vel[6] * (h * b127) + k_vel[7] * (h * b128) + k_vel[8] * (h * b129) +
-                 k_vel[9] * (h * b1210) + k_vel[10] * (h * b1211);
-    k_vel[11] = calculate_acceleration(t0 + h * a12, pos12);
-    k_pos[11] = vel12;
-
-    Vec3d pos13 = y0_pos + k_pos[0] * (h * b131) + k_pos[3] * (h * b134) + k_pos[4] * (h * b135) +
-                 k_pos[5] * (h * b136) + k_pos[6] * (h * b137) + k_pos[7] * (h * b138) + k_pos[8] * (h * b139) +
-                 k_pos[9] * (h * b1310) + k_pos[10] * (h * b1311);
-    Vec3d vel13 = y0_vel + k_vel[0] * (h * b131) + k_vel[3] * (h * b134) + k_vel[4] * (h * b135) +
-                 k_vel[5] * (h * b136) + k_vel[6] * (h * b137) + k_vel[7] * (h * b138) + k_vel[8] * (h * b139) +
-                 k_vel[9] * (h * b1310) + k_vel[10] * (h * b1311);
-    k_vel[12] = calculate_acceleration(t0 + h * a13, pos13);
-    k_pos[12] = vel13;
-
-    Vec3d new_pos = y0_pos + h * (
-        k_pos[0] * c1 + k_pos[5] * c6 + k_pos[6] * c7 + k_pos[7] * c8 +
-        k_pos[8] * c9 + k_pos[9] * c10 + k_pos[10] * c11 + k_pos[11] * c12 + k_pos[12] * c13
-    );
-
-    Vec3d new_vel = y0_vel + h * (
-        k_vel[0] * c1 + k_vel[5] * c6 + k_vel[6] * c7 + k_vel[7] * c8 +
-        k_vel[8] * c9 + k_vel[9] * c10 + k_vel[10] * c11 + k_vel[11] * c12 + k_vel[12] * c13
-    );
+    // Итоговая позиция и скорость (предиктор)
+    Vec3d new_pos = y0_pos + (h / 6.0) * (k1_pos + 2.0*k2_pos + 2.0*k3_pos + k4_pos);
+    Vec3d new_vel = y0_vel + (h / 6.0) * (k1_vel + 2.0*k2_vel + 2.0*k3_vel + k4_vel);
 
     BodyState predictor_state(new_pos, new_vel, t0 + h);
 
     if (use_corrector) {
         return trapezoidal_corrector_newton(current_state, predictor_state);
     }
-    std::cout << predictor_state.position.x << " " << predictor_state.position.y << " " << predictor_state.position.z << " " << std::endl;
+
+    std::cout << predictor_state.position.x << " "
+              << predictor_state.position.y << " "
+              << predictor_state.position.z << " " << std::endl;
     return predictor_state;
 }
 
@@ -229,32 +170,42 @@ BodyState NewtonFormula::next_step_implicit_newton(const BodyState& current_stat
     const double h = step;
     const double t_next = current_state.time + h;
 
-    BodyState x = next_step_explicit_euler(current_state);
+    // Начальное приближение - явный RK4
+    BodyState x = next_step(current_state);
+    x = BodyState(x.position, x.velocity, t_next);
 
-    const int max_iterations = 10;
+    const int max_iterations = 3;  // Меньше для RK4
     const double tolerance = 1e-12;
 
     for (int iter = 0; iter < max_iterations; ++iter) {
-        Vec3d F_pos = x.position - current_state.position - h * x.velocity;
-        Vec3d F_vel = x.velocity - current_state.velocity - h * calculate_acceleration(t_next, x.position);
+        Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
+        Vec3d accel_next = calculate_acceleration(t_next, x.position);
 
-        Mat3d J_accel = calculate_acceleration_jacobian(t_next, x.position);
-        Vec3d delta_pos = -F_pos + h * F_vel;
-        Vec3d delta_vel = -F_vel + h * J_accel * F_pos;
+        // Невязка метода трапеций
+        Vec3d F_pos = x.position - current_state.position -
+                     (h/2.0) * (current_state.velocity + x.velocity);
+        Vec3d F_vel = x.velocity - current_state.velocity -
+                     (h/2.0) * (accel_current + accel_next);
 
-        x.position += delta_pos;
-        x.velocity += delta_vel;
+        if (iter == 0) {
+            // Простая коррекция для первого шага
+            x.position -= F_pos;
+            x.velocity -= F_vel;
+        } else {
+            // Матрица Якоби для ускорения (упрощённая)
+            Mat3d J_accel = calculate_acceleration_jacobian(t_next, x.position);
 
-        double norm_F = std::sqrt(F_pos.squaredNorm() + F_vel.squaredNorm());
-        double norm_delta = std::sqrt(delta_pos.squaredNorm() + delta_vel.squaredNorm());
+            // Решение методом простой итерации
+            Vec3d delta_pos = -F_pos + (h/2.0) * F_vel;
+            Vec3d delta_vel = -F_vel + (h/2.0) * J_accel * F_pos;
 
-        if (norm_F < tolerance && norm_delta < tolerance) {
-            break;
+            x.position += delta_pos;
+            x.velocity += delta_vel;
         }
 
-        if (iter == max_iterations - 1) {
-            std::cout << "Метод Ньютона не сошелся за " << max_iterations
-                      << " итераций. Норма невязки: " << norm_F << std::endl;
+        double norm_F = std::sqrt(F_pos.squaredNorm() + F_vel.squaredNorm());
+        if (norm_F < tolerance) {
+            break;
         }
     }
 
@@ -263,38 +214,35 @@ BodyState NewtonFormula::next_step_implicit_newton(const BodyState& current_stat
 
 BodyState NewtonFormula::trapezoidal_corrector_newton(const BodyState& current_state,
                                                      const BodyState& predictor_state) const {
-    const double h = step;
+    const double h = step;  // в сутках
     const double t_next = current_state.time + h;
 
-    BodyState x = predictor_state;
+    BodyState corrected = predictor_state;
 
-    const int max_iterations = 5;
-    const double tolerance = 1e-12;
+    // 1 коррекция обычно достаточно для RK4
+    Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
+    Vec3d accel_predicted = calculate_acceleration(t_next, corrected.position);
 
-    for (int iter = 0; iter < max_iterations; ++iter) {
-        Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
-        Vec3d accel_next = calculate_acceleration(t_next, x.position);
+    // Формула корректора трапеций (один шаг)
+    Vec3d corrected_vel = current_state.velocity +
+                         (h / 2.0) * (accel_current + accel_predicted);
 
-        Vec3d F_pos = x.position - current_state.position - (h/2.0) * (current_state.velocity + x.velocity);
-        Vec3d F_vel = x.velocity - current_state.velocity - (h/2.0) * (accel_current + accel_next);
+    Vec3d corrected_pos = current_state.position +
+                         (h / 2.0) * (current_state.velocity + corrected_vel);
 
-        Mat3d J_accel = calculate_acceleration_jacobian(t_next, x.position);
-
-        Vec3d delta_pos = -F_pos + (h/2.0) * F_vel;
-        Vec3d delta_vel = -F_vel + (h/2.0) * J_accel * F_pos;
-
-        x.position += delta_pos;
-        x.velocity += delta_vel;
-
-        double norm_F = std::sqrt(F_pos.squaredNorm() + F_vel.squaredNorm());
-
-        if (norm_F < tolerance) {
-            break;
-        }
+    // Дополнительная итерация для улучшения точности
+    if (use_newton_methods) {
+        // Второй шаг коррекции
+        Vec3d accel_corrected = calculate_acceleration(t_next, corrected_pos);
+        corrected_vel = current_state.velocity +
+                       (h / 2.0) * (accel_current + accel_corrected);
+        corrected_pos = current_state.position +
+                       (h / 2.0) * (current_state.velocity + corrected_vel);
     }
 
-    return BodyState(x.position, x.velocity, t_next);
+    return BodyState(corrected_pos, corrected_vel, t_next);
 }
+
 
 Mat3d NewtonFormula::calculate_acceleration_jacobian(SpiceDouble time, const Vec3d& position) const {
     Mat3d jacobian = Mat3d::Zero();
@@ -392,11 +340,11 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
     for (SpaceObject* body : force_bodies) {
         BodyState body_state = body->get_body_state(time);
         Vec3d r_vec = body_state.position - current_position;
-        double r = r_vec.norm();
+        long double r = r_vec.norm();
 
         if (r > 1e-10) {
-            double mu = body->get_gravitational_parameter();
-            double r3 = r * r * r;
+            long double mu = body->get_gravitational_parameter();
+            long double r3 = r * r * r;
             acceleration += mu * r_vec / r3;
         }
     }
