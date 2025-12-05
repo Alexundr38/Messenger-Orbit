@@ -5,6 +5,7 @@ forward-task:
     bsp-path: "forward-task/de442s.bsp" # хранит в себе x y z vx vy vz
     tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     sizes: "forward-task/pck00011.tpc" # радиусы планет
+    dsn-coords: "forward-task/earth_latest_high_prec.bpc"
     reference-frame: "J2000"
     aberration-correction: "NONE"
     observer-body: "MERCURY BARYCENTER" #1

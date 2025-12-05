@@ -44,6 +44,13 @@ Vec3d Vec3d::cross(const Vec3d& other) const {
     );
 }
 
+long double Vec3d::distanceTo(const Vec3d& other) const {
+    long double dx = x - other.x;
+    long double dy = y - other.y;
+    long double dz = z - other.z;
+    return std::sqrt(dx*dx + dy*dy + dz*dz);
+}
+
 Vec3d& Vec3d::operator+=(const Vec3d& other) {
     x += other.x;
     y += other.y;

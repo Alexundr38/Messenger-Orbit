@@ -71,6 +71,10 @@ add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/types/Mat3d.h
         src/space/NewtonFormulaProxy.cpp
         src/space/NewtonFormulaProxy.h
+        src/utils/Spline.h
+        src/utils/Spline.cpp
+        src/utils/LightTimeSolver.cpp
+        src/utils/LightTimeSolver.h
 )
 target_include_directories(MessengerOrbit PRIVATE
         ${cspice_SOURCE_DIR}/include

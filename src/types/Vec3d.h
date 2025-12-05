@@ -22,6 +22,9 @@ struct Vec3d
     // Векторное произведение
     [[nodiscard]] Vec3d cross(const Vec3d& other) const;
 
+    // Расстояние до другой точки
+    [[nodiscard]] long double distanceTo(const Vec3d& other) const;
+
     // Операторы присваивания
     Vec3d& operator+=(const Vec3d& other);
     Vec3d& operator-=(const Vec3d& other);

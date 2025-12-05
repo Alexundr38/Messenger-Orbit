@@ -16,6 +16,7 @@ SpaceObjectManager::SpaceObjectManager()
 {
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "bsp-path").c_str());
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "tpc-path").c_str());
+    furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "dsn-coords").c_str());
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "sizes").c_str());
     reference_frame = PropertiesReader::get_property("forward-task", "space-object-manager", "reference-frame");
     aberration_correction = PropertiesReader::get_property("forward-task", "space-object-manager", "aberration-correction");
@@ -74,6 +75,28 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
 BodyState SpaceObjectManager::get_body_state_at_time(const std::string& utc, const std::string& target_body)
 {
     return get_body_state_at_time(TimeConverter::to_tdb(utc), target_body);
+}
+
+BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::string& dsn_id) {
+    std::lock_guard<std::mutex> lock(spice_mutex);
+    auto instance = get_instance();
+    std::string dsn_name = "DSS-" + dsn_id;
+    BodyState body_state;
+    body_state.time = tdb;
+    SpiceDouble pos[3];
+    SpiceDouble lt;
+    spkpos_c(
+        dsn_name.c_str(),
+        tdb,
+        "J2000",
+        "CN+S",
+        "SOLAR SYSTEM BARYCENTER",
+        pos,
+        &lt
+    );
+
+    body_state.position = {pos[0], pos[1], pos[2]};
+    return body_state;
 }
 
 SpiceDouble SpaceObjectManager::get_body_gm(const std::string& target_body)
