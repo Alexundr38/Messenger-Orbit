@@ -5,15 +5,14 @@
 #include "LightTimeSolver.h"
 
 #include "SpaceObjectManager.h"
-#include "../types/BodyState.h"
 
-LightTimeSolver::LightTimeSolver(std::map<SpiceDouble, Vec3d> &points) {
+LightTimeSolver::LightTimeSolver(std::map<SpiceDouble, BodyState> &points) {
     spline = new Spline();
     spline->build_all_splines(points);
 }
 
 
-SpiceDouble LightTimeSolver::light_time_solve(SpiceDouble t3_tdb, long double& freq, std::string& dsn_id) {
+SpiceDouble LightTimeSolver::light_time_solve(SpiceDouble t3_tdb, std::string& dsn_id) {
     BodyState state = SpaceObjectManager::get_DSN_state_at_time(t3_tdb, dsn_id);
     Vec3d messenger_point = spline->interpolate(t3_tdb);
     long double dt = (state.position.distanceTo(messenger_point)) / light_speed;

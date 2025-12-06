@@ -83,19 +83,20 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
     std::string dsn_name = "DSS-" + dsn_id;
     BodyState body_state;
     body_state.time = tdb;
-    SpiceDouble pos[3];
+    SpiceDouble state[6];
     SpiceDouble lt;
-    spkpos_c(
+    spkezr_c(
         dsn_name.c_str(),
         tdb,
         "J2000",
         "CN+S",
         "SOLAR SYSTEM BARYCENTER",
-        pos,
+        state,
         &lt
     );
 
-    body_state.position = {pos[0], pos[1], pos[2]};
+    body_state.position = {state[0], state[1], state[2]};
+    body_state.velocity = {state[3], state[4], state[5]};
     return body_state;
 }
 

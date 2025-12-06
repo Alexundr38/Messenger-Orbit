@@ -75,6 +75,8 @@ add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/utils/Spline.cpp
         src/utils/LightTimeSolver.cpp
         src/utils/LightTimeSolver.h
+        src/utils/DoplerComputer.cpp
+        src/utils/DoplerComputer.h
 )
 target_include_directories(MessengerOrbit PRIVATE
         ${cspice_SOURCE_DIR}/include

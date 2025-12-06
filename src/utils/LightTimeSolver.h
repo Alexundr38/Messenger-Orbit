@@ -18,8 +18,8 @@ class LightTimeSolver {
 
 public:
 
-    LightTimeSolver(std::map<SpiceDouble, Vec3d>& points);
-    SpiceDouble light_time_solve(SpiceDouble t3_tdb, long double& freq, std::string& dsn_id);
+    LightTimeSolver(std::map<SpiceDouble, BodyState>& points);
+    SpiceDouble light_time_solve(SpiceDouble t3_tdb, std::string& dsn_id);
 };
 
 

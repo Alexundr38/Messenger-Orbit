@@ -6,16 +6,16 @@
 
 #include <iostream>
 
-void Spline::build_all_splines(std::map<SpiceDouble, Vec3d> points) {
+void Spline::build_all_splines(std::map<SpiceDouble, BodyState>& points) {
     std::vector<long double> x;
     std::vector<long double> y;
     std::vector<long double> z;
     std::vector<SpiceDouble> times;
     for (const auto& pair : points) {
         times.push_back(pair.first);
-        x.push_back(pair.second.x);
-        y.push_back(pair.second.y);
-        z.push_back(pair.second.z);
+        x.push_back(pair.second.position.x);
+        y.push_back(pair.second.position.y);
+        z.push_back(pair.second.position.z);
     }
 
     splines_x = build_spline(times, x);
