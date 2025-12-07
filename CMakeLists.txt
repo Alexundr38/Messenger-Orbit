@@ -4,6 +4,12 @@ project(MessengerOrbit VERSION 1.0.0 LANGUAGES CXX)
 include(FetchContent)
 
 FetchContent_Declare(
+        eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.4.0
+)
+
+FetchContent_Declare(
         cspice
         URL https://naif.jpl.nasa.gov/pub/naif/toolkit//C/PC_Linux_GCC_64bit/packages/cspice.tar.Z
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
@@ -20,20 +26,20 @@ FetchContent_Declare(
         glfw
         URL https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz
 )
+
 FetchContent_Declare(
         glm
         GIT_REPOSITORY https://github.com/g-truc/glm.git
         GIT_TAG master
 )
 
-
-FetchContent_MakeAvailable(glfw)
-FetchContent_MakeAvailable(glm)
+# Сначала делаем доступными все зависимости
+FetchContent_MakeAvailable(eigen glfw glm cspice yaml-cpp)
 
 find_package(OpenGL REQUIRED)
-FetchContent_MakeAvailable(cspice yaml-cpp)
 
-add_executable(MessengerOrbit src/types/Vec3d.cpp
+add_executable(MessengerOrbit
+        src/types/Vec3d.cpp
         src/types/BodyState.cpp
         src/types/BodyState.h
         src/space/SpaceObject.cpp
@@ -77,11 +83,20 @@ add_executable(MessengerOrbit src/types/Vec3d.cpp
         src/utils/LightTimeSolver.h
         src/utils/DoplerComputer.cpp
         src/utils/DoplerComputer.h
+        src/utils/LSM.cpp
+        src/utils/LSM.h
+        src/types/StateVector.cpp
+        src/types/StateVector.h
 )
+
 target_include_directories(MessengerOrbit PRIVATE
         ${cspice_SOURCE_DIR}/include
-        ${glm_SOURCE_DIR}  )
+        ${glm_SOURCE_DIR}
+        ${eigen_SOURCE_DIR}
+)
+
 target_link_directories(MessengerOrbit PRIVATE ${cspice_SOURCE_DIR}/lib)
+
 target_link_libraries(
         MessengerOrbit
         OpenGL::OpenGL
