@@ -15,9 +15,15 @@ class NewtonFormula : public SpaceObject {
     bool use_corrector;
     bool use_newton_methods;
     double stiffness_threshold;
-
+static constexpr double G = 6.67430e-11;  // гравитационная постоянная
+    static constexpr double c = 299792458.0;
     std::deque<BodyState> previous_states;
+    bool use_relativistic_corrections = false;
 
+public:
+    void set_use_relativistic_corrections(bool use_relativistic_corrections);
+
+private:
     BodyState next_step_implicit_newton(const BodyState& current_state) const;
     BodyState trapezoidal_corrector_newton(const BodyState& current_state,
                                           const BodyState& predictor_state) const;
@@ -46,6 +52,8 @@ public:
     [[nodiscard]] BodyState next_step(const BodyState& current_state) const;
 
     [[nodiscard]] Vec3d calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const;
+    Vec3d calculate_acceleration_eih(SpiceDouble time, const Vec3d& position, const Vec3d& velocity,
+                                     const std::vector<BodyState>& other_states) const;
     BodyState calculate_to_target(BodyState current_state, SpiceDouble target_time);
     static BodyState interpolate(const BodyState& first, const BodyState& second, SpiceDouble current_time);
     static Vec3d integrate(const Vec3d& derivative, SpiceDouble step);

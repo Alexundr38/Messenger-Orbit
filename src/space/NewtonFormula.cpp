@@ -46,6 +46,179 @@ const double c1 = 14005451.0/335480064.0, c6 = -59238493.0/1068277825.0,
              c11 = 118820643.0/751138087.0, c12 = -528747749.0/2220607170.0,
              c13 = 1.0/4.0;
 
+void NewtonFormula::set_use_relativistic_corrections(bool use_relativistic_corrections)
+{
+    this->use_relativistic_corrections = use_relativistic_corrections;
+}
+
+BodyState NewtonFormula::next_step_implicit_newton(const BodyState& current_state) const {
+    const double h = step;
+    const double t_next = current_state.time + h;
+
+    // Начальное приближение - явный RK4
+    BodyState x = next_step(current_state);
+    x = BodyState(x.position, x.velocity, t_next);
+
+    const int max_iterations = 3;  // Меньше для RK4
+    const double tolerance = 1e-12;
+
+    for (int iter = 0; iter < max_iterations; ++iter) {
+        Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
+        Vec3d accel_next = calculate_acceleration(t_next, x.position);
+
+        // Невязка метода трапеций
+        Vec3d F_pos = x.position - current_state.position -
+            (h/2.0) * (current_state.velocity + x.velocity);
+        Vec3d F_vel = x.velocity - current_state.velocity -
+            (h/2.0) * (accel_current + accel_next);
+
+
+        if (iter == 0) {
+            // Простая коррекция для первого шага
+            x.position -= F_pos;
+            x.velocity -= F_vel;
+        } else {
+            // Матрица Якоби для ускорения (упрощённая)
+            Mat3d J_accel = calculate_acceleration_jacobian(t_next, x.position);
+
+            // Решение методом простой итерации
+            Vec3d delta_pos = -F_pos + (h/2.0) * F_vel;
+            Vec3d delta_vel = -F_vel + (h/2.0) * J_accel * F_pos;
+
+            x.position += delta_pos;
+            x.velocity += delta_vel;
+        }
+
+        double norm_F = std::sqrt(F_pos.squaredNorm() + F_vel.squaredNorm());
+        if (norm_F < tolerance) {
+            break;
+        }
+    }
+
+    return BodyState(x.position, x.velocity, t_next);
+}
+
+BodyState NewtonFormula::trapezoidal_corrector_newton(const BodyState& current_state,
+                                                      const BodyState& predictor_state) const {
+    const double h = step;  // в сутках
+    const double t_next = current_state.time + h;
+
+    BodyState corrected = predictor_state;
+
+    Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
+    Vec3d accel_predicted = calculate_acceleration(t_next, corrected.position);
+
+    Vec3d corrected_vel = current_state.velocity +
+        (h / 2.0) * (accel_current + accel_predicted);
+
+    Vec3d corrected_pos = current_state.position +
+        (h / 2.0) * (current_state.velocity + corrected_vel);
+
+    if (use_newton_methods) {
+        Vec3d accel_corrected = calculate_acceleration(t_next, corrected_pos);
+        corrected_vel = current_state.velocity +
+            (h / 2.0) * (accel_current + accel_corrected);
+        corrected_pos = current_state.position +
+            (h / 2.0) * (current_state.velocity + corrected_vel);
+    }
+
+    return BodyState(corrected_pos, corrected_vel, t_next);
+}
+
+BodyState NewtonFormula::implicit_midpoint_newton(const BodyState& current_state) const {
+    const double h = step;
+    const double t_mid = current_state.time + h/2.0;
+
+    BodyState x_mid = current_state;
+
+    const int max_iterations = 8;
+    const double tolerance = 1e-12;
+
+    for (int iter = 0; iter < max_iterations; ++iter) {
+        Vec3d F_pos = x_mid.position - current_state.position - (h/2.0) * x_mid.velocity;
+        Vec3d F_vel = x_mid.velocity - current_state.velocity - (h/2.0) * calculate_acceleration(t_mid, x_mid.position);
+
+        Mat3d J_accel = calculate_acceleration_jacobian(t_mid, x_mid.position);
+
+        Vec3d delta_pos = -F_pos - (h/2.0) * F_vel;
+        Vec3d delta_vel = -F_vel - (h/2.0) * J_accel * F_pos;
+
+        x_mid.position += delta_pos;
+        x_mid.velocity += delta_vel;
+
+        double norm_F = std::sqrt(F_pos.squaredNorm() + F_vel.squaredNorm());
+        if (norm_F < tolerance) {
+            break;
+        }
+    }
+
+    Vec3d final_pos = 2.0 * x_mid.position - current_state.position;
+    Vec3d final_vel = 2.0 * x_mid.velocity - current_state.velocity;
+
+    return BodyState(final_pos, final_vel, current_state.time + h);
+}
+
+BodyState NewtonFormula::dopri8_newton_corrector(const BodyState& current_state) const {
+    BodyState predictor = next_step(current_state);
+    return trapezoidal_corrector_newton(current_state, predictor);
+}
+
+BodyState NewtonFormula::adaptive_newton_method(const BodyState& current_state) const {
+    double stiffness_estimate = estimate_stiffness(current_state);
+    if (stiffness_estimate > stiffness_threshold) {
+        return next_step_implicit_newton(current_state);
+    } else {
+        return implicit_midpoint_newton(current_state);
+    }
+}
+
+Mat3d NewtonFormula::calculate_acceleration_jacobian(SpiceDouble time, const Vec3d& position) const {
+    Mat3d jacobian = Mat3d::Zero();
+
+    for (SpaceObject* body : force_bodies) {
+        BodyState body_state = body->get_body_state(time);
+        Vec3d r_vec = body_state.position - position;
+        double r = r_vec.norm();
+
+        if (r > 1e-10) {
+            double mu = body->get_gravitational_parameter();
+            double r3 = r * r * r;
+            double r5 = r3 * r * r;
+
+
+            Mat3d term1 = -mu / r3 * Mat3d::Identity();
+
+            Mat3d outer_product(
+                r_vec.x * r_vec.x, r_vec.x * r_vec.y, r_vec.x * r_vec.z,
+                r_vec.y * r_vec.x, r_vec.y * r_vec.y, r_vec.y * r_vec.z,
+                r_vec.z * r_vec.x, r_vec.z * r_vec.y, r_vec.z * r_vec.z
+            );
+            Mat3d term2 = (3.0 * mu / r5) * outer_product;
+
+            jacobian += term1 + term2;
+        }
+    }
+
+    return jacobian;
+}
+
+double NewtonFormula::estimate_stiffness(const BodyState& state) const {
+    Mat3d J = calculate_acceleration_jacobian(state.time, state.position);
+    double frobenius_norm = J.norm();
+    return frobenius_norm * step;
+}
+
+BodyState NewtonFormula::next_step_explicit_euler(const BodyState& current_state) const {
+    const double h = step;
+    Vec3d accel = calculate_acceleration(current_state.time, current_state.position);
+
+    Vec3d new_pos = current_state.position + h * current_state.velocity;
+    Vec3d new_vel = current_state.velocity + h * accel;
+
+    return BodyState(new_pos, new_vel, current_state.time + h);
+}
+
+
 NewtonFormula::NewtonFormula(
     std::vector<SpaceObject*> force_bodies,
     const std::string & object_name,
@@ -107,14 +280,6 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
     return body;
 }
 
-void NewtonFormula::set_current_body_state(const BodyState& state) {
-    current_body_state = state;
-}
-
-BodyState NewtonFormula::get_current_body_state() const {
-    return current_body_state;
-}
-
 BodyState NewtonFormula::next_step(const BodyState& current_state) const {
     if (use_implicit_methods) {
         return next_step_implicit_newton(current_state);
@@ -131,6 +296,7 @@ BodyState NewtonFormula::next_step(const BodyState& current_state) const {
     // Этап 1
     k1_vel = calculate_acceleration(t0, y0_pos);
     k1_pos = y0_vel;
+
 
     // Этап 2
     Vec3d pos2 = y0_pos + h * 0.5f * k1_pos;
@@ -161,194 +327,153 @@ BodyState NewtonFormula::next_step(const BodyState& current_state) const {
     }
 
     std::cout << predictor_state.position.x << " "
-              << predictor_state.position.y << " "
-              << predictor_state.position.z << " " << std::endl;
+        << predictor_state.position.y << " "
+        << predictor_state.position.z << " " << std::endl;
     return predictor_state;
 }
-
-BodyState NewtonFormula::next_step_implicit_newton(const BodyState& current_state) const {
-    const double h = step;
-    const double t_next = current_state.time + h;
-
-    // Начальное приближение - явный RK4
-    BodyState x = next_step(current_state);
-    x = BodyState(x.position, x.velocity, t_next);
-
-    const int max_iterations = 3;  // Меньше для RK4
-    const double tolerance = 1e-12;
-
-    for (int iter = 0; iter < max_iterations; ++iter) {
-        Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
-        Vec3d accel_next = calculate_acceleration(t_next, x.position);
-
-        // Невязка метода трапеций
-        Vec3d F_pos = x.position - current_state.position -
-                     (h/2.0) * (current_state.velocity + x.velocity);
-        Vec3d F_vel = x.velocity - current_state.velocity -
-                     (h/2.0) * (accel_current + accel_next);
-
-        if (iter == 0) {
-            // Простая коррекция для первого шага
-            x.position -= F_pos;
-            x.velocity -= F_vel;
-        } else {
-            // Матрица Якоби для ускорения (упрощённая)
-            Mat3d J_accel = calculate_acceleration_jacobian(t_next, x.position);
-
-            // Решение методом простой итерации
-            Vec3d delta_pos = -F_pos + (h/2.0) * F_vel;
-            Vec3d delta_vel = -F_vel + (h/2.0) * J_accel * F_pos;
-
-            x.position += delta_pos;
-            x.velocity += delta_vel;
-        }
-
-        double norm_F = std::sqrt(F_pos.squaredNorm() + F_vel.squaredNorm());
-        if (norm_F < tolerance) {
-            break;
-        }
-    }
-
-    return BodyState(x.position, x.velocity, t_next);
-}
-
-BodyState NewtonFormula::trapezoidal_corrector_newton(const BodyState& current_state,
-                                                     const BodyState& predictor_state) const {
-    const double h = step;  // в сутках
-    const double t_next = current_state.time + h;
-
-    BodyState corrected = predictor_state;
-
-    Vec3d accel_current = calculate_acceleration(current_state.time, current_state.position);
-    Vec3d accel_predicted = calculate_acceleration(t_next, corrected.position);
-
-    Vec3d corrected_vel = current_state.velocity +
-                         (h / 2.0) * (accel_current + accel_predicted);
-
-    Vec3d corrected_pos = current_state.position +
-                         (h / 2.0) * (current_state.velocity + corrected_vel);
-
-    if (use_newton_methods) {
-        Vec3d accel_corrected = calculate_acceleration(t_next, corrected_pos);
-        corrected_vel = current_state.velocity +
-                       (h / 2.0) * (accel_current + accel_corrected);
-        corrected_pos = current_state.position +
-                       (h / 2.0) * (current_state.velocity + corrected_vel);
-    }
-
-    return BodyState(corrected_pos, corrected_vel, t_next);
-}
-
-
-Mat3d NewtonFormula::calculate_acceleration_jacobian(SpiceDouble time, const Vec3d& position) const {
-    Mat3d jacobian = Mat3d::Zero();
-
-    for (SpaceObject* body : force_bodies) {
-        BodyState body_state = body->get_body_state(time);
-        Vec3d r_vec = body_state.position - position;
-        double r = r_vec.norm();
-
-        if (r > 1e-10) {
-            double mu = body->get_gravitational_parameter();
-            double r3 = r * r * r;
-            double r5 = r3 * r * r;
-
-            Mat3d term1 = -mu / r3 * Mat3d::Identity();
-
-            Mat3d outer_product(
-                r_vec.x * r_vec.x, r_vec.x * r_vec.y, r_vec.x * r_vec.z,
-                r_vec.y * r_vec.x, r_vec.y * r_vec.y, r_vec.y * r_vec.z,
-                r_vec.z * r_vec.x, r_vec.z * r_vec.y, r_vec.z * r_vec.z
-            );
-            Mat3d term2 = (3.0 * mu / r5) * outer_product;
-
-            jacobian += term1 + term2;
-        }
-    }
-
-    return jacobian;
-}
-
-BodyState NewtonFormula::implicit_midpoint_newton(const BodyState& current_state) const {
-    const double h = step;
-    const double t_mid = current_state.time + h/2.0;
-
-    BodyState x_mid = current_state;
-
-    const int max_iterations = 8;
-    const double tolerance = 1e-12;
-
-    for (int iter = 0; iter < max_iterations; ++iter) {
-        Vec3d F_pos = x_mid.position - current_state.position - (h/2.0) * x_mid.velocity;
-        Vec3d F_vel = x_mid.velocity - current_state.velocity - (h/2.0) * calculate_acceleration(t_mid, x_mid.position);
-
-        Mat3d J_accel = calculate_acceleration_jacobian(t_mid, x_mid.position);
-
-        Vec3d delta_pos = -F_pos - (h/2.0) * F_vel;
-        Vec3d delta_vel = -F_vel - (h/2.0) * J_accel * F_pos;
-
-        x_mid.position += delta_pos;
-        x_mid.velocity += delta_vel;
-
-        double norm_F = std::sqrt(F_pos.squaredNorm() + F_vel.squaredNorm());
-        if (norm_F < tolerance) {
-            break;
-        }
-    }
-
-    Vec3d final_pos = 2.0 * x_mid.position - current_state.position;
-    Vec3d final_vel = 2.0 * x_mid.velocity - current_state.velocity;
-
-    return BodyState(final_pos, final_vel, current_state.time + h);
-}
-
-BodyState NewtonFormula::dopri8_newton_corrector(const BodyState& current_state) const {
-    BodyState predictor = next_step(current_state);
-    return trapezoidal_corrector_newton(current_state, predictor);
-}
-
-BodyState NewtonFormula::adaptive_newton_method(const BodyState& current_state) const {
-    double stiffness_estimate = estimate_stiffness(current_state);
-    if (stiffness_estimate > stiffness_threshold) {
-        return next_step_implicit_newton(current_state);
-    } else {
-        return implicit_midpoint_newton(current_state);
-    }
-}
-double NewtonFormula::estimate_stiffness(const BodyState& state) const {
-    Mat3d J = calculate_acceleration_jacobian(state.time, state.position);
-    double frobenius_norm = J.norm();
-    return frobenius_norm * step;
-}
-
-BodyState NewtonFormula::next_step_explicit_euler(const BodyState& current_state) const {
-    const double h = step;
-    Vec3d accel = calculate_acceleration(current_state.time, current_state.position);
-
-    Vec3d new_pos = current_state.position + h * current_state.velocity;
-    Vec3d new_vel = current_state.velocity + h * accel;
-
-    return BodyState(new_pos, new_vel, current_state.time + h);
-}
-
 Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
-    Vec3d acceleration;
-    for (SpaceObject* body : force_bodies) {
-        BodyState body_state = body->get_body_state(time*day);
-        Vec3d r_vec = body_state.position - current_position;
-        long double r = r_vec.norm();
+    // Получаем состояние текущего тела
+    BodyState current_state = get_current_body_state();
 
-        if (r > 1e-10) {
-            long double mu = body->get_gravitational_parameter();
-            long double r3 = r * r * r;
-            acceleration += mu * r_vec / r3;
+    if (!use_relativistic_corrections) {
+        // Классическое ньютоновское ускорение
+        Vec3d acceleration;
+        for (SpaceObject* body : force_bodies) {
+            BodyState body_state = body->get_body_state(time * day);
+            Vec3d r_vec = body_state.position - current_position;
+            long double r = r_vec.norm();
+
+            if (r > 1e-10) {
+                long double mu = body->get_gravitational_parameter();
+                long double r3 = r * r * r;
+                acceleration += mu * r_vec / r3;
+            }
         }
+        return acceleration;
+    } else {
+        // Релятивистские поправки EIH
+        // Получаем состояния всех тел системы
+        std::vector<BodyState> other_states;
+        for (SpaceObject* body : force_bodies) {
+            BodyState body_state = body->get_body_state(time * day);
+            other_states.push_back(body_state);
+        }
+
+        // Вычисляем ускорение с релятивистскими поправками
+        return calculate_acceleration_eih(time, current_position,
+                                          current_state.velocity, other_states);
     }
-    return acceleration;
 }
 
-Vec3d NewtonFormula::integrate(const Vec3d& derivative, const SpiceDouble step) {
-    return derivative * step;
+Vec3d NewtonFormula::calculate_acceleration_eih(SpiceDouble time, const Vec3d& position,
+                                                const Vec3d& velocity,
+                                                const std::vector<BodyState>& other_states) const {
+    Vec3d acceleration_newton;
+    Vec3d acceleration_relativistic;
+
+    int current_index = -1;
+
+    for (size_t B = 0; B < other_states.size(); ++B) {
+        if (B == current_index) continue;
+
+        Vec3d r_vec = other_states[B].position - position;
+        double r = r_vec.norm();
+        Vec3d n_BA = r_vec / r;  // единичный вектор от B к A
+
+        double m_B = force_bodies[B]->get_gravitational_parameter() / G;  // масса тела B
+
+        acceleration_newton += (G * m_B / (r * r)) * n_BA;
+    }
+
+    if (!use_relativistic_corrections) {
+        return acceleration_newton;
+    }
+
+    // Релятивистские поправки (первый порядок по 1/c²)
+    const double c2 = c * c;
+
+    for (size_t B = 0; B < other_states.size(); ++B) {
+        if (B == current_index) continue;
+
+        Vec3d r_vec = other_states[B].position - position;
+        double r = r_vec.norm();
+        Vec3d n_BA = r_vec / r;
+
+        double m_B = force_bodies[B]->get_gravitational_parameter() / G;
+
+        // Скорости тел
+        Vec3d v_A = velocity;
+        Vec3d v_B = other_states[B].velocity;
+        double vA2 = v_A.dot(v_A);
+        double vB2 = v_B.dot(v_B);
+        double vA_dot_vB = v_A.dot(v_B);
+        double nAB_dot_vB = n_BA.dot(v_B);  // n_AB = -n_BA
+
+        // Термины в квадратных скобках из уравнения EIH
+        double bracket_term = vA2 + 2.0 * vB2 - 4.0 * vA_dot_vB
+            - 1.5 * (nAB_dot_vB * nAB_dot_vB);
+
+
+        // Гравитационные потенциалы
+        double sum_GmC_rAC = 0.0;
+        double sum_GmC_rBC = 0.0;
+
+        for (size_t C = 0; C < other_states.size(); ++C) {
+            if (C == current_index) continue;
+
+            double m_C = force_bodies[C]->get_gravitational_parameter() / GRAVITY_CONSTANT;
+
+            // Σ_{C≠A} Gm_C/r_AC
+            if (C != current_index) {
+                Vec3d r_AC_vec = other_states[C].position - position;
+                double r_AC = r_AC_vec.norm();
+                sum_GmC_rAC += GRAVITY_CONSTANT * m_C / r_AC;
+            }
+
+            // Σ_{C≠B} Gm_C/r_BC
+            if (C != B) {
+                Vec3d r_BC_vec = other_states[C].position - other_states[B].position;
+                double r_BC = r_BC_vec.norm();
+                sum_GmC_rBC += GRAVITY_CONSTANT * m_C / r_BC;
+            }
+        }
+
+        bracket_term -= 4.0 * sum_GmC_rAC - sum_GmC_rBC;
+
+        // Последний член: 1/2 * ((x_B - x_A) · a_B)
+        // Для этого нужно ускорение тела B
+        Vec3d a_B = Vec3d(0, 0, 0);  // нужно вычислить
+        // В упрощённой версии можем использовать ньютоновское ускорение
+        for (size_t C = 0; C < other_states.size(); ++C) {
+            if (C == B) continue;
+
+            Vec3d r_CB_vec = other_states[C].position - other_states[B].position;
+            double r_CB = r_CB_vec.norm();
+            Vec3d n_CB = r_CB_vec / r_CB;
+            double m_C = force_bodies[C]->get_gravitational_parameter() / G;
+
+            a_B += (GRAVITY_CONSTANT * m_C / (r_CB * r_CB)) * n_CB;
+        }
+
+        double xB_minus_xA_dot_aB = r_vec.dot(a_B);  // (x_B - x_A) = r_vec
+        bracket_term += 0.5 * xB_minus_xA_dot_aB;
+
+        // Первая релятивистская поправка
+        Vec3d term1 = (1.0 / c2) * (GRAVITY_CONSTANT * m_B / (r * r)) * n_BA * bracket_term;
+        acceleration_relativistic += term1;
+
+        // Вторая релятивистская поправка
+        double nAB_dot_4vA_minus_3vB = n_BA.dot(4.0 * v_A - 3.0 * v_B);
+        Vec3d term2 = (1.0 / c2) * (GRAVITY_CONSTANT * m_B / (r * r)) * nAB_dot_4vA_minus_3vB * (v_A - v_B);
+        acceleration_relativistic += term2;
+
+        // Третья релятивистская поправка (член с ускорением)
+        Vec3d term3 = (7.0 / (2.0 * c2)) * (GRAVITY_CONSTANT * m_B / r) * a_B;
+        acceleration_relativistic += term3;
+    }
+
+    // Суммируем ньютоновскую и релятивистскую части
+    return acceleration_newton + acceleration_relativistic;
 }
 
 BodyState NewtonFormula::calculate_to_target(BodyState current_state, SpiceDouble target_time) {
@@ -378,6 +503,11 @@ BodyState NewtonFormula::interpolate(const BodyState& first, const BodyState& se
     return result;
 }
 
+
+Vec3d NewtonFormula::integrate(const Vec3d& derivative, const SpiceDouble step) {
+    return derivative * step;
+}
+
 void NewtonFormula::set_start_state(const BodyState& start_state) {
     this->start_state = start_state;
     set_current_body_state(start_state);
@@ -395,6 +525,7 @@ void NewtonFormula::set_implicit_methods(bool use_implicit) {
     use_implicit_methods = use_implicit;
 }
 
+
 void NewtonFormula::set_use_corrector(bool use_corr) {
     use_corrector = use_corr;
 }
@@ -405,4 +536,12 @@ void NewtonFormula::set_newton_methods(bool use_newton) {
 
 void NewtonFormula::set_stiffness_threshold(double threshold) {
     stiffness_threshold = threshold;
+}
+
+void NewtonFormula::set_current_body_state(const BodyState& state) {
+    current_body_state = state;
+}
+
+BodyState NewtonFormula::get_current_body_state() const {
+    return current_body_state;
 }

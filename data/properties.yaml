@@ -8,7 +8,7 @@ forward-task:
     dsn-coords: "forward-task/earth_latest_high_prec.bpc"
     reference-frame: "J2000"
     aberration-correction: "NONE"
-    observer-body: "MERCURY BARYCENTER" #1
+    observer-body: "SSB" #1
   simulation:
     start-date: "2013-01-01 00:00:00.000" #utc
     step: "2000-01-01 11:58:58" # 43 секунды

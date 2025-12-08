@@ -11,15 +11,17 @@
 
 #include "Spline.h"
 
+double C = 299792.458; // km/s
+
 class LightTimeSolver {
 
     Spline* spline;
-    double light_speed = 299792.458; // km/s
 
 public:
 
     LightTimeSolver(std::map<SpiceDouble, BodyState>& points);
-    SpiceDouble light_time_solve(SpiceDouble t3_tdb, std::string& dsn_id);
+    SpiceDouble light_time_solve(SpiceDouble& t3_tdb, std::string& dsn_id);
+    Vec3d get_vec(SpiceDouble& t3_tdb, std::string& dsn_id);
 };
 
 

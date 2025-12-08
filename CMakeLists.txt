@@ -76,16 +76,18 @@ add_executable(MessengerOrbit
         src/types/Mat3d.h
         src/space/NewtonFormulaProxy.cpp
         src/space/NewtonFormulaProxy.h
-        #src/utils/Spline.h
-        #src/utils/Spline.cpp
-        #src/utils/LightTimeSolver.cpp
-        #src/utils/LightTimeSolver.h
-        #src/utils/DoplerComputer.cpp
-        #src/utils/DoplerComputer.h
-        #src/utils/LSM.cpp
-        #src/utils/LSM.h
-        #src/types/StateVector.cpp
-        #src/types/StateVector.h
+        src/utils/Spline.h
+        src/utils/Spline.cpp
+        src/utils/LightTimeSolver.cpp
+        src/utils/LightTimeSolver.h
+        src/utils/DoplerComputer.cpp
+        src/utils/DoplerComputer.h
+        src/utils/LSM.cpp
+        src/utils/LSM.h
+        src/types/StateVector.cpp
+        src/types/StateVector.h
+        src/utils/CSV_reader.cpp
+        src/utils/CSV_reader.h
 )
 
 target_include_directories(MessengerOrbit PRIVATE

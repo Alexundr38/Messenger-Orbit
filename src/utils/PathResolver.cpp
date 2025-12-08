@@ -23,3 +23,8 @@ std::string PathResolver::get_data(const std::string& path)
 {
     return ( get_instance().program_path / "../data"/ path).lexically_normal().string();
 }
+
+std::string PathResolver::get_data_csv(const std::string& path)
+{
+    return ( get_instance().program_path / "../data/csv/all_year"/ path).lexically_normal().string();
+}

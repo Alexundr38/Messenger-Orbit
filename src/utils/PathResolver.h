@@ -18,6 +18,7 @@ class PathResolver
 public:
     [[nodiscard]] static std::string get_program_path();
     [[nodiscard]] static std::string get_data(const std::string& path);
+    [[nodiscard]] static std::string get_data_csv(const std::string& path);
 };
 
 

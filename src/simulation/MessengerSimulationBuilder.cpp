@@ -24,7 +24,7 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
 {
     simulation = new Simulation();
     auto j2000 = TimeConverter::to_tdb(PropertiesReader::get_property("forward-task", "simulation", "j2000"));
-    simulation->start_date = TimeConverter::to_tdb(start_date)-j2000;
+    simulation->start_date = TimeConverter::to_tdb(start_date)+j2000;
     simulation->current_date = simulation->start_date;
     simulation->step = TimeConverter::to_tdb(step);
     simulation->end_date = TimeConverter::to_tdb(end_date);
@@ -57,6 +57,7 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     messenger2->set_implicit_methods(false);
     messenger2->set_use_corrector(true);
     messenger2->set_newton_methods(false);
+    messenger2->set_use_relativistic_corrections(true);
     Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
     messenger2->set_color(messenger_color);
     simulation_bodies.push_back(messenger2);
