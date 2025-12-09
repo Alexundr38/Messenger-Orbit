@@ -11,7 +11,7 @@
 
 #include "Spline.h"
 
-double C = 299792.458; // km/s
+inline constexpr double C = 299792.458; // km/s
 
 class LightTimeSolver {
 

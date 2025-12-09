@@ -86,8 +86,8 @@ add_executable(MessengerOrbit
         src/utils/LSM.h
         src/types/StateVector.cpp
         src/types/StateVector.h
-        src/utils/CSV_reader.cpp
-        src/utils/CSV_reader.h
+        src/utils/CSVReader.cpp
+        src/utils/CSVReader.h
 )
 
 target_include_directories(MessengerOrbit PRIVATE

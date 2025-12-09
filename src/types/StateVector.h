@@ -8,13 +8,13 @@
 #include "BodyState.h"
 #include <Eigen/Dense>
 
-const int NUM_PARAMS = 3;
+inline constexpr int NUM_PARAMS = 3;
 
 class StateVector {
 public:
     BodyState state;
 
-    StateVector();
+    StateVector() = default;
 
     void add_state(BodyState state);
 

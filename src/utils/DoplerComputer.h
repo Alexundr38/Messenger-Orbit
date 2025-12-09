@@ -10,7 +10,7 @@
 #include "LightTimeSolver.h"
 #include "../types/BodyState.h"
 
-double C2 = 880.0 / 749.0;
+inline constexpr double C2 = 880.0 / 749.0;
 
 class DopplerComputer {
 private:
@@ -20,7 +20,7 @@ private:
 public:
     DopplerComputer(std::map<SpiceDouble, BodyState> &points);
 
-    long double compute_doppler(SpiceDouble& t_recv_first, SpiceDouble& t_recv_second, long double &ref_freq,
+    long double compute_doppler(SpiceDouble& t_recv_first, SpiceDouble& t_recv_second, double &ref_freq,
                 std::string& dsn_id, SpiceDouble& full_time);
 
     Vec3d compute_vec_2_3(SpiceDouble& t_recv, std::string& dsn_id);

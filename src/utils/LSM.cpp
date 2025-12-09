@@ -4,10 +4,11 @@
 
 #include "LSM.h"
 
-LSM::LSM(const StateVector& initial_guess, std::map<SpiceDouble, BodyState> &points) {
+LSM::LSM(const StateVector& initial_guess, std::map<SpiceDouble, BodyState> &points, std::string& file_name) {
     this->state = initial_guess;
     this->covariance = Eigen::MatrixXd::Zero(NUM_PARAMS, NUM_PARAMS);
     this->doppler_computer = new DopplerComputer(points);
+    this->observation_data = CSVReader::read_csv(file_name);
 }
 
 StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
@@ -21,57 +22,52 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
     for (int iter = 0; iter < max_iterations; ++iter) {
 
         // A, b
-        Eigen::MatrixXd A(obs_data.size(), NUM_PARAMS);
-        Eigen::VectorXd b(obs_data.size());
-        Eigen::MatrixXd W = Eigen::MatrixXd::Zero(obs_data.size(), obs_data.size());
-
+        Eigen::MatrixXd A(observation_data.size(), NUM_PARAMS);
+        Eigen::VectorXd b(observation_data.size());
         double total_residual_sq = 0.0;
 
         #pragma omp parallel for reduction(+:total_residual_sq)
-        for (size_t i = 0; i < obs_data.size() - 1; ++i) {
-            const /*obs_data_struct*/& obs1 = obs_data[i];
-            const /*obs_data_struct*/& obs2 = obs_data[i+1];
+        for (size_t i = 0; i < observation_data.size() - 1; ++i) {
+            ObservationData& obs1 = observation_data[i];
+            ObservationData& obs2 = observation_data[i+1];
 
             SpiceDouble full_time;
-            double doppler_calc = doppler_computer->compute_doppler(obs1.recv_time,
-                obs2.recv_time, obs1.ref_freq, obs1.dsn_id, full_time);
+            double doppler_calc = doppler_computer->compute_doppler(obs1.time_tag_seconds,
+                obs2.time_tag_seconds, obs1.full_ref_freq, obs1.receiving_station_id, full_time);
 
             // r
-            double residual = obs1.observable_doppler - doppler_calc;
+            double residual = obs1.full_observable - doppler_calc;
             b(i) = residual;
 
             // частные произдводные
-            Eigen::VectorXd derivatives = compute_partial_derivatives(full_time);
+            Eigen::VectorXd derivatives = compute_partial_derivatives(full_time, obs1, obs2);
             A.row(i) = derivatives;
 
-            // матрица весов
-            W(i, i) = obs1.weight; // узнать насчет веса
-
-            total_residual_sq += residual * residual * obs1.weight;
+            total_residual_sq += residual * residual;
         }
 
-        double rms = sqrt(total_residual_sq / obs_data.size());
+        double rms = sqrt(total_residual_sq / observation_data.size());
 
-        // (A^T * W * A) * dx = A^T * W * b
+        // (A^T * A) * dx = A^T * b
         Eigen::MatrixXd AT = A.transpose();
-        Eigen::MatrixXd ATWA = AT * W * A;
-        Eigen::VectorXd ATWb = AT * W * b;
+        Eigen::MatrixXd ATA = AT * A;
+        Eigen::VectorXd ATb = AT * b;
 
         // Регуляризация (добавление малого числа на диагональ)
         double lambda = 1e-10;
         for (int j = 0; j < NUM_PARAMS; ++j) {
-            ATWA(j, j) += lambda;
+            ATA(j, j) += lambda;
         }
 
         // Решение системы
-        Eigen::VectorXd dx = ATWA.ldlt().solve(ATWb);
+        Eigen::VectorXd dx = ATA.ldlt().solve(ATb);
 
         // Проверка сходимости
         double norm_dx = dx.norm();
 
         if (norm_dx < convergence_tol) {
             // Сохранение ковариационной матрицы
-            covariance = ATWA.inverse();
+            covariance = ATA.inverse();
             break;
         }
 
@@ -80,12 +76,12 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
     return state;
 }
 
-Eigen::VectorXd LSM::compute_partial_derivatives(SpiceDouble& full_time, obs_data_struct& obs_data1, obs_data_struct& obs_data2) {
+Eigen::VectorXd LSM::compute_partial_derivatives(SpiceDouble& full_time, ObservationData& obs_data1, ObservationData& obs_data2) {
     Eigen::VectorXd derivatives(NUM_PARAMS);
-    long double d_f_d_q_scalar = C2 / full_time * obs_data1.ref_freq;
+    long double d_f_d_q_scalar = C2 / full_time * obs_data1.full_ref_freq;
     long double d_r_d_q = 0; // сделать
-    Vec3d d_t2_d_q_1 = -1 / C * (this->doppler_computer->compute_doppler(obs_data1.recv_time, obs_data1.dsn_id).normalize()); // * на dr/dq / 1-ro/c
-    Vec3d d_t2_d_q_2 = -1 / C * (this->doppler_computer->compute_doppler(obs_data2.recv_time, obs_data1.dsn_id).normalize()); // * на dr/dq / 1-ro/c
+    Vec3d d_t2_d_q_1 = (-1 / C) * (this->doppler_computer->compute_vec_2_3(obs_data1.time_tag_seconds, obs_data1.receiving_station_id).normalized()); // * на dr/dq / 1-ro/c
+    Vec3d d_t2_d_q_2 = (-1 / C) * (this->doppler_computer->compute_vec_2_3(obs_data2.time_tag_seconds, obs_data1.receiving_station_id).normalized()); // * на dr/dq / 1-ro/c
 
     Vec3d d_f_d_q = (d_t2_d_q_1 - d_t2_d_q_2) * d_f_d_q_scalar;
     derivatives(0) = d_f_d_q.x;
