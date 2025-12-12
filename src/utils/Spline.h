@@ -8,7 +8,7 @@
 #include <map>
 #include <SpiceZdf.h>
 #include <vector>
-#include "../types/BodyState.h"
+#include "../types/Vec3d.h"
 
 class Spline {
 private:
@@ -23,7 +23,7 @@ private:
 
 public:
     Spline() = default;
-    void build_all_splines(std::map<SpiceDouble, BodyState>& points);
+    void build_all_splines(std::vector<SpiceDouble>& times, std::vector<Vec3d>& points);
     std::vector<SplineData> build_spline(std::vector<SpiceDouble>& times, std::vector<long double>& points);
     Vec3d interpolate(SpiceDouble time);
     ~Spline() {

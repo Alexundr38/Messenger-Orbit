@@ -79,9 +79,16 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
 Eigen::VectorXd LSM::compute_partial_derivatives(SpiceDouble& full_time, ObservationData& obs_data1, ObservationData& obs_data2) {
     Eigen::VectorXd derivatives(NUM_PARAMS);
     long double d_f_d_q_scalar = C2 / full_time * obs_data1.full_ref_freq;
-    long double d_r_d_q = 0; // сделать
-    Vec3d d_t2_d_q_1 = (-1 / C) * (this->doppler_computer->compute_vec_2_3(obs_data1.time_tag_seconds, obs_data1.receiving_station_id).normalized()); // * на dr/dq / 1-ro/c
-    Vec3d d_t2_d_q_2 = (-1 / C) * (this->doppler_computer->compute_vec_2_3(obs_data2.time_tag_seconds, obs_data1.receiving_station_id).normalized()); // * на dr/dq / 1-ro/c
+    LightTimeSolver* light_time = this->doppler_computer->get_light_time_solver();
+    long double d_r_d_q = 1; // сделать
+    Vec3d r_norm_c_1 = (-1 / C) * (light_time->get_vec_2_3(obs_data1.time_tag_seconds, obs_data1.receiving_station_id).normalized());
+    Vec3d r_norm_c_2 = (-1 / C) * (light_time->get_vec_2_3(obs_data2.time_tag_seconds, obs_data1.receiving_station_id).normalized());
+
+    long double d_p_2_3_t1 = 1 + r_norm_c_1.dot(light_time->get_vec_r_C(light_time->light_time_solve(obs_data1.time_tag_seconds, obs_data1.receiving_station_id)));
+    long double d_p_2_3_t2 = 1 + r_norm_c_2.dot(light_time->get_vec_r_C(light_time->light_time_solve(obs_data2.time_tag_seconds, obs_data2.receiving_station_id)));
+
+    Vec3d d_t2_d_q_1 = r_norm_c_1 / d_p_2_3_t1; // * матрицу
+    Vec3d d_t2_d_q_2 = r_norm_c_2 / d_p_2_3_t2; // * матрицу
 
     Vec3d d_f_d_q = (d_t2_d_q_1 - d_t2_d_q_2) * d_f_d_q_scalar;
     derivatives(0) = d_f_d_q.x;
