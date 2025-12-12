@@ -7,8 +7,10 @@
 #include <GLFW/glfw3.h>
 
 #include "RenderFunctions.h"
+#include "../simulation/SimulationTime.h"
 #include "../space/SpaceObject.h"
 #include "../utils/Constants.h"
+#include "../utils/SpaceObjectManager.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "../utils/TimeConverter.h"
 
@@ -41,12 +43,11 @@ void RenderSystem::unregister_object(const Renderable* obj)
     if (it != render_objects.end()) render_objects.erase(it);
 }
 
-void RenderSystem::draw_path(const std::shared_ptr<const std::vector<Vec3d>>& history)
+void RenderSystem::draw_path(const std::vector<Vec3d>& history, Vec3d center)
 {
-    if (!history) return;
-    for (int i = 0; i < history->size(); i++)
+    for (int i = 0; i < history.size(); i++)
     {
-        Vec3d point = history->at(i);
+        Vec3d point = history.at(i)-center;
         RenderFunctions::draw_dot(point/proportion, Vec3d(1, 0, 1), 1);
     }
 }
@@ -55,16 +56,19 @@ void RenderSystem::render()
 {
     RenderFunctions::pre_render();
     {
+        double simulation_time = render_objects[0]->get_current_body_state().time;
+        // center = SpaceObjectManager::get_body_state_at_time(simulation_time, "MERCURY BARYCENTER").position;
+        center = render_objects[render_objects.size()-1]->get_current_body_state().position;
         glLoadMatrixf(glm::value_ptr(camera->GetViewMatrix()));
-        SpiceDouble simulation_time_tdb = render_objects[0]->get_current_body_state().time;
+
         for (auto render_object : render_objects)
         {
-            auto pos = render_object->get_current_body_state().position/proportion;
-            RenderFunctions::draw_sphere_wireframe(pos, render_object->get_color(), render_object->get_size()/au/proportion);
-            auto history = render_object->get_render_snapshot();
-            draw_path(history);
+            auto pos = (render_object->get_current_body_state().position - center)/proportion;
+            RenderFunctions::draw_sphere_wireframe(pos, render_object->get_color(), render_object->get_size()/au/proportion); //0.01f);
+            auto history = render_object->get_history();
+            draw_path(history, center);
         }
-        std::string utc_string = TimeConverter::to_utc(simulation_time_tdb);
+        std::string utc_string = TimeConverter::to_utc(simulation_time);
         std::ostringstream oss;
         oss << utc_string;
         glfwSetWindowTitle(RenderFunctions::get_window(), oss.str().c_str());

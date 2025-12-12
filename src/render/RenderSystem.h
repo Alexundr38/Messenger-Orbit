@@ -13,13 +13,14 @@ class RenderSystem
     std::vector<Renderable*> render_objects;
     Camera * camera = nullptr;
     double proportion;
+    Vec3d center;
     RenderSystem();
 public:
     static RenderSystem& get_instance();
     void register_object(Renderable* obj);
     void set_camera(Camera* camera);
     void unregister_object(const Renderable* obj);
-    void draw_path(const std::shared_ptr<const std::vector<Vec3d>>& history);
+    void draw_path(const std::vector<Vec3d>& history, Vec3d center);
     void render();
 };
 

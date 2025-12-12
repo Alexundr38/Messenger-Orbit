@@ -14,6 +14,7 @@ class TimeConverter
     static TimeConverter& get_instance();
     public:
     static SpiceDouble to_tdb(const std::string& utc);
+    static SpiceDouble from_string_to_tdb(const std::string& tdb);
     static std::string to_utc(SpiceDouble tdb);
 };
 

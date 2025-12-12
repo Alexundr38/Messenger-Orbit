@@ -8,24 +8,25 @@
 #include <thread>
 
 #include "../space/NewtonFormula.h"
+#include "SimulationTime.h"
 
-
-void Simulation::next_step()
+bool Simulation::next_step(bool simulation_running)
 {
-
-    for (size_t i = 0; i < spaceObjects.size(); i++) {
-        spaceObjects[i]->get_body_state(current_date);
-
-        // std::cout << s << std::endl;
+    if (current_date < end_date && simulation_running)
+    {
+        for (size_t i = 0; i < spaceObjects.size(); i++) {
+            spaceObjects[i]->get_body_state(current_date);
+        }
+        current_date += step;
     }
-    current_date += step;
+    return false;
 }
 
 void Simulation::run(std::atomic<bool>& simulation_running)
 {
-    while (current_date < end_date && simulation_running)
+    while (next_step(simulation_running))
     {
-        next_step();
+
         // std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }

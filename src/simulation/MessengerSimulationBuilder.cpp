@@ -4,6 +4,7 @@
 
 #include "MessengerSimulationBuilder.h"
 
+#include "SimulationTime.h"
 #include "../render/RenderSystem.h"
 #include "../space/NewtonFormula.h"
 #include "../space/SpaceObjectEntity.h"
@@ -23,11 +24,10 @@ MessengerSimulationBuilder::MessengerSimulationBuilder()
 Simulation* MessengerSimulationBuilder::buildSimulation()
 {
     simulation = new Simulation();
-    auto j2000 = TimeConverter::to_tdb(PropertiesReader::get_property("forward-task", "simulation", "j2000"));
-    simulation->start_date = TimeConverter::to_tdb(start_date)+j2000;
+    simulation->start_date = TimeConverter::from_string_to_tdb(start_date);
     simulation->current_date = simulation->start_date;
-    simulation->step = TimeConverter::to_tdb(step);
-    simulation->end_date = TimeConverter::to_tdb(end_date);
+    simulation->step = TimeConverter::from_string_to_tdb(step);
+    simulation->end_date = TimeConverter::from_string_to_tdb(end_date);
     simulation_bodies.push_back(new SpaceObjectEntity("SUN"));
     simulation_bodies.push_back(new SpaceObjectEntity("MERCURY BARYCENTER"));
     simulation_bodies.push_back(new SpaceObjectEntity("VENUS BARYCENTER"));
@@ -40,24 +40,22 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
 
     auto parts = PropertiesReader::get_property_array(' ', "forward-task", "simulation", "messenger-color");
 
-
-    SpiceDouble time = TimeConverter::to_tdb(start_date) - j2000;
     BodyState start_state_messenger;
-    start_state_messenger.time = time/day;
-    start_state_messenger.position = Vec3d(1.150415935974740E-6, -7.151776288651341E-06,  1.784728973912254E-05);
-    start_state_messenger.velocity = Vec3d(-2.021578272234898E-03,  1.658188230820052E-04,  1.907634434747403E-04);
+    start_state_messenger.time = simulation->start_date;
+    // Vec3d merc_pos = SpaceObjectManager::get_body_state_at_time(time, "MERCURY BARYCENTER").position;
+    start_state_messenger.position = Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01); // sun
+    // start_state_messenger.position = Vec3d(1.150415935974740E-6, -7.151776288651341E-06,  1.784728973912254E-05); // merc
+    start_state_messenger.velocity = Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03); // sun
+    // start_state_messenger.velocity = Vec3d(-2.021578272234898E-03,  1.658188230820052E-04,  1.907634434747403E-04); // merc
 
     NewtonFormulaProxy *messenger2 = new NewtonFormulaProxy(
         simulation_bodies,
         "MESSENGER",
         start_state_messenger,
-        simulation->step/day
+        simulation->step,
+        "simulation_results.txt"
     );
 
-    messenger2->set_implicit_methods(false);
-    messenger2->set_use_corrector(true);
-    messenger2->set_newton_methods(false);
-    messenger2->set_use_relativistic_corrections(true);
     Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
     messenger2->set_color(messenger_color);
     simulation_bodies.push_back(messenger2);

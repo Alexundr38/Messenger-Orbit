@@ -44,9 +44,9 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
         state,
         &lt);
     body_state.position = {state[0], state[1], state[2]};
-    // body_state.velocity = {state[3], state[4], state[5]};
+    body_state.velocity = {state[3], state[4], state[5]};
     body_state.position /= au;
-    // body_state.velocity = (body_state.velocity*day)/au;
+    body_state.velocity = (body_state.velocity*day)/au;
     return body_state;
 }
 
@@ -66,9 +66,9 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
         state,
         &lt);
     body_state.position = {state[0], state[1], state[2]};
-    // body_state.velocity = {state[3], state[4], state[5]};
+    body_state.velocity = {state[3], state[4], state[5]};
     body_state.position = body_state.position / au;
-    // body_state.velocity = (body_state.velocity)/au;
+    body_state.velocity = (body_state.velocity)/au;
     return body_state;
 }
 

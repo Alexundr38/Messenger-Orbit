@@ -22,24 +22,24 @@ int main(int argc, char* argv[])
     CameraController::init(&camera);
     std::atomic<bool> simulation_running{true};
     Simulation *simulation = MessengerSimulationBuilder().buildSimulation();
-    std::thread simulation_thread([simulation, &simulation_running]() {
-        try {
-            simulation->run(simulation_running);
-        } catch (const std::exception& e) {
-            std::cerr << "Simulation error: " << e.what() << std::endl;
-        }
-    });
+    // std::thread simulation_thread([simulation, &simulation_running]() {
+    //     try {
+    //         simulation->run(simulation_running);
+    //     } catch (const std::exception& e) {
+    //         std::cerr << "Simulation error: " << e.what() << std::endl;
+    //     }
+    // });
 
-    while (!glfwWindowShouldClose(RenderFunctions::get_window()))
+    while (simulation->next_step(simulation_running) || !glfwWindowShouldClose(RenderFunctions::get_window()))
     {
         CameraController::update();
         RenderSystem::get_instance().render();
-        // std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     simulation_running = false;
-    if (simulation_thread.joinable()) {
-        simulation_thread.join();
-    }
+    // if (simulation_thread.joinable()) {
+    //     simulation_thread.join();
+    // }
 
     delete simulation;
     return 0;

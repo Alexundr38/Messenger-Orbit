@@ -20,7 +20,7 @@ struct Simulation
     SpiceDouble current_date;
     SpiceDouble end_date;
     SpiceDouble step;
-    void next_step();
+    bool next_step(bool simulation_running);
     void run(std::atomic<bool>& simulation_running);
     void set_space_objects(std::vector<SpaceObject*> spaceObjects);
     void add_space_object(SpaceObject *object);

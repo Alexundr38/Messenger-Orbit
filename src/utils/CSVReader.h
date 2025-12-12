@@ -28,7 +28,6 @@ public:
 
     static std::vector<ObservationData> read_csv(std::string& file_name);
     static ObservationData read_line(std::string& line);
-
 };
 
 

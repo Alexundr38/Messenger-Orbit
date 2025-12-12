@@ -26,6 +26,14 @@ SpiceDouble TimeConverter::to_tdb(const std::string& utc)
     return et;
 }
 
+SpiceDouble TimeConverter::from_string_to_tdb(const std::string& tdb)
+{
+    get_instance();
+    SpiceDouble et;
+    str2et_c(tdb.c_str(), &et);
+    return et;
+}
+
 std::string TimeConverter::to_utc(const SpiceDouble tdb)
 {
     std::lock_guard<std::mutex> lock(spice_mutex);
