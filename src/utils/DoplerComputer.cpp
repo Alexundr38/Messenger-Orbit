@@ -46,7 +46,12 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv_first, SpiceDou
     return doppler_freq;
 }
 
-Vec3d DopplerComputer::compute_vec_2_3(SpiceDouble& t_recv, std::string& dsn_id)
+LightTimeSolver* DopplerComputer::get_light_time_solver()
 {
-    return this->light_time->get_vec(t_recv, dsn_id);
+    return this->light_time;
 }
+
+// Vec3d DopplerComputer::get_d_r_c(SpiceDouble& t_recv, std::string& dsn_id)
+// {
+//     return this->light_time->get_vec(t_recv, dsn_id);
+// }

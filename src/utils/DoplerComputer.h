@@ -23,7 +23,7 @@ public:
     long double compute_doppler(SpiceDouble& t_recv_first, SpiceDouble& t_recv_second, double &ref_freq,
                 std::string& dsn_id, SpiceDouble& full_time);
 
-    Vec3d compute_vec_2_3(SpiceDouble& t_recv, std::string& dsn_id);
+    LightTimeSolver* get_light_time_solver();
 };
 
 
