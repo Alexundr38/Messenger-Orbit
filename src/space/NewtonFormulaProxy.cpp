@@ -14,7 +14,7 @@ NewtonFormulaProxy::NewtonFormulaProxy(const std::vector<SpaceObject*>& force_bo
     start_date = start_state.time;
     filename = PathResolver::get_data(filename);
     csv_file.open(filename);
-    csv_file << "time,pos_x,pos_y,pos_z,vel_x,vel_y,vel_z\n";
+    csv_file << "x,y,z,vx,vy,vz\n";
 }
 
 NewtonFormulaProxy::NewtonFormulaProxy(const std::string& object_name,
@@ -25,7 +25,7 @@ NewtonFormulaProxy::NewtonFormulaProxy(const std::string& object_name,
     start_date = start_state.time;
     filename = PathResolver::get_data(filename);
     csv_file.open(filename);
-    csv_file << "time,pos_x,pos_y,pos_z,vel_x,vel_y,vel_z\n";
+    csv_file << "x,y,z,vx,vy,vz\n";
 }
 
 BodyState NewtonFormulaProxy::get_body_state(SpiceDouble tdb)
@@ -34,7 +34,7 @@ BodyState NewtonFormulaProxy::get_body_state(SpiceDouble tdb)
     if ((int)(tdb - start_date) % 60 == 0)
     {
         csv_file << std::scientific << std::uppercase << std::setprecision(15);
-        csv_file << state.time << "," << state.position.x << ","
+        csv_file << state.position.x << ","
                     << state.position.y << ","
                     << state.position.z << ","
                     << state.velocity.x << ","

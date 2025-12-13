@@ -169,20 +169,18 @@ BodyState NewtonFormula::next_step(const BodyState& current_state) const {
 
     BodyState predictor_state(new_pos, new_vel, t0 + h);
 
-
-
-
-    std::cout << predictor_state.position.x << " "
-        << predictor_state.position.y << " "
-        << predictor_state.position.z << " " << std::endl;
     return predictor_state;
-    //
+
     // auto pos = current_state.position;
     // auto vel = current_state.velocity;
     // Vec3d new_vel = vel + calculate_acceleration(current_state.time, pos)*step;
     // Vec3d new_pos = pos + new_vel*step;
     // return BodyState(new_pos, new_vel, current_state.time+step);
 }
+
+
+
+
 
 Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
     Vec3d acceleration;
@@ -196,6 +194,7 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
     }
     return acceleration;
 }
+
 
 
 // SpaceObject * NewtonFormula::getMercury()
@@ -226,7 +225,6 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
 BodyState NewtonFormula::calculate_to_target(BodyState current_state, SpiceDouble target_time) {
     while (current_state.time < target_time) {
         current_state = next_step(current_state);
-        // add_body_state(current_state);
 
         previous_states.push_back(current_state);
         if (previous_states.size() > 4) {
