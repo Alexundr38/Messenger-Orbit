@@ -45,7 +45,7 @@ add_executable(MessengerOrbit
         src/space/SpaceObject.h
         src/utils/PropertiesReader.h
         src/utils/PathResolver.h
-        src/main.cpp
+#        src/main.cpp
         src/utils/SpaceObjectManager.cpp
         src/utils/SpaceObjectManager.h
         src/utils/TimeConverter.cpp
@@ -60,8 +60,8 @@ add_executable(MessengerOrbit
         src/space/NewtonFormula.h
         src/utils/Constants.h
         src/simulation/SimulationBuilder.h
-        src/simulation/MessengerSimulationBuilder.cpp
-        src/simulation/MessengerSimulationBuilder.h
+        src/simulation/RenderSimulationBuilder.cpp
+        src/simulation/RenderSimulationBuilder.h
         src/render/RenderSystem.cpp
         src/render/RenderSystem.h
         src/render/Renderable.h
@@ -89,6 +89,13 @@ add_executable(MessengerOrbit
         src/utils/CSVReader.cpp
         src/utils/CSVReader.h
         src/simulation/SimulationTime.h
+        src/simulation/MessengerSimulationBuilder.cpp
+        src/simulation/MessengerSimulationBuilder.h
+        src/testMessengerSimulation.cpp
+        src/converter/UnitsConverter.cpp
+        src/converter/UnitsConverter.h
+        src/simulation/MessengerSimulationAdapter.cpp
+        src/simulation/MessengerSimulationAdapter.h
 )
 
 target_include_directories(MessengerOrbit PRIVATE

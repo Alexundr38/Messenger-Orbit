@@ -76,7 +76,17 @@ BodyState NewtonFormula::trapezoidal_corrector_newton(const BodyState& current_s
 }
 
 
-
+NewtonFormula::NewtonFormula(const std::string& object_name, const BodyState& start_state, SpiceDouble step)
+{
+    this->object_name = object_name;
+    this->start_state = start_state;
+    this->step = step;
+    this->size = 100;
+    SpaceObject::set_object_name(object_name);
+    NewtonFormula::set_current_body_state(start_state);
+    add_body_state(start_state);
+    previous_states.push_back(start_state);
+}
 
 NewtonFormula::NewtonFormula(
     std::vector<SpaceObject*> force_bodies,
@@ -96,59 +106,82 @@ void NewtonFormula::set_object_name(const std::string& object_name) {
 }
 
 BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
-    BodyState state = body_states.rbegin()->second;
-    set_current_body_state(state);
-    add_history_point(state.position);
-    return calculate_to_target(state, tdb);
+    if (body_states->empty())
+    {
+        throw std::invalid_argument("No BodyState in container, can't integrate");
+    }
+    auto equal = body_states->find(tdb);
+    if (equal != body_states->end())
+    {
+        return equal->second;
+    }
+    auto upper = body_states->upper_bound(tdb);
+    if (upper == body_states->end())
+    {
+        auto result = calculate_to_target(std::prev(upper)->second, tdb);
+        add_history_point(result.position);
+        NewtonFormula::set_current_body_state(result);
+        return result;
+    }
+    auto lower = std::prev(upper);
+    if (lower == body_states->begin())
+    {
+        throw std::invalid_argument("Start position needed for integrating current time is before all ");
+    }
+    if (upper->first - lower->first < step )
+    {
+        interpolate(lower->second, upper->second, tdb);
+    }
+    auto result = calculate_to_target(lower->second, tdb);
+    add_history_point(result.position);
+    NewtonFormula::set_current_body_state(result);
+    return result;
+
 }
 
 BodyState NewtonFormula::next_step(const BodyState& current_state) const {
-    // const long double h = step;
-    // const Vec3d& y0_pos = current_state.position;
-    // const Vec3d& y0_vel = current_state.velocity;
-    // const long double t0 = current_state.time;
-    // Vec3d k1_pos, k1_vel, k2_pos, k2_vel, k3_pos, k3_vel, k4_pos, k4_vel;
-    //
-    // k1_vel = calculate_acceleration(t0, y0_pos);
-    // k1_pos = y0_vel;
-    //
-    // Vec3d pos2 = y0_pos + h * 0.5f * k1_pos;
-    // Vec3d vel2 = y0_vel + h * 0.5f * k1_vel;
-    // k2_vel = calculate_acceleration(t0 + h * 0.5, pos2);
-    // k2_pos = vel2;
-    //
-    // Vec3d pos3 = y0_pos + h * 0.5f * k2_pos;
-    // Vec3d vel3 = y0_vel + h * 0.5f * k2_vel;
-    // k3_vel = calculate_acceleration(t0 + h * 0.5, pos3);
-    // k3_pos = vel3;
-    //
-    // Vec3d pos4 = y0_pos + h * k3_pos;
-    // Vec3d vel4 = y0_vel + h * k3_vel;
-    // k4_vel = calculate_acceleration(t0 + h, pos4);
-    // k4_pos = vel4;
-    //
-    // Vec3d new_pos = y0_pos + (h / 6.0) * (k1_pos + 2.0*k2_pos + 2.0*k3_pos + k4_pos);
-    // Vec3d new_vel = y0_vel + (h / 6.0) * (k1_vel + 2.0*k2_vel + 2.0*k3_vel + k4_vel);
-    //
-    // BodyState predictor_state(new_pos, new_vel, t0 + h);
+    const long double h = step;
+    const Vec3d& y0_pos = current_state.position;
+    const Vec3d& y0_vel = current_state.velocity;
+    const long double t0 = current_state.time;
+    Vec3d k1_pos, k1_vel, k2_pos, k2_vel, k3_pos, k3_vel, k4_pos, k4_vel;
 
-    // if (use_corrector) {
-    //     return trapezoidal_corrector_newton(current_state, predictor_state);
-    // }
+    k1_vel = calculate_acceleration(t0, y0_pos);
+    k1_pos = y0_vel;
+
+    Vec3d pos2 = y0_pos + h * 0.5f * k1_pos;
+    Vec3d vel2 = y0_vel + h * 0.5f * k1_vel;
+    k2_vel = calculate_acceleration(t0 + h * 0.5, pos2);
+    k2_pos = vel2;
+
+    Vec3d pos3 = y0_pos + h * 0.5f * k2_pos;
+    Vec3d vel3 = y0_vel + h * 0.5f * k2_vel;
+    k3_vel = calculate_acceleration(t0 + h * 0.5, pos3);
+    k3_pos = vel3;
+
+    Vec3d pos4 = y0_pos + h * k3_pos;
+    Vec3d vel4 = y0_vel + h * k3_vel;
+    k4_vel = calculate_acceleration(t0 + h, pos4);
+    k4_pos = vel4;
+
+    Vec3d new_pos = y0_pos + (h / 6.0) * (k1_pos + 2.0*k2_pos + 2.0*k3_pos + k4_pos);
+    Vec3d new_vel = y0_vel + (h / 6.0) * (k1_vel + 2.0*k2_vel + 2.0*k3_vel + k4_vel);
+
+    BodyState predictor_state(new_pos, new_vel, t0 + h);
 
 
-    //
-    //
-    // std::cout << predictor_state.position.x << " "
-    //     << predictor_state.position.y << " "
-    //     << predictor_state.position.z << " " << std::endl;
-    // return predictor_state;
 
-    auto pos = current_state.position;
-    auto vel = current_state.velocity;
-    Vec3d new_vel = vel + calculate_acceleration(current_state.time, pos)*step;
-    Vec3d new_pos = pos + new_vel*step;
-    return BodyState(new_pos, new_vel, current_state.time+step);
+
+    std::cout << predictor_state.position.x << " "
+        << predictor_state.position.y << " "
+        << predictor_state.position.z << " " << std::endl;
+    return predictor_state;
+    //
+    // auto pos = current_state.position;
+    // auto vel = current_state.velocity;
+    // Vec3d new_vel = vel + calculate_acceleration(current_state.time, pos)*step;
+    // Vec3d new_pos = pos + new_vel*step;
+    // return BodyState(new_pos, new_vel, current_state.time+step);
 }
 
 Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
@@ -193,7 +226,7 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
 BodyState NewtonFormula::calculate_to_target(BodyState current_state, SpiceDouble target_time) {
     while (current_state.time < target_time) {
         current_state = next_step(current_state);
-        add_body_state(current_state);
+        // add_body_state(current_state);
 
         previous_states.push_back(current_state);
         if (previous_states.size() > 4) {
@@ -202,7 +235,7 @@ BodyState NewtonFormula::calculate_to_target(BodyState current_state, SpiceDoubl
     }
     if (current_state.time != target_time)
     {
-        auto prevState = std::prev(body_states.rbegin())->second;
+        auto prevState = std::prev(body_states->rbegin())->second;
         return interpolate(prevState, current_state, target_time);
     }
 
@@ -216,6 +249,12 @@ BodyState NewtonFormula::interpolate(const BodyState& first, const BodyState& se
     result.position = first.position + factor * (second.position - first.position);
     result.velocity = first.velocity + factor * (second.velocity - first.velocity);
     return result;
+}
+
+void NewtonFormula::set_current_body_state(const BodyState& body_state)
+{
+    SpaceObject::set_current_body_state(body_state);
+    (*body_states)[body_state.time] = body_state;
 }
 
 

@@ -1,87 +1,38 @@
 //
-// Created by magofrays on 11/4/25.
+// Created by magofrays on 12/12/25.
 //
 
 #include "MessengerSimulationBuilder.h"
-
-#include "SimulationTime.h"
-#include "../render/RenderSystem.h"
-#include "../space/NewtonFormula.h"
-#include "../space/SpaceObjectEntity.h"
-#include "../utils/Constants.h"
-#include "../utils/PropertiesReader.h"
 #include "../utils/TimeConverter.h"
+#include "../space/NewtonFormula.h"
 #include "../space/NewtonFormulaProxy.h"
-
-
-MessengerSimulationBuilder::MessengerSimulationBuilder()
-{
-    start_date = PropertiesReader::get_property("forward-task", "simulation", "start-date");
-    step = PropertiesReader::get_property("forward-task", "simulation", "step");
-    end_date = PropertiesReader::get_property("forward-task", "simulation", "end-date");
-}
+#include "../space/SpaceObjectEntity.h"
 
 Simulation* MessengerSimulationBuilder::buildSimulation()
 {
-    simulation = new Simulation();
-    simulation->start_date = TimeConverter::from_string_to_tdb(start_date);
-    simulation->current_date = simulation->start_date;
-    simulation->step = TimeConverter::from_string_to_tdb(step);
-    simulation->end_date = TimeConverter::from_string_to_tdb(end_date);
-    simulation_bodies.push_back(new SpaceObjectEntity("SUN"));
-    simulation_bodies.push_back(new SpaceObjectEntity("MERCURY BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("VENUS BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("EARTH BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("MARS BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("JUPITER BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("SATURN BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("URANUS BARYCENTER"));
-    simulation_bodies.push_back(new SpaceObjectEntity("NEPTUNE BARYCENTER"));
-
-    auto parts = PropertiesReader::get_property_array(' ', "forward-task", "simulation", "messenger-color");
-
-    BodyState start_state_messenger;
-    start_state_messenger.time = simulation->start_date;
-    // Vec3d merc_pos = SpaceObjectManager::get_body_state_at_time(time, "MERCURY BARYCENTER").position;
-    start_state_messenger.position = Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01); // sun
-    // start_state_messenger.position = Vec3d(1.150415935974740E-6, -7.151776288651341E-06,  1.784728973912254E-05); // merc
-    start_state_messenger.velocity = Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03); // sun
-    // start_state_messenger.velocity = Vec3d(-2.021578272234898E-03,  1.658188230820052E-04,  1.907634434747403E-04); // merc
-
-    NewtonFormulaProxy *messenger2 = new NewtonFormulaProxy(
-        simulation_bodies,
-        "MESSENGER",
-        start_state_messenger,
-        simulation->step,
-        "simulation_results.txt"
-    );
-
-    Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
-    messenger2->set_color(messenger_color);
-    simulation_bodies.push_back(messenger2);
-
-
-    for (size_t i = 0; i < simulation_bodies.size(); ++i)
-    {
-        RenderSystem::get_instance().register_object(simulation_bodies[i]);
-
-    }
-    for (auto body : simulation_bodies)
-    {
-        std::cout << body->get_object_name() << std::endl;
-        std::cout << body->get_body_state(simulation->start_date) << std::endl;
-    }
-    simulation->spaceObjects = simulation_bodies;
+    SpiceDouble start_date = TimeConverter::from_string_to_tdb(PropertiesReader::get_property("forward-task", "simulation", "start-date"));
+    SpiceDouble step = TimeConverter::from_string_to_tdb(PropertiesReader::get_property("forward-task", "simulation", "step"));
+    SpiceDouble end_date = TimeConverter::from_string_to_tdb(PropertiesReader::get_property("forward-task", "simulation", "end-date"));
+    BodyState start_state(
+        Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01),
+        Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03),
+            start_date
+        );
+    auto newton = new NewtonFormulaProxy( "MESSENGER", start_state, step, "result.txt");
+    auto* simulation = new Simulation();
+    newton->add_force_body(new SpaceObjectEntity("SUN"));
+    newton->add_force_body(new SpaceObjectEntity("MERCURY BARYCENTER"));
+    newton->add_force_body(new SpaceObjectEntity("VENUS BARYCENTER"));
+    newton->add_force_body(new SpaceObjectEntity("EARTH BARYCENTER"));
+    newton->add_force_body(new SpaceObjectEntity("MARS BARYCENTER"));
+    newton->add_force_body(new SpaceObjectEntity("JUPITER BARYCENTER"));
+    newton->add_force_body(new SpaceObjectEntity("SATURN BARYCENTER"));
+    newton->add_force_body(new SpaceObjectEntity("URANUS BARYCENTER"));
+    newton->add_force_body(new SpaceObjectEntity("NEPTUNE BARYCENTER"));
+    simulation->set_start_date(start_date);
+    simulation->set_current_date(start_date);
+    simulation->set_end_date(end_date);
+    simulation->set_step(step);
+    simulation->add_space_object(newton);
     return simulation;
-};
-
-
-
-MessengerSimulationBuilder::~MessengerSimulationBuilder()
-{
-    // delete simulation;
-    // for (const auto body : simulation_bodies)
-    // {
-    //     delete body;
-    // }
 }

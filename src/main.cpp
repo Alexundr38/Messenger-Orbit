@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "render/RenderSystem.h"
-#include "simulation/MessengerSimulationBuilder.h"
+#include "simulation/RenderSimulationBuilder.h"
 #include "simulation/SimulationBuilder.h"
 
 #include <atomic>
@@ -21,26 +21,13 @@ int main(int argc, char* argv[])
     RenderSystem::get_instance().set_camera(&camera);
     CameraController::init(&camera);
     std::atomic<bool> simulation_running{true};
-    Simulation *simulation = MessengerSimulationBuilder().buildSimulation();
-    // std::thread simulation_thread([simulation, &simulation_running]() {
-    //     try {
-    //         simulation->run(simulation_running);
-    //     } catch (const std::exception& e) {
-    //         std::cerr << "Simulation error: " << e.what() << std::endl;
-    //     }
-    // });
-
+    Simulation *simulation = RenderSimulationBuilder().buildSimulation();
     while (simulation->next_step(simulation_running) || !glfwWindowShouldClose(RenderFunctions::get_window()))
     {
         CameraController::update();
         RenderSystem::get_instance().render();
         // std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    simulation_running = false;
-    // if (simulation_thread.joinable()) {
-    //     simulation_thread.join();
-    // }
-
     delete simulation;
     return 0;
 }

@@ -27,6 +27,10 @@ protected:
     BodyState start_state;
 
 public:
+    NewtonFormula() = default;
+
+    NewtonFormula(const std::string& object_name, const BodyState& start_state, SpiceDouble step);
+
     NewtonFormula(
         std::vector<SpaceObject*> force_bodies,
         const std::string& object_name,
@@ -40,9 +44,8 @@ public:
 
     [[nodiscard]] Vec3d calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const;
     BodyState calculate_to_target(BodyState current_state, SpiceDouble target_time);
-    
     static BodyState interpolate(const BodyState& first, const BodyState& second, SpiceDouble current_time);
-
+    void set_current_body_state(const BodyState& body_state) override;
     void add_force_body(SpaceObject* force_body);
 };
 
