@@ -4,6 +4,7 @@
 
 #include "CSVReader.h"
 #include <iostream>
+#include <algorithm>
 
 std::vector<ObservationData> CSVReader::read_csv(std::string& file_name) {
     std::vector<ObservationData> observations;
@@ -26,6 +27,11 @@ std::vector<ObservationData> CSVReader::read_csv(std::string& file_name) {
         ObservationData data = read_line(line);
         observations.push_back(data);
     }
+
+    std::sort(observations.begin(), observations.end(),
+            [](const ObservationData& a, const ObservationData& b) {
+                return a.time_tag_seconds < b.time_tag_seconds;
+            });
 
     file.close();
     return observations;
