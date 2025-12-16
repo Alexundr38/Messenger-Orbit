@@ -16,8 +16,8 @@ class NewtonFormulaProxy final : public NewtonFormula
     std::ofstream csv_file;
 public:
     NewtonFormulaProxy(const std::vector<SpaceObject*>& force_bodies, const std::string& object_name,
-        const BodyState& start_state, SpiceDouble step, std::string filename);
-    NewtonFormulaProxy(const std::string& object_name, const BodyState& start_state, SpiceDouble step,
+        const ExtendedBodyState& start_state, SpiceDouble step, std::string filename);
+    NewtonFormulaProxy(const std::string& object_name, const ExtendedBodyState& start_state, SpiceDouble step,
                        std::string filename);
 
 

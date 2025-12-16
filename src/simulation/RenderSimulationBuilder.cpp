@@ -40,7 +40,7 @@ Simulation* RenderSimulationBuilder::buildSimulation()
 
     auto parts = PropertiesReader::get_property_array(' ', "forward-task", "simulation", "messenger-color");
 
-    BodyState start_state_messenger;
+    ExtendedBodyState start_state_messenger;
     start_state_messenger.time = simulation->get_start_date();
     // Vec3d merc_pos = SpaceObjectManager::get_body_state_at_time(time, "MERCURY BARYCENTER").position;
     start_state_messenger.position = Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01); // sun
@@ -55,6 +55,7 @@ Simulation* RenderSimulationBuilder::buildSimulation()
         simulation->get_step(),
         "simulation_results.txt"
     );
+    messenger2->set_use_implicit(true);
 
     Vec3d messenger_color = Vec3d(std::stoi(parts.at(0)), std::stoi(parts.at(1)), std::stoi(parts.at(2)))/255;
     messenger2->set_color(messenger_color);

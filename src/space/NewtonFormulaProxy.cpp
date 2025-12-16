@@ -7,8 +7,8 @@
 #include "../converter/UnitsConverter.h"
 
 NewtonFormulaProxy::NewtonFormulaProxy(const std::vector<SpaceObject*>& force_bodies, const std::string& object_name,
-                                       const BodyState& start_state, SpiceDouble step, std::string filename) : NewtonFormula(
-    force_bodies, object_name, BodyState(start_state.position, start_state.velocity, start_state.time / day),
+                                       const ExtendedBodyState& start_state, SpiceDouble step, std::string filename) : NewtonFormula(
+    force_bodies, object_name, ExtendedBodyState(start_state.position, start_state.velocity, start_state.time / day),
     step / day)
 {
     start_date = start_state.time;
@@ -18,8 +18,8 @@ NewtonFormulaProxy::NewtonFormulaProxy(const std::vector<SpaceObject*>& force_bo
 }
 
 NewtonFormulaProxy::NewtonFormulaProxy(const std::string& object_name,
-    const BodyState& start_state, SpiceDouble step, std::string filename) : NewtonFormula(
-    object_name, BodyState(start_state.position, start_state.velocity, start_state.time / day),
+    const ExtendedBodyState& start_state, SpiceDouble step, std::string filename) : NewtonFormula(
+    object_name, ExtendedBodyState(start_state.position, start_state.velocity, start_state.time / day),
     step / day)
 {
     start_date = start_state.time;

@@ -3,33 +3,34 @@
 //
 
 #include "UnitsConverter.h"
+#include "../utils/Constants.h"
 
-BodyState UnitsConverter::toAuDay(const BodyState& state)
+ExtendedBodyState UnitsConverter::toAuDay(const ExtendedBodyState& state)
 {
-    return BodyState(state.position/au, state.velocity*(day/au), state.time/day);
+    return ExtendedBodyState(state.position/au, state.velocity*(day/au), state.time/day);
 }
 
-BodyState UnitsConverter::toAuDayWithoutTime(const BodyState& state)
+ExtendedBodyState UnitsConverter::toAuDayWithoutTime(const ExtendedBodyState& state)
 {
-    return BodyState(state.position/au, state.velocity*(day/au), state.time);
+    return ExtendedBodyState(state.position/au, state.velocity*(day/au), state.time, state.jacobian);
 }
 
-BodyState UnitsConverter::toKmSecWithoutTime(const BodyState& state)
+ExtendedBodyState UnitsConverter::toKmSecWithoutTime(const ExtendedBodyState& state)
 {
-    return BodyState(state.position*au, state.velocity*(au/day), state.time);
+    return ExtendedBodyState(state.position*au, state.velocity*(au/day), state.time, state.jacobian);
 }
 
-BodyState UnitsConverter::toKmSec(const BodyState& state)
+ExtendedBodyState UnitsConverter::toKmSec(const ExtendedBodyState& state)
 {
-    return BodyState(state.position*au, state.velocity*(au/day), state.time*day);
+    return ExtendedBodyState(state.position*au, state.velocity*(au/day), state.time*day, state.jacobian);
 }
 
-std::pair<SpiceDouble, BodyState> UnitsConverter::toKmSec(std::pair<SpiceDouble, BodyState> pair)
+std::pair<SpiceDouble, ExtendedBodyState> UnitsConverter::toKmSec(std::pair<SpiceDouble, ExtendedBodyState> pair)
 {
     return std::make_pair(pair.first*day, toKmSec(pair.second));
 }
 
-std::pair<SpiceDouble, BodyState> UnitsConverter::toAuDay(std::pair<SpiceDouble, BodyState> pair)
+std::pair<SpiceDouble, ExtendedBodyState> UnitsConverter::toAuDay(std::pair<SpiceDouble, ExtendedBodyState> pair)
 {
     return std::make_pair(pair.first/day, toAuDay(pair.second));
 }

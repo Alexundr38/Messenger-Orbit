@@ -2,50 +2,52 @@
 #define NEWTONFORMULA_H
 
 #include "SpaceObject.h"
-#include "../types/BodyState.h"
+#include "../types/ExtendedBodyState.h"
 #include "../types/Vec3d.h"
 #include "../types/Mat3d.h"
 #include <vector>
 #include <deque>
 
-class NewtonFormula : public SpaceObject {
 
+class NewtonFormula : public SpaceObject {
     std::vector<SpaceObject*> force_bodies;
-    BodyState current_state;
-    std::deque<BodyState> previous_states;
+    ExtendedBodyState current_state;
+    bool implicit_newton;
 
 public:
-    void set_use_relativistic_corrections(bool use_relativistic_corrections);
+    void set_use_implicit(bool implicit_newton);
 
 private:
-    BodyState trapezoidal_corrector_newton(const BodyState& current_state,
-                                          const BodyState& predictor_state) const;
+    [[nodiscard]] ExtendedBodyState next_step_implicit_newton(const ExtendedBodyState& current_state) const;
+    [[nodiscard]] ExtendedBodyState trapezoidal_corrector_newton(const ExtendedBodyState& current_state,
+                                           const ExtendedBodyState& predictor_state) const;
 
 
 protected:
     double step;
-    BodyState start_state;
+    ExtendedBodyState start_state;
 
 public:
     NewtonFormula() = default;
 
-    NewtonFormula(const std::string& object_name, const BodyState& start_state, SpiceDouble step);
+    NewtonFormula(const std::string& object_name, const ExtendedBodyState& start_state, SpiceDouble step);
 
     NewtonFormula(
         std::vector<SpaceObject*> force_bodies,
         const std::string& object_name,
-        const BodyState& start_state,
+        const ExtendedBodyState& start_state,
         SpiceDouble step
     );
     void set_object_name(const std::string& object_name) override;
     BodyState get_body_state(SpiceDouble tdb) override;
 
-    [[nodiscard]] BodyState next_step(const BodyState& current_state) const;
+    [[nodiscard]] ExtendedBodyState next_step(const ExtendedBodyState& current_state) const;
+    [[nodiscard]] Mat3d calculate_jacobian(SpiceDouble time, const Vec3d& position) const;
 
     [[nodiscard]] Vec3d calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const;
-    BodyState calculate_to_target(BodyState current_state, SpiceDouble target_time);
-    static BodyState interpolate(const BodyState& first, const BodyState& second, SpiceDouble current_time);
-    void set_current_body_state(const BodyState& body_state) override;
+    ExtendedBodyState calculate_to_target(ExtendedBodyState current_state, SpiceDouble target_time);
+    static ExtendedBodyState interpolate(const ExtendedBodyState& first, const ExtendedBodyState& second, SpiceDouble current_time);
+    void set_current_body_state(const ExtendedBodyState& body_state);
     void add_force_body(SpaceObject* force_body);
 };
 

@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "Constants.h"
+#include "HighPrecision.h"
 #include "SpiceGuard.h"
 #include "TimeConverter.h"
 #include "PropertiesReader.h"
@@ -104,13 +105,14 @@ SpiceDouble SpaceObjectManager::get_body_gm(const std::string& target_body)
 {
     std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
-    static constexpr long double GM_SUN_AU3_DAY2 = 2.9591220836841438269e-4;
-    static constexpr long double GM_SUN_KM3_S2 = 1.327124400189e11;
+    static const hp::real CONV_FACTOR = hp::get_conversion_factor();
+
     SpiceInt dim;
     SpiceDouble gm_km3_s2[1];
     bodvrd_c(target_body.c_str(), "GM", 1, &dim, gm_km3_s2);
-    long double mass_ratio = gm_km3_s2[0]*GM_SUN_AU3_DAY2;
-    return mass_ratio/GM_SUN_KM3_S2;
+    hp::real gm = hp::from_double(gm_km3_s2[0]);
+    hp::real mass_ratio = gm * CONV_FACTOR;
+    return hp::to_double(mass_ratio);
 }
 
 

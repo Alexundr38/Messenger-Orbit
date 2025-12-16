@@ -8,8 +8,8 @@
 #define DP_TOL      1e-13f
 #define TOL     1e-4f;
 #define GRAVITY_CONSTANT 6.67430e-11f
-inline long double au  = 149597870.7L;
-inline long double day = 86400.0L;
-inline long double color_max = 255;
+constexpr inline long double au  = 149597870.7L;
+constexpr inline long double day = 86400.0L;
+constexpr inline long double color_max = 255;
 
 #endif //MESSENGERORBIT_CONSTANTS_H

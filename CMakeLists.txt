@@ -32,9 +32,13 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/g-truc/glm.git
         GIT_TAG master
 )
+FetchContent_Declare(
+        qd
+        GIT_REPOSITORY https://github.com/scibuilder/qd.git
+        GIT_TAG master
+)
 
-FetchContent_MakeAvailable(eigen glfw glm cspice yaml-cpp)
-
+FetchContent_MakeAvailable(eigen glfw glm cspice yaml-cpp qd)
 find_package(OpenGL REQUIRED)
 
 add_executable(MessengerOrbit
@@ -96,12 +100,16 @@ add_executable(MessengerOrbit
         src/converter/UnitsConverter.h
         src/simulation/MessengerSimulationAdapter.cpp
         src/simulation/MessengerSimulationAdapter.h
+        src/types/ExtendedBodyState.cpp
+        src/types/ExtendedBodyState.h
+        src/utils/HighPrecision.h
 )
 
 target_include_directories(MessengerOrbit PRIVATE
         ${cspice_SOURCE_DIR}/include
         ${glm_SOURCE_DIR}
         ${eigen_SOURCE_DIR}
+        /usr/include
 )
 
 target_link_directories(MessengerOrbit PRIVATE ${cspice_SOURCE_DIR}/lib)
@@ -112,5 +120,6 @@ target_link_libraries(
         -l:cspice.a
         yaml-cpp
         glfw
+
         m
 )

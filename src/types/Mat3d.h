@@ -47,26 +47,26 @@ public:
 
     Vec3d operator*(const Vec3d& vec) const;
 
-    Mat3d transpose() const;
+    [[nodiscard]] Mat3d transpose() const;
 
-    long double determinant() const;
+    [[nodiscard]] long double determinant() const;
 
-    Mat3d inverse() const;
+    [[nodiscard]] Mat3d inverse() const;
 
-    long double trace() const;
+    [[nodiscard]] long double trace() const;
 
-    long double norm() const;
-    long double spectralNorm() const;
+    [[nodiscard]] long double norm() const;
+    [[nodiscard]] long double spectralNorm() const;
 
     bool eigen(Vec3d& eigenvalues, Mat3d& eigenvectors) const;
 
-    Mat3d symmetricPart() const;
+    [[nodiscard]] Mat3d symmetricPart() const;
 
-    Mat3d antisymmetricPart() const;
+    [[nodiscard]] Mat3d antisymmetricPart() const;
 
-    bool isSymmetric(long double tolerance = 1e-12) const;
-    bool isZero(long double tolerance = 1e-12) const;
-    bool isIdentity(long double tolerance = 1e-12) const;
+    [[nodiscard]] bool isSymmetric(long double tolerance = 1e-12) const;
+    [[nodiscard]] bool isZero(long double tolerance = 1e-12) const;
+    [[nodiscard]] bool isIdentity(long double tolerance = 1e-12) const;
 
     friend std::ostream& operator<<(std::ostream& os, const Mat3d& mat);
 };

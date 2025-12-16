@@ -6,6 +6,7 @@
 #define MESSENGERORBIT_SIMULATIONADAPTER_H
 #include "Simulation.h"
 #include "../converter/UnitsConverter.h"
+#include "../types/ExtendedBodyState.h"
 
 
 class MessengerSimulationAdapter
@@ -13,7 +14,7 @@ class MessengerSimulationAdapter
     Simulation * simulation;
 public:
     explicit MessengerSimulationAdapter(Simulation * simulation);
-    std::unique_ptr<std::map<SpiceDouble, BodyState>> get_messenger_between_km(SpiceDouble start_date, SpiceDouble end_date, SpiceDouble step, BodyState start_state) const;
+    std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> get_messenger_between_km(SpiceDouble start_date, SpiceDouble end_date, SpiceDouble step, ExtendedBodyState start_state) const;
 };
 
 

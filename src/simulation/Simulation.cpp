@@ -31,7 +31,7 @@ void Simulation::run(bool simulation_running)
     }
 }
 
-std::shared_ptr<std::map<SpiceDouble, BodyState>> Simulation::get_body_states(const std::string& body_name) const
+std::shared_ptr<std::map<SpiceDouble, ExtendedBodyState>> Simulation::get_body_states(const std::string& body_name) const
 {
     for (auto object : spaceObjects)
     {
@@ -111,12 +111,11 @@ SpaceObject* Simulation::get_object(std::string name)
 }
 
 
-std::shared_ptr<std::map<SpiceDouble, BodyState>> Simulation::simulation_between(SpiceDouble start_date,
+std::shared_ptr<std::map<SpiceDouble, ExtendedBodyState>> Simulation::simulation_between(SpiceDouble start_date,
                                                                                  SpiceDouble end_date, std::string body_name, BodyState body_state)
 {
     set_start_date(start_date);
     set_current_date(start_date);
-    // set_step(step);
     set_end_date(end_date);
     SpaceObject * needed_object = get_object(body_name);
     needed_object->set_current_body_state(body_state);

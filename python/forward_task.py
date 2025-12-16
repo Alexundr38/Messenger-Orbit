@@ -22,20 +22,20 @@ else:
     simulation_position_norm = np.sqrt(simulation['x']**2 + simulation['y']**2 + simulation['z']**2)
     simulation_velocity_norm = np.sqrt(simulation['vx']**2 + simulation['vy']**2 + simulation['vz']**2)
 
-    diff_position = np.abs(simulation_position_norm - horizon_position_norm)
-    diff_velocity = np.abs(simulation_velocity_norm - horizon_velocity_norm)
+    diff_position = (horizon_position_norm -simulation_position_norm)
+    diff_velocity = (horizon_velocity_norm - simulation_velocity_norm)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
 
     ax1.plot(diff_position.index, diff_position, label='Разница нормы позиции', marker='o', color='blue', markersize=1)
-    ax1.set_title('Разница нормы позиций (simulation - horizon)')
+    ax1.set_title('Разница нормы позиций (horizon - simulation)')
     ax1.set_xlabel('Индекс (временной шаг)')
     ax1.set_ylabel('Разница нормы')
     ax1.legend()
     ax1.grid(True)
 
     ax2.plot(diff_velocity.index, diff_velocity, label='Разница нормы скорости', marker='o', color='red', markersize=1)
-    ax2.set_title('Разница нормы скоростей (simulation - horizon)')
+    ax2.set_title('Разница нормы скоростей (horizon - simulation)')
     ax2.set_xlabel('Индекс (временной шаг)')
     ax2.set_ylabel('Разница нормы')
     ax2.legend()

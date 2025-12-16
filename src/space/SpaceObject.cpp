@@ -6,7 +6,7 @@
 
 SpaceObject::SpaceObject()
 {
-    body_states = std::make_shared<std::map<SpiceDouble, BodyState>>();
+    body_states = std::make_shared<std::map<SpiceDouble, ExtendedBodyState>>();
 }
 
 void SpaceObject::set_object_name(const std::string& object_name)
@@ -29,13 +29,13 @@ SpiceDouble SpaceObject::get_gravitational_parameter() const
     return gravitational_parameter;
 }
 
-std::shared_ptr<std::map<SpiceDouble, BodyState>> SpaceObject::get_body_states() const
+std::shared_ptr<std::map<SpiceDouble, ExtendedBodyState>> SpaceObject::get_body_states() const
 {
     return body_states;
 }
 
 
-void SpaceObject::add_body_state(const BodyState& body_state)
+void SpaceObject::add_body_state(const ExtendedBodyState& body_state)
 {
     (*body_states)[body_state.time] = body_state;
     set_current_body_state(body_state);
