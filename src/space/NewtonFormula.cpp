@@ -177,7 +177,7 @@ Mat3d NewtonFormula::calculate_jacobian(SpiceDouble time, const Vec3d& position)
         long double up31 = up13;
         long double up32 = up23;
         long double up33 = gm*(diff.x*diff.x + diff.y*diff.y -2*diff.z*diff.z);
-        long double down = std::pow(diff.norm(), 5);
+        long double down = std::sqrt(std::pow(diff.norm(), 5));
         jacobian[0][0] += up11/down;
         jacobian[0][1] += up12/down;
         jacobian[0][2] += up13/down;
