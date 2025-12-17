@@ -29,9 +29,21 @@ SpiceDouble TimeConverter::to_tdb(const std::string& utc)
 SpiceDouble TimeConverter::from_string_to_tdb(const std::string& tdb)
 {
     get_instance();
+    SpiceDouble et_j2000, et_j1950;
+    SpiceDouble j2000_to_j1950;
+
+    // Получите эпоху J2000 в TDB секундах
+    str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
+
+    // Получите эпоху J1950 в TDB секундах
+    str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
+
+    // Вычислите смещение (J2000 - J1950) в секундах
+    j2000_to_j1950 = et_j2000 - et_j1950;
+
     SpiceDouble et;
     str2et_c(tdb.c_str(), &et);
-    return et;
+    return et + j2000_to_j1950;
 }
 
 std::string TimeConverter::to_utc(const SpiceDouble tdb)

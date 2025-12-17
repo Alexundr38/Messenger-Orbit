@@ -6,13 +6,13 @@ forward-task:
     tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     sizes: "forward-task/pck00011.tpc" # радиусы планет
     dsn-coords: "forward-task/earth_latest_high_prec.bpc"
-    reference-frame: "J2000"
+    reference-frame: "J1950"
     aberration-correction: "NONE"
     observer-body: "SSB" #1
   simulation:
-    start-date: "2011-03-18 01:10:00 TDB" #utc
-    step: "2000-01-01 12:00:30 TDB"
-    end-date: "2011-03-21 00:00:00 TDB" # конец симмуляции
+    start-date: "2013-01-03 16:18:28 TDB" #utc
+    step: "1950-01-01 00:00:01 TDB"
+    end-date: "2013-01-03 16:59:38 TDB" # конец симмуляции
     caching: 1 # отключение кэширования пока не реализовано(состояния сохраняются в оперативной памяти)
     messenger-color: 255 0 0 # цвет спутника
     au: 149597870.7
