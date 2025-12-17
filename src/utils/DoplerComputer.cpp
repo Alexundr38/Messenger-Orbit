@@ -36,9 +36,9 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv_first, SpiceDou
 
     SpiceDouble delta = (messenger_start_second - tai_second) - (messenger_start_first - tai_first); //(TDB _ TAI)[t2e] - (TDB _ TAI)[t2s]
 
-    full_time = second_time - first_time;
+    full_time = messenger_start_second - messenger_start_first;
 
-    long double doppler_freq = C2 * ref_freq * (second_time - first_time + delta) / full_time;
+    long double doppler_freq = C2 * ref_freq * (first_time - second_time /*- first_time*/ + delta) / full_time;
     //
     // middle_time = (messenger_start_second + messenger_start_first) / 2;
     //

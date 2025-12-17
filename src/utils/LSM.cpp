@@ -4,11 +4,12 @@
 
 #include "LSM.h"
 
-LSM::LSM(const StateVector& initial_guess, std::map<SpiceDouble, ExtendedBodyState> &points, std::string file_name) {
+LSM::LSM(const StateVector& initial_guess, std::map<SpiceDouble, ExtendedBodyState> &points,
+        std::string file_name, double start_time, double end_time) {
     this->state = initial_guess;
     this->covariance = Eigen::MatrixXd::Zero(NUM_PARAMS, NUM_PARAMS);
     this->doppler_computer = new DopplerComputer(points);
-    this->observation_data = CSVReader::read_csv(file_name);
+    this->observation_data = CSVReader::read_csv(file_name, start_time, end_time);
 }
 
 StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
@@ -36,6 +37,7 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
                 obs2.time_tag_seconds, obs1.full_ref_freq, obs1.receiving_station_id, full_time);
 
             // r
+            std::cout << obs1.full_observable << " " << doppler_calc << std::endl;
             double residual = obs1.full_observable - doppler_calc;
             b(i) = residual;
 

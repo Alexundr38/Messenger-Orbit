@@ -26,8 +26,8 @@ class CSVReader
 
 public:
 
-    static std::vector<ObservationData> read_csv(std::string& file_name);
-    static ObservationData read_line(std::string& line);
+    static std::vector<ObservationData> read_csv(std::string& file_name, double start_time, double end_time) ;
+    static ObservationData read_line(std::string& line, double start_time, double end_time);
 };
 
 

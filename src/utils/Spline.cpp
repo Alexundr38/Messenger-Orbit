@@ -132,15 +132,15 @@ Vec3d Spline::interpolate(SpiceDouble time) {
 
 Mat3d Spline::interpolate_mat3d(SpiceDouble time) {
     int i = 0;
-    int spline_size = splines_x.size() - 1;
+    int spline_size = splines_a11.size() - 1;
 
-    if (time <= splines_x[0].start_dot) {
+    if (time <= splines_a11[0].start_dot) {
         i = 0;
-    } else if (time >= splines_x[spline_size].start_dot) {
+    } else if (time >= splines_a11[spline_size].start_dot) {
         i = spline_size;
     } else {
         for (int k = 0; k < spline_size; k++) {
-            if (time <= splines_x[k].start_dot) {
+            if (time <= splines_a11[k].start_dot) {
                 i = k;
                 break;
             }
@@ -148,7 +148,7 @@ Mat3d Spline::interpolate_mat3d(SpiceDouble time) {
     }
 
 
-    double dt = time - splines_x[i].start_dot;
+    double dt = time - splines_a11[i].start_dot;
     return Mat3d(splines_a11[i].a + splines_a11[i].b * dt +
                  splines_a11[i].c * dt * dt + splines_a11[i].d * dt * dt * dt,
                  splines_a12[i].a + splines_a12[i].b * dt +

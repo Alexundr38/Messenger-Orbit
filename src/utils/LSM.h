@@ -21,7 +21,8 @@ class LSM {
     std::vector<ObservationData> observation_data;
 
 public:
-    LSM(const StateVector& initial_guess, std::map<SpiceDouble, ExtendedBodyState> &points, std::string file_name);
+    LSM(const StateVector& initial_guess, std::map<SpiceDouble, ExtendedBodyState> &points,
+        std::string file_name, double start_time, double end_time);
 
     StateVector do_LSM(int max_iterations = 10, double convergence_tol = 1e-6);
 

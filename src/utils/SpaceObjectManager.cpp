@@ -133,8 +133,6 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
 
     body_state.time = tdb - j2000_to_j1950 + 63195;
 
-    std::cout << body_state.time << " " << tdb << " " << j2000_to_j1950 << std::endl;
-
 
     SpiceDouble state[6];
     SpiceDouble lt;
