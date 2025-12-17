@@ -39,22 +39,14 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
 
     SpiceDouble et_j2000, et_j1950;
     SpiceDouble j2000_to_j1950;
-
-    // Получите эпоху J2000 в TDB секундах
     str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
-
-    // Получите эпоху J1950 в TDB секундах
     str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
-
-    // Вычислите смещение (J2000 - J1950) в секундах
     j2000_to_j1950 = et_j2000 - et_j1950;
 
-
-    body_state.time = tdb - j2000_to_j1950;
-
+    body_state.time = tdb;
     SpiceDouble state[6];
     SpiceDouble lt;
-    spkezr_c(target_body.c_str(), body_state.time,
+    spkezr_c(target_body.c_str(), tdb - j2000_to_j1950,
         instance.reference_frame.c_str(),
         instance.aberration_correction.c_str(),
         instance.observer_body.c_str(),
@@ -76,23 +68,15 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
 
     SpiceDouble et_j2000, et_j1950;
     SpiceDouble j2000_to_j1950;
-
-    // Получите эпоху J2000 в TDB секундах
     str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
-
-    // Получите эпоху J1950 в TDB секундах
     str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
-
-    // Вычислите смещение (J2000 - J1950) в секундах
     j2000_to_j1950 = et_j2000 - et_j1950;
 
 
-    body_state.time = tdb - j2000_to_j1950;
-
-
+    body_state.time = tdb;
     SpiceDouble state[6];
     SpiceDouble lt;
-    spkezr_c(target_body.c_str(), body_state.time,
+    spkezr_c(target_body.c_str(), tdb - j2000_to_j1950,
         instance.reference_frame.c_str(),
         instance.aberration_correction.c_str(),
         observer_body.c_str(),
@@ -120,25 +104,19 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
 
     SpiceDouble et_j2000, et_j1950;
     SpiceDouble j2000_to_j1950;
-
-    // Получите эпоху J2000 в TDB секундах
     str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
-
-    // Получите эпоху J1950 в TDB секундах
     str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
-
-    // Вычислите смещение (J2000 - J1950) в секундах
     j2000_to_j1950 = et_j2000 - et_j1950;
 
 
-    body_state.time = tdb - j2000_to_j1950 + 63195;
+    body_state.time = tdb;
 
 
     SpiceDouble state[6];
     SpiceDouble lt;
     spkezr_c(
         dsn_name.c_str(),
-        body_state.time,
+        tdb - j2000_to_j1950 + 63195,
         "J2000",
         "CN+S",
         "SOLAR SYSTEM BARYCENTER",

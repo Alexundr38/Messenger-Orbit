@@ -223,7 +223,7 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
 }
 
 ExtendedBodyState NewtonFormula::calculate_to_target(ExtendedBodyState current_state, SpiceDouble target_time) {
-    while (current_state.time - target_time < DP_TOL) {
+    while (target_time - current_state.time > DP_TOL) {
         if (implicit_newton)
         {
             current_state = next_step_implicit_newton(current_state);
