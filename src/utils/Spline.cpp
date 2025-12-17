@@ -22,6 +22,31 @@ void Spline::build_all_splines(std::vector<SpiceDouble>& times, std::vector<Vec3
     splines_z = build_spline(times, z);
 }
 
+void Spline::build_mat3d_splines(std::vector<SpiceDouble>& times, std::vector<Mat3d>& points) {
+    std::vector<long double> a11, a12, a13, a21, a22, a23, a31, a32, a33;
+    for (int i = 0; i < times.size(); i++) {
+        a11.push_back(points[i].m[0][0]);
+        a12.push_back(points[i].m[0][1]);
+        a13.push_back(points[i].m[0][2]);
+        a21.push_back(points[i].m[1][0]);
+        a22.push_back(points[i].m[1][1]);
+        a23.push_back(points[i].m[1][2]);
+        a31.push_back(points[i].m[2][0]);
+        a32.push_back(points[i].m[2][1]);
+        a33.push_back(points[i].m[2][2]);
+    }
+
+    splines_a11 = build_spline(times, a11);
+    splines_a12 = build_spline(times, a12);
+    splines_a13 = build_spline(times, a13);
+    splines_a21 = build_spline(times, a21);
+    splines_a22 = build_spline(times, a22);
+    splines_a23 = build_spline(times, a23);
+    splines_a31 = build_spline(times, a31);
+    splines_a32 = build_spline(times, a32);
+    splines_a33 = build_spline(times, a33);
+}
+
 
 std::vector<Spline::SplineData> Spline::build_spline(std::vector<SpiceDouble>& times, std::vector<long double>& points) {
 
@@ -102,5 +127,45 @@ Vec3d Spline::interpolate(SpiceDouble time) {
                  splines_y[i].c * dt * dt + splines_y[i].d * dt * dt * dt,
                  splines_z[i].a + splines_z[i].b * dt +
                  splines_z[i].c * dt * dt + splines_z[i].d * dt * dt * dt
+           );
+}
+
+Mat3d Spline::interpolate_mat3d(SpiceDouble time) {
+    int i = 0;
+    int spline_size = splines_x.size() - 1;
+
+    if (time <= splines_x[0].start_dot) {
+        i = 0;
+    } else if (time >= splines_x[spline_size].start_dot) {
+        i = spline_size;
+    } else {
+        for (int k = 0; k < spline_size; k++) {
+            if (time <= splines_x[k].start_dot) {
+                i = k;
+                break;
+            }
+        }
+    }
+
+
+    double dt = time - splines_x[i].start_dot;
+    return Mat3d(splines_a11[i].a + splines_a11[i].b * dt +
+                 splines_a11[i].c * dt * dt + splines_a11[i].d * dt * dt * dt,
+                 splines_a12[i].a + splines_a12[i].b * dt +
+                 splines_a12[i].c * dt * dt + splines_a12[i].d * dt * dt * dt,
+                 splines_a13[i].a + splines_a13[i].b * dt +
+                 splines_a13[i].c * dt * dt + splines_a13[i].d * dt * dt * dt,
+                 splines_a21[i].a + splines_a21[i].b * dt +
+                 splines_a21[i].c * dt * dt + splines_a21[i].d * dt * dt * dt,
+                 splines_a22[i].a + splines_a22[i].b * dt +
+                 splines_a22[i].c * dt * dt + splines_a22[i].d * dt * dt * dt,
+                 splines_a23[i].a + splines_a23[i].b * dt +
+                 splines_a23[i].c * dt * dt + splines_a23[i].d * dt * dt * dt,
+                 splines_a31[i].a + splines_a31[i].b * dt +
+                 splines_a31[i].c * dt * dt + splines_a31[i].d * dt * dt * dt,
+                 splines_a32[i].a + splines_a32[i].b * dt +
+                 splines_a32[i].c * dt * dt + splines_a32[i].d * dt * dt * dt,
+                 splines_a33[i].a + splines_a33[i].b * dt +
+                 splines_a33[i].c * dt * dt + splines_a33[i].d * dt * dt * dt
            );
 }

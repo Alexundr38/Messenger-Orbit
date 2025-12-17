@@ -18,6 +18,7 @@ SpaceObjectManager::SpaceObjectManager()
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "bsp-path").c_str());
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "tpc-path").c_str());
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "dsn-coords").c_str());
+    furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "add-dsn-coords").c_str());
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "sizes").c_str());
     reference_frame = PropertiesReader::get_property("forward-task", "space-object-manager", "reference-frame");
     aberration_correction = PropertiesReader::get_property("forward-task", "space-object-manager", "aberration-correction");
@@ -35,10 +36,25 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
     std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
     BodyState body_state;
-    body_state.time = tdb;
+
+    SpiceDouble et_j2000, et_j1950;
+    SpiceDouble j2000_to_j1950;
+
+    // Получите эпоху J2000 в TDB секундах
+    str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
+
+    // Получите эпоху J1950 в TDB секундах
+    str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
+
+    // Вычислите смещение (J2000 - J1950) в секундах
+    j2000_to_j1950 = et_j2000 - et_j1950;
+
+
+    body_state.time = tdb - j2000_to_j1950;
+
     SpiceDouble state[6];
     SpiceDouble lt;
-    spkezr_c(target_body.c_str(), tdb,
+    spkezr_c(target_body.c_str(), body_state.time,
         instance.reference_frame.c_str(),
         instance.aberration_correction.c_str(),
         instance.observer_body.c_str(),
@@ -57,10 +73,26 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
     std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
     BodyState body_state;
-    body_state.time = tdb;
+
+    SpiceDouble et_j2000, et_j1950;
+    SpiceDouble j2000_to_j1950;
+
+    // Получите эпоху J2000 в TDB секундах
+    str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
+
+    // Получите эпоху J1950 в TDB секундах
+    str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
+
+    // Вычислите смещение (J2000 - J1950) в секундах
+    j2000_to_j1950 = et_j2000 - et_j1950;
+
+
+    body_state.time = tdb - j2000_to_j1950;
+
+
     SpiceDouble state[6];
     SpiceDouble lt;
-    spkezr_c(target_body.c_str(), tdb,
+    spkezr_c(target_body.c_str(), body_state.time,
         instance.reference_frame.c_str(),
         instance.aberration_correction.c_str(),
         observer_body.c_str(),
@@ -83,12 +115,32 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
     auto instance = get_instance();
     std::string dsn_name = "DSS-" + dsn_id;
     BodyState body_state;
-    body_state.time = tdb;
+
+
+
+    SpiceDouble et_j2000, et_j1950;
+    SpiceDouble j2000_to_j1950;
+
+    // Получите эпоху J2000 в TDB секундах
+    str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
+
+    // Получите эпоху J1950 в TDB секундах
+    str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
+
+    // Вычислите смещение (J2000 - J1950) в секундах
+    j2000_to_j1950 = et_j2000 - et_j1950;
+
+
+    body_state.time = tdb - j2000_to_j1950 + 63195;
+
+    std::cout << body_state.time << " " << tdb << " " << j2000_to_j1950 << std::endl;
+
+
     SpiceDouble state[6];
     SpiceDouble lt;
     spkezr_c(
         dsn_name.c_str(),
-        tdb,
+        body_state.time,
         "J2000",
         "CN+S",
         "SOLAR SYSTEM BARYCENTER",

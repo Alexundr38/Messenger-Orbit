@@ -18,7 +18,7 @@ private:
     //какой то ридер из csv, чтобы получить данные
 
 public:
-    DopplerComputer(std::map<SpiceDouble, BodyState> &points);
+    DopplerComputer(std::map<SpiceDouble, ExtendedBodyState> &points);
 
     long double compute_doppler(SpiceDouble& t_recv_first, SpiceDouble& t_recv_second, double &ref_freq,
                 std::string& dsn_id, SpiceDouble& full_time);

@@ -7,7 +7,7 @@
 #include "SpiceUsr.h"
 #include <SpiceZpr.h>
 
-DopplerComputer::DopplerComputer(std::map<SpiceDouble, BodyState> &points) {
+DopplerComputer::DopplerComputer(std::map<SpiceDouble, ExtendedBodyState> &points) {
     this->light_time = new LightTimeSolver(points);
 }
 
@@ -19,6 +19,10 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv_first, SpiceDou
 
     SpiceDouble first_time = t_recv_first - messenger_start_first;
     SpiceDouble second_time = t_recv_second - messenger_start_second;
+
+
+    //fix time
+
 
     char utc_first[50];
     et2utc_c(messenger_start_first, "C", 6, 50, utc_first);

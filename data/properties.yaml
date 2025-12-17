@@ -6,7 +6,8 @@ forward-task:
     tpc-path: "forward-task/gm_de440.tpc" # хранит в себе gm разных объектов
     sizes: "forward-task/pck00011.tpc" # радиусы планет
     dsn-coords: "forward-task/earth_latest_high_prec.bpc"
-    reference-frame: "J1950"
+    add-dsn-coords: "forward-task/earthstns_itrf93_201023.bsp"
+    reference-frame: "J2000"
     aberration-correction: "NONE"
     observer-body: "SSB" #1
   simulation:

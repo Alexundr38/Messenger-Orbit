@@ -5,6 +5,8 @@
 #include "simulation/MessengerSimulationAdapter.h"
 #include "simulation/MessengerSimulationBuilder.h"
 #include "simulation/Simulation.h"
+#include "utils/LSM.h"
+#include "types/StateVector.h"
 
 int main(int argc, char* argv[])
 {
@@ -12,11 +14,21 @@ int main(int argc, char* argv[])
     MessengerSimulationAdapter adapter(simulation);
     // simulation->run(true);
     ExtendedBodyState start_body_state(
-    Vec3d(9.550067806899118E+05,  4.077510763843564E+07,  2.161674651436035E+07),
-    Vec3d(-5.951679809132351E+01,  1.883581016968700E+00,  3.915801068188813E+00),
-    353682600
+    Vec3d(-1.694552201075508E+07, -6.082123875002974E+07, -3.072397008554077E+07),
+    Vec3d(3.511996605436091E+01, -5.912063124751997E+00, -9.132231937650893E+00),
+    1988381908
     );
-    auto result = adapter.get_messenger_between_km(353682600, 353937600, 1, start_body_state);
+    auto result = adapter.get_messenger_between_km(1988381908, 1988384378, 1, start_body_state);
+    StateVector state = StateVector();
+    state.add_state(BodyState(start_body_state.position, start_body_state.velocity, start_body_state.time));
+    LSM* lsm = new LSM(state, *result, "2013.csv");
+    StateVector out_state = lsm->do_LSM();
+    std::cout << out_state.state.position << std::endl;
+    std::cout << out_state.state.velocity << std::endl;
+
+
+
+
     std::cout << result.get() << std::endl;
     delete simulation;
     return 0;

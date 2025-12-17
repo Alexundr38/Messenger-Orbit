@@ -6,22 +6,26 @@
 
 #include "SpaceObjectManager.h"
 
-LightTimeSolver::LightTimeSolver(std::map<SpiceDouble, BodyState> &points) {
+LightTimeSolver::LightTimeSolver(std::map<SpiceDouble, ExtendedBodyState> &points) {
     spline_position = new Spline();
     spline_velocity = new Spline();
+    spline_jacobian = new Spline();
 
     std::vector<SpiceDouble> times;
     std::vector<Vec3d> positions;
     std::vector<Vec3d> velocities;
+    std::vector<Mat3d> matrices;
 
     for (const auto& pair : points) {
         times.push_back(pair.first);
         positions.push_back(pair.second.position);
         velocities.push_back(pair.second.velocity);
+        matrices.push_back(pair.second.jacobian);
     }
 
     spline_position->build_all_splines(times, positions);
     spline_velocity->build_all_splines(times, velocities);
+    spline_jacobian->build_mat3d_splines(times, matrices);
 }
 
 SpiceDouble LightTimeSolver::light_time_solve(SpiceDouble& t3_tdb, std::string& dsn_id) {
@@ -48,4 +52,8 @@ Vec3d LightTimeSolver::get_vec_2_3(SpiceDouble& t3_tdb, std::string& dsn_id)
 Vec3d LightTimeSolver::get_vec_r_C(SpiceDouble t3_tdb)
 {
     return this->spline_velocity->interpolate(t3_tdb);
+}
+
+Mat3d LightTimeSolver::get_spline_mat3d(SpiceDouble time_tdb) {
+    return this->spline_jacobian->interpolate_mat3d(time_tdb);
 }

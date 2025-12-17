@@ -11,6 +11,7 @@
 #include "DoplerComputer.h"
 #include "../types/StateVector.h"
 #include "CSVReader.h"
+#include "../types/ExtendedBodyState.h"
 
 class LSM {
 
@@ -20,7 +21,7 @@ class LSM {
     std::vector<ObservationData> observation_data;
 
 public:
-    LSM(const StateVector& initial_guess, std::map<SpiceDouble, BodyState> &points, std::string& file_name);
+    LSM(const StateVector& initial_guess, std::map<SpiceDouble, ExtendedBodyState> &points, std::string file_name);
 
     StateVector do_LSM(int max_iterations = 10, double convergence_tol = 1e-6);
 

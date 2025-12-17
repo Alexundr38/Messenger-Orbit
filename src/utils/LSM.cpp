@@ -4,7 +4,7 @@
 
 #include "LSM.h"
 
-LSM::LSM(const StateVector& initial_guess, std::map<SpiceDouble, BodyState> &points, std::string& file_name) {
+LSM::LSM(const StateVector& initial_guess, std::map<SpiceDouble, ExtendedBodyState> &points, std::string file_name) {
     this->state = initial_guess;
     this->covariance = Eigen::MatrixXd::Zero(NUM_PARAMS, NUM_PARAMS);
     this->doppler_computer = new DopplerComputer(points);
@@ -80,15 +80,20 @@ Eigen::VectorXd LSM::compute_partial_derivatives(SpiceDouble& full_time, Observa
     Eigen::VectorXd derivatives(NUM_PARAMS);
     long double d_f_d_q_scalar = C2 / full_time * obs_data1.full_ref_freq;
     LightTimeSolver* light_time = this->doppler_computer->get_light_time_solver();
-    long double d_r_d_q = 1; // сделать
+
+    Mat3d d_r_d_q1 = light_time->get_spline_mat3d(obs_data1.time_tag_seconds);
+    Mat3d d_r_d_q2 = light_time->get_spline_mat3d(obs_data2.time_tag_seconds);
+
+
+
     Vec3d r_norm_c_1 = (-1 / C) * (light_time->get_vec_2_3(obs_data1.time_tag_seconds, obs_data1.receiving_station_id).normalized());
     Vec3d r_norm_c_2 = (-1 / C) * (light_time->get_vec_2_3(obs_data2.time_tag_seconds, obs_data1.receiving_station_id).normalized());
 
     long double d_p_2_3_t1 = 1 + r_norm_c_1.dot(light_time->get_vec_r_C(light_time->light_time_solve(obs_data1.time_tag_seconds, obs_data1.receiving_station_id)));
     long double d_p_2_3_t2 = 1 + r_norm_c_2.dot(light_time->get_vec_r_C(light_time->light_time_solve(obs_data2.time_tag_seconds, obs_data2.receiving_station_id)));
 
-    Vec3d d_t2_d_q_1 = r_norm_c_1 / d_p_2_3_t1; // * матрицу
-    Vec3d d_t2_d_q_2 = r_norm_c_2 / d_p_2_3_t2; // * матрицу
+    Vec3d d_t2_d_q_1 = (r_norm_c_1 / d_p_2_3_t1) * d_r_d_q1; // * матрицу
+    Vec3d d_t2_d_q_2 = (r_norm_c_2 / d_p_2_3_t2) * d_r_d_q2; // * матрицу
 
     Vec3d d_f_d_q = (d_t2_d_q_1 - d_t2_d_q_2) * d_f_d_q_scalar;
     derivatives(0) = d_f_d_q.x;
