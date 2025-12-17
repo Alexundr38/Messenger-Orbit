@@ -20,7 +20,7 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
             start_date
         );
     auto newton = new NewtonFormulaProxy( "MESSENGER", start_state, step, "result.txt");
-    newton->set_use_implicit(true);
+    newton->set_use_implicit(false);
     auto* simulation = new Simulation();
     newton->add_force_body(new SpaceObjectEntity("SUN"));
     newton->add_force_body(new SpaceObjectEntity("MERCURY BARYCENTER"));

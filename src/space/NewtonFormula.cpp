@@ -198,8 +198,26 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
         Vec3d r_vec = body_state.position - current_position;
         long double r = r_vec.norm();
         long double mu = body->get_gravitational_parameter();
-        long double r3 = r * r * r;
+        long double r3 = std::pow(r, 3);
         acceleration += mu * r_vec / r3;
+        std::string body_name = body->get_object_name();
+        if (body_name == "MERCURY BARYCENTER") {
+            constexpr double R_mercury_AU = 2439.7 / au;  // Точный радиус
+            constexpr double J2 = 6.0e-5;
+
+            if (r > R_mercury_AU) {
+                Vec3d unit_vec = r_vec / r;
+                double z_over_r = unit_vec.z;
+                double j2_factor = 1.5 * J2 * (R_mercury_AU / r) * (R_mercury_AU / r) * (mu / (r * r));;
+
+                Vec3d a_j2;
+                a_j2.x = unit_vec.x * (5 * z_over_r * z_over_r - 1) * j2_factor;
+                a_j2.y = unit_vec.y * (5 * z_over_r * z_over_r - 1) * j2_factor;
+                a_j2.z = unit_vec.z * (5 * z_over_r * z_over_r - 3) * j2_factor;
+
+                acceleration += a_j2;
+            }
+        }
     }
     return acceleration;
 }

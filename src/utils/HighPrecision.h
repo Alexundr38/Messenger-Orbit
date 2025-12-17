@@ -16,8 +16,8 @@ namespace hp {
         return x.convert_to<double>();
     }
 
-    const real GM_SUN_KM3_S2("132712440041.27939");
-    const real GM_SUN_AU3_DAY2("0.00029591220828832");
+    const real GM_SUN_KM3_S2(from_double(132712440041.27939));
+    const real GM_SUN_AU3_DAY2(from_double(0.00029591220828832));
 
     inline real get_conversion_factor() {
         static const real factor = GM_SUN_AU3_DAY2 / GM_SUN_KM3_S2;
