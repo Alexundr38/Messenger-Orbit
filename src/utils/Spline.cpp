@@ -73,11 +73,11 @@ std::vector<Spline::SplineData> Spline::build_spline(std::vector<SpiceDouble>& t
     l[0] = 1;
     l[time_size - 1] = 1;
 
-    std::vector<double> mu(time_size - 1);
+    std::vector<double> mu(time_size);
     mu[0] = 0;
     mu[time_size - 1] = 0;
 
-    std::vector<double> z(time_size - 1);
+    std::vector<double> z(time_size);
     z[0] = 0;
     z[time_size - 1] = 0;
 
