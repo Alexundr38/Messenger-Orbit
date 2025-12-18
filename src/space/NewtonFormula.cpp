@@ -99,33 +99,11 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
     {
         throw std::invalid_argument("No BodyState in container, can't integrate");
     }
-    auto equal = body_states->find(tdb);
-    if (equal != body_states->end())
-    {
-        return equal->second;
-    }
     auto upper = body_states->upper_bound(tdb);
-    if (upper == body_states->end())
-    {
-        auto result = calculate_to_target(static_cast<ExtendedBodyState>(std::prev(upper)->second), tdb);
-        add_history_point(result.position);
-        set_current_body_state(result);
-        return result;
-    }
-    auto lower = std::prev(upper);
-    if (lower == body_states->begin())
-    {
-        throw std::invalid_argument("Start position needed for integrating current time is before all ");
-    }
-    if (upper->first - lower->first < step )
-    {
-        interpolate(static_cast<ExtendedBodyState>(lower->second), static_cast<ExtendedBodyState>(upper->second), tdb);
-    }
-    auto result = calculate_to_target(static_cast<ExtendedBodyState>(lower->second), tdb);
-    add_history_point(result.position);
+    auto result = calculate_to_target(std::prev(upper)->second, tdb);
+    // add_history_point(result.position);
     set_current_body_state(result);
-    return static_cast<BodyState>(result);
-
+    return result;
 }
 
 ExtendedBodyState NewtonFormula::next_step(const ExtendedBodyState& current_state) const {
