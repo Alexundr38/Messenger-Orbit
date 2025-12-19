@@ -113,22 +113,22 @@ ExtendedBodyState NewtonFormula::next_step(const ExtendedBodyState& current_stat
     const double t0 = current_state.time;
     Vec3d k1_pos, k1_vel, k2_pos, k2_vel, k3_pos, k3_vel, k4_pos, k4_vel;
 
-    k1_vel = calculate_acceleration(t0, y0_pos);
+    k1_vel = calculate_acceleration_hp(t0, y0_pos);
     k1_pos = y0_vel;
 
     Vec3d pos2 = y0_pos + h * 0.5 * k1_pos;
     Vec3d vel2 = y0_vel + h * 0.5 * k1_vel;
-    k2_vel = calculate_acceleration(t0 + h * 0.5, pos2);
+    k2_vel = calculate_acceleration_hp(t0 + h * 0.5, pos2);
     k2_pos = vel2;
 
     Vec3d pos3 = y0_pos + h * 0.5 * k2_pos;
     Vec3d vel3 = y0_vel + h * 0.5 * k2_vel;
-    k3_vel = calculate_acceleration(t0 + h * 0.5, pos3);
+    k3_vel = calculate_acceleration_hp(t0 + h * 0.5, pos3);
     k3_pos = vel3;
 
     Vec3d pos4 = y0_pos + h * k3_pos;
     Vec3d vel4 = y0_vel + h * k3_vel;
-    k4_vel = calculate_acceleration(t0 + h, pos4);
+    k4_vel = calculate_acceleration_hp(t0 + h, pos4);
     k4_pos = vel4;
 
     Vec3d new_pos = y0_pos + (h / 6.0) * (k1_pos + 2.0*k2_pos + 2.0*k3_pos + k4_pos);
@@ -198,6 +198,50 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
         }
     }
     return acceleration;
+}
+
+Vec3d NewtonFormula::calculate_acceleration_hp(SpiceDouble time, const Vec3d& current_position) const {
+    hp::HighPrecVec3d acceleration{0, 0, 0};
+
+    for (SpaceObject* body : force_bodies) {
+        BodyState body_state = body->get_body_state(time * day);
+        hp::HighPrecVec3d body_pos(body_state.position);
+        hp::HighPrecVec3d pos(current_position);
+
+        hp::HighPrecVec3d r_vec = body_pos - pos;
+        hp::real r = r_vec.norm();
+        hp::real mu = hp::from_double(body->get_gravitational_parameter());
+
+        if (r == 0) continue;  // избежим деления на 0
+
+        hp::real r3 = r * r * r;
+        acceleration = acceleration + (r_vec * (mu / r3));
+
+        // J2 для Меркурия
+        if (body->get_object_name() == "MERCURY BARYCENTER") {
+            hp::real R_mercury_AU = hp::from_double(2439.7 / au);
+            hp::real J2 = hp::from_double(6.0e-5);
+
+            if (hp::to_double(r) > hp::to_double(R_mercury_AU)) {
+                hp::HighPrecVec3d unit_vec = r_vec / r;
+                hp::real z_over_r = unit_vec.z;
+                hp::real rr = R_mercury_AU / r;
+                hp::real j2_factor = hp::from_double(1.5) * J2 * rr * rr * (mu / (r * r));
+
+                hp::real P2 = 5 * z_over_r * z_over_r - 1;
+                hp::real P2z = 5 * z_over_r * z_over_r - 3;
+
+                hp::HighPrecVec3d a_j2{
+                    unit_vec.x * P2 * j2_factor,
+                    unit_vec.y * P2 * j2_factor,
+                    unit_vec.z * P2z * j2_factor
+                };
+
+                acceleration = acceleration + a_j2;
+            }
+        }
+    }
+    return acceleration.to_vec3d();
 }
 
 ExtendedBodyState NewtonFormula::calculate_to_target(ExtendedBodyState current_state, SpiceDouble target_time) {

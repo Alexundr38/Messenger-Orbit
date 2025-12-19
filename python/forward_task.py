@@ -10,7 +10,7 @@ def open_file(file_path):
     df = pd.read_csv(file_path)
     return df
 
-horizon = open_file("data/horizons_results_mercury.txt")
+horizon = open_file("data/horizons_results.txt")
 simulation = open_file("data/result.txt")
 
 if horizon is None or simulation is None:

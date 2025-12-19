@@ -43,11 +43,11 @@ Simulation* RenderSimulationBuilder::buildSimulation()
     ExtendedBodyState start_state_messenger;
     start_state_messenger.time = simulation->get_start_date();
     // Vec3d merc_pos = SpaceObjectManager::get_body_state_at_time(time, "MERCURY BARYCENTER").position;
-    // start_state_messenger.position = Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01); // sun
-    // start_state_messenger.velocity = Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03); // sun
+    start_state_messenger.position = Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01); // sun
+    start_state_messenger.velocity = Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03); // sun
 
-    start_state_messenger.position = Vec3d(1.150415935974740E-6, -7.151776288651341E-06,  1.784728973912254E-05); // merc
-    start_state_messenger.velocity = Vec3d(-2.021578272234898E-03,  1.658188230820052E-04,  1.907634434747403E-04); // merc
+    // start_state_messenger.position = Vec3d(1.150415935974740E-6, -7.151776288651341E-06,  1.784728973912254E-05); // merc
+    // start_state_messenger.velocity = Vec3d(-2.021578272234898E-03,  1.658188230820052E-04,  1.907634434747403E-04); // merc
 
     NewtonFormulaProxy *messenger2 = new NewtonFormulaProxy(
         simulation_bodies,
