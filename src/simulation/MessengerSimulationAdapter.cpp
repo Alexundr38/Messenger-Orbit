@@ -19,10 +19,9 @@ std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> MessengerSimulationAda
     std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> messenger_map = std::make_unique<std::map<SpiceDouble, ExtendedBodyState>>();
     while (first != second)
     {
-        auto temp = UnitsConverter::toKmSec(*first);
-        if ((int)(temp.first - start_date) % (int)step == 0)
+        if ((int)(first->first - start_date) % (int)step == 0)
         {
-            messenger_map->insert(temp);
+            messenger_map->insert(*first);
         }
         first = std::next(first);
     }
