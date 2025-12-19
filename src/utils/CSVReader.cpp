@@ -6,6 +6,8 @@
 #include <iostream>
 #include <algorithm>
 
+#include "Constants.h"
+
 std::vector<ObservationData> CSVReader::read_csv(std::string& file_name, double start_time, double end_time) {
     std::vector<ObservationData> observations;
     std::ifstream file(PathResolver::get_data_csv(file_name));
@@ -56,7 +58,7 @@ ObservationData CSVReader::read_line(std::string& line, double start_time, doubl
 
     if (std::stod(fields[0]) >= start_time && std::stod(fields[0]) <= end_time) {
         if (fields.size() == 14) {
-            data.time_tag_seconds = std::stod(fields[0]);
+            data.time_tag_seconds = std::stod(fields[0]) / day;
             data.record_time = fields[1];
             data.full_observable = std::stod(fields[2]);
             data.receiving_station_id = fields[5];

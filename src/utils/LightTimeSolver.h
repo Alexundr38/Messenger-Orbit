@@ -8,11 +8,13 @@
 #include <map>
 #include <SpiceZdf.h>
 #include <string>
+
+#include "Constants.h"
 #include "../types/ExtendedBodyState.h"
 
 #include "Spline.h"
 
-inline constexpr double C = 299792.458; // km/s
+inline constexpr double C = (299792.458 / au) * day; // au/d
 
 class LightTimeSolver {
 

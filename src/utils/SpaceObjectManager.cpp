@@ -95,6 +95,7 @@ BodyState SpaceObjectManager::get_body_state_at_time(const std::string& utc, con
 }
 
 BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::string& dsn_id) {
+    tdb *= day;
     std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
     std::string dsn_name = "DSS-" + dsn_id;

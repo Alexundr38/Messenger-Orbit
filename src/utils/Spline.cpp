@@ -119,8 +119,15 @@ Vec3d Spline::interpolate(SpiceDouble time) {
         }
     }
 
-
     double dt = time - splines_x[i].start_dot;
+    long double x_a = splines_x[i].a;
+    long double x_b = splines_x[i].b * dt;
+    long double x_c = splines_x[i].c * dt * dt;
+    long double x_d = splines_x[i].d * dt * dt * dt;
+    long double x = x_a + x_b + x_c + x_d;
+    double xs = x_a + x_b + x_c + x_d;
+
+
     return Vec3d(splines_x[i].a + splines_x[i].b * dt +
                  splines_x[i].c * dt * dt + splines_x[i].d * dt * dt * dt,
                  splines_y[i].a + splines_y[i].b * dt +

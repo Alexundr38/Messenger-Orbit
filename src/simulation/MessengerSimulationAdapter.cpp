@@ -14,15 +14,15 @@ std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> MessengerSimulationAda
     SpiceDouble start_date, SpiceDouble end_date, SpiceDouble step, ExtendedBodyState start_state) const
 {
     auto result = simulation->simulation_between(start_date, end_date, "MESSENGER", start_state);
-    auto first = result->find(start_date/day);
-    auto second = result->find(end_date/day);
+    auto first = result->find(start_date);
+    auto second = result->find(end_date);
     std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> messenger_map = std::make_unique<std::map<SpiceDouble, ExtendedBodyState>>();
     while (first != second)
     {
-        if ((int)(first->first - start_date) % (int)step == 0)
-        {
-            messenger_map->insert(*first);
-        }
+        //if ((int)(first->first - start_date) % (int)step == 0)
+        //{
+        messenger_map->insert(*first);
+        //}
         first = std::next(first);
     }
     return std::move(messenger_map);
