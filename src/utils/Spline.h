@@ -43,6 +43,15 @@ public:
         splines_z.clear();
         splines_y.clear();
         splines_x.clear();
+        splines_a11.clear();
+        splines_a12.clear();
+        splines_a13.clear();
+        splines_a21.clear();
+        splines_a22.clear();
+        splines_a23.clear();
+        splines_a31.clear();
+        splines_a32.clear();
+        splines_a33.clear();
     };
 };
 

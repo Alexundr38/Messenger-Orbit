@@ -24,21 +24,19 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv_first, SpiceDou
     //fix time
 
 
-    char utc_first[50];
+    /*char utc_first[50];
     et2utc_c(messenger_start_first, "C", 6, 50, utc_first);
     char utc_second[50];
-    et2utc_c(messenger_start_second, "C", 6, 50, utc_second);
+    et2utc_c(messenger_start_second, "C", 6, 50, utc_second);*/
 
-    SpiceDouble tai_first;
-    utc2et_c(utc_first, &tai_first);
-    SpiceDouble tai_second;
-    utc2et_c(utc_second, &tai_second);
+    SpiceDouble tai_first = unitim_c(messenger_start_first, "TDB", "TAI");
+    SpiceDouble tai_second = unitim_c(messenger_start_second, "TDB", "TAI");
 
     SpiceDouble delta = (messenger_start_second - tai_second) - (messenger_start_first - tai_first); //(TDB _ TAI)[t2e] - (TDB _ TAI)[t2s]
 
     full_time = messenger_start_second - messenger_start_first;
 
-    long double doppler_freq = C2 * ref_freq * (first_time - second_time /*- first_time*/ + delta) / full_time;
+    long double doppler_freq = C2 * ref_freq * (second_time - first_time + delta) / full_time;
     //
     // middle_time = (messenger_start_second + messenger_start_first) / 2;
     //
@@ -59,3 +57,7 @@ LightTimeSolver* DopplerComputer::get_light_time_solver()
 // {
 //     return this->light_time->get_vec(t_recv, dsn_id);
 // }
+
+DopplerComputer::~DopplerComputer() {
+    delete this->light_time;
+}

@@ -24,6 +24,8 @@ public:
                 std::string& dsn_id, SpiceDouble& full_time);
 
     LightTimeSolver* get_light_time_solver();
+
+    ~DopplerComputer();
 };
 
 

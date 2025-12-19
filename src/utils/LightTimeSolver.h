@@ -27,6 +27,7 @@ public:
     Vec3d get_vec_2_3(SpiceDouble& t3_tdb, std::string& dsn_id);
     Vec3d get_vec_r_C(SpiceDouble t3_tdb);
     Mat3d get_spline_mat3d(SpiceDouble time_tdb);
+    ~LightTimeSolver();
 };
 
 

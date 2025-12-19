@@ -57,3 +57,9 @@ Vec3d LightTimeSolver::get_vec_r_C(SpiceDouble t3_tdb)
 Mat3d LightTimeSolver::get_spline_mat3d(SpiceDouble time_tdb) {
     return this->spline_jacobian->interpolate_mat3d(time_tdb);
 }
+
+LightTimeSolver::~LightTimeSolver() {
+    delete spline_position;
+    delete spline_velocity;
+    delete spline_jacobian;
+}

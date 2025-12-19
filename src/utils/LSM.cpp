@@ -37,8 +37,8 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
                 obs2.time_tag_seconds, obs1.full_ref_freq, obs1.receiving_station_id, full_time);
 
             // r
-            std::cout << obs1.full_observable << " " << doppler_calc << std::endl;
             double residual = obs1.full_observable - doppler_calc;
+            std::cout << "o: " << obs1.full_observable << " c: " << doppler_calc << " r: " << residual << std::endl;
             b(i) = residual;
 
             // частные произдводные
@@ -56,10 +56,10 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
         Eigen::VectorXd ATb = AT * b;
 
         // Регуляризация (добавление малого числа на диагональ)
-        double lambda = 1e-10;
+        /*double lambda = 1e-10;
         for (int j = 0; j < NUM_PARAMS; ++j) {
             ATA(j, j) += lambda;
-        }
+        }*/
 
         // Решение системы
         Eigen::VectorXd dx = ATA.ldlt().solve(ATb);
@@ -113,4 +113,9 @@ Eigen::VectorXd LSM::compute_partial_derivatives(SpiceDouble& full_time, Observa
     // derivatives(8) = d_f_t2;
 
     return derivatives;
+}
+
+LSM::~LSM() {
+    delete doppler_computer;
+    observation_data.clear();
 }
