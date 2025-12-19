@@ -16,7 +16,7 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     std::cout << std::fixed << std::setprecision(0) << start_date << " " << step << " " << end_date << std::endl;
     ExtendedBodyState start_state(
         Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01),
-        Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03),
+        Vec3d(-3.437382718770443E-02,  1.087859065п804843E-03,  2.261564357222589E-03),
             start_date
         );
     auto newton = new NewtonFormulaProxy( "MESSENGER", start_state, step, "result.txt");

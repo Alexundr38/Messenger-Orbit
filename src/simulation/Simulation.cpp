@@ -112,12 +112,12 @@ SpaceObject* Simulation::get_object(std::string name)
 
 
 std::shared_ptr<std::map<SpiceDouble, ExtendedBodyState>> Simulation::simulation_between(SpiceDouble start_date,
-                                                                                 SpiceDouble end_date, std::string body_name, BodyState body_state)
+                                                                                 SpiceDouble end_date, std::string body_name, ExtendedBodyState body_state)
 {
     set_start_date(start_date);
     set_current_date(start_date);
     set_end_date(end_date);
-    SpaceObject * needed_object = get_object(body_name);
+    NewtonFormula * needed_object = static_cast<NewtonFormula*>(get_object(body_name));
     needed_object->set_current_body_state(body_state);
     run(true);
     return needed_object->get_body_states();
