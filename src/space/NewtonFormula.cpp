@@ -156,15 +156,15 @@ Mat3d NewtonFormula::calculate_jacobian(SpiceDouble time, const Vec3d& position)
         long double up32 = up23;
         long double up33 = gm*(diff.x*diff.x + diff.y*diff.y -2*diff.z*diff.z);
         long double down = std::sqrt(std::pow(diff.norm(), 5));
-        jacobian[0][0] += up11/down;
-        jacobian[0][1] += up12/down;
-        jacobian[0][2] += up13/down;
-        jacobian[1][0] += up21/down;
-        jacobian[1][1] += up22/down;
-        jacobian[1][2] += up23/down;
-        jacobian[2][0] += up31/down;
-        jacobian[2][1] += up32/down;
-        jacobian[2][2] += up33/down;
+        jacobian[0][0] -= up11/down;
+        jacobian[0][1] -= up12/down;
+        jacobian[0][2] -= up13/down;
+        jacobian[1][0] -= up21/down;
+        jacobian[1][1] -= up22/down;
+        jacobian[1][2] -= up23/down;
+        jacobian[2][0] -= up31/down;
+        jacobian[2][1] -= up32/down;
+        jacobian[2][2] -= up33/down;
     }
     return jacobian;
 }
@@ -226,7 +226,7 @@ ExtendedBodyState NewtonFormula::interpolate(const ExtendedBodyState& first, con
 
 void NewtonFormula::set_current_body_state(const ExtendedBodyState& body_state)
 {
-    SpaceObject::set_current_body_state(body_state);
+    Renderable::set_current_body_state(body_state);
     (*body_states)[body_state.time] = body_state;
 }
 

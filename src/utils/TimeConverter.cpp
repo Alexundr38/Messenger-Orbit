@@ -30,16 +30,12 @@ SpiceDouble TimeConverter::from_string_to_tdb(const std::string& tdb)
 {
     get_instance();
     SpiceDouble et_j2000, et_j1950;
-    SpiceDouble j2000_to_j1950;
 
-    // Получите эпоху J2000 в TDB секундах
     str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
 
-    // Получите эпоху J1950 в TDB секундах
     str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
 
-    // Вычислите смещение (J2000 - J1950) в секундах
-    j2000_to_j1950 = et_j2000 - et_j1950;
+    SpiceDouble j2000_to_j1950 = et_j2000 - et_j1950;
 
     SpiceDouble et;
     str2et_c(tdb.c_str(), &et);
@@ -49,9 +45,13 @@ SpiceDouble TimeConverter::from_string_to_tdb(const std::string& tdb)
 std::string TimeConverter::to_utc(const SpiceDouble tdb)
 {
     std::lock_guard<std::mutex> lock(spice_mutex);
+    SpiceDouble et_j2000, et_j1950;
+    str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
+    str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
+    SpiceDouble j2000_to_j1950 = et_j2000 - et_j1950;
     get_instance();
     char buffer[256];
-    et2utc_c(tdb, "C", 3, sizeof(buffer), buffer);
+    et2utc_c(tdb-j2000_to_j1950, "C", 3, sizeof(buffer), buffer);
     return std::string(buffer);
 }
 

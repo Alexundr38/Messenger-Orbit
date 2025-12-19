@@ -14,6 +14,7 @@
 class Simulation
 {
 
+    protected:
     std::vector<SpaceObject*> spaceObjects;
     SpiceDouble start_date;
     SpiceDouble current_date;
@@ -21,7 +22,7 @@ class Simulation
     SpiceDouble step;
     public:
     Simulation() = default;
-    bool next_step(bool simulation_running);
+    virtual bool next_step(bool simulation_running);
     void run(bool simulation_running);
     [[nodiscard]] std::shared_ptr<std::map<SpiceDouble, ExtendedBodyState>> get_body_states(const std::string& body_name) const;
     void set_start_date(SpiceDouble date);

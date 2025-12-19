@@ -44,6 +44,23 @@ BodyState NewtonFormulaProxy::get_body_state(SpiceDouble tdb)
     return state;
 }
 
+void NewtonFormulaProxy::set_current_body_state(const ExtendedBodyState& body_state)
+{
+    NewtonFormula::set_current_body_state(body_state);
+    counter++;
+
+    if (counter % 12 == 0)
+    {
+        csv_file << std::scientific << std::uppercase << std::setprecision(15);
+        csv_file << body_state.position.x << ","
+                    << body_state.position.y << ","
+                    << body_state.position.z << ","
+                    << body_state.velocity.x << ","
+                    << body_state.velocity.y << ","
+                    << body_state.velocity.z << std::endl;
+    }
+}
+
 // void NewtonFormulaProxy::set_current_body_state(const BodyState& body_state)
 // {
 //     NewtonFormula::set_current_body_state(UnitsConverter::toAuDay(body_state));

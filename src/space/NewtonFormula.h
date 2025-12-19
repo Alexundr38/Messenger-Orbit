@@ -47,7 +47,7 @@ public:
     [[nodiscard]] Vec3d calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const;
     ExtendedBodyState calculate_to_target(ExtendedBodyState current_state, SpiceDouble target_time);
     static ExtendedBodyState interpolate(const ExtendedBodyState& first, const ExtendedBodyState& second, SpiceDouble current_time);
-    void set_current_body_state(const ExtendedBodyState& body_state);
+    void set_current_body_state(const ExtendedBodyState& body_state) override;
     void add_force_body(SpaceObject* force_body);
 };
 
