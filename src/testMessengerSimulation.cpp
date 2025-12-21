@@ -14,18 +14,19 @@ int main(int argc, char* argv[])
     MessengerSimulationAdapter adapter(simulation);
     // simulation->run(true);
     ExtendedBodyState start_body_state(
-    Vec3d(-1.694552201075508E+07, -6.082123875002974E+07, -3.072397008554077E+07),
-    Vec3d(3.511996605436091E+01, -5.912063124751997E+00, -9.132231937650893E+00),
-    1988381908
+    Vec3d(-1.132738182132099E-01, -4.065648693088634E-01, -2.053770547787668E-01),
+    Vec3d(2.028347765177638E-02, -3.414502168970862E-03, -5.274305280690317E-03),
+    1988381908 / day
     );
-    for (int i = 0; i < 10; i++) {
-        std::cout << start_body_state.position << std::endl;
-        std::cout << start_body_state.velocity << std::endl;
-        auto result = adapter.get_messenger_between_km(1988381908, 1988384378, 1, start_body_state);
+    for (int i = 0; i < 3; i++) {
+        std::cout << std::setprecision(17) << start_body_state.position << std::endl;
+        std::cout << std::setprecision(17) << start_body_state.velocity << std::endl;
+        auto result = adapter.get_messenger_between_km(1988381908/day, 1988384378/day, 1/day, start_body_state);
         StateVector state = StateVector();
         state.add_state(BodyState(start_body_state.position, start_body_state.velocity, start_body_state.time));
-        LSM* lsm = new LSM(state, *result, "2013.csv", 1988381908, 1988384378);
-        StateVector out_state = lsm->do_LSM(1);
+        auto last_result = (*result)[1988384378/day];
+        LSM* lsm = new LSM(state, *result, "2013.csv", 1988381908/day, 1988384378/day);
+        StateVector out_state = lsm->do_LSM(2);
         start_body_state.position = out_state.state.position;
         start_body_state.velocity = out_state.state.velocity;
         std::cout << "-----------------------------------------------\n";

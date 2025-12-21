@@ -125,8 +125,8 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
         &lt
     );
 
-    body_state.position = {state[0], state[1], state[2]};
-    body_state.velocity = {state[3], state[4], state[5]};
+    body_state.position = {state[0] / au, state[1] / au, state[2] / au};
+    body_state.velocity = {state[3] / au * day, state[4] / au * day, state[5] / au * day};
     return body_state;
 }
 
