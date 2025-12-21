@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     for (int i = 0; i < 3; i++) {
         std::cout << std::setprecision(17) << start_body_state.position << std::endl;
         std::cout << std::setprecision(17) << start_body_state.velocity << std::endl;
-        auto result = adapter.get_messenger_between_km(1988381908/day, 1988384378/day, start_body_state);
+        auto result = adapter.get_messenger_between_km(1988381908/day, 1988384378/day, 1/day, start_body_state);
         StateVector state = StateVector();
         state.add_state(BodyState(start_body_state.position, start_body_state.velocity, start_body_state.time));
         auto last_result = (*result)[1988384378/day];

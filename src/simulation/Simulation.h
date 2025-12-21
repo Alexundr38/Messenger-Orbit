@@ -38,7 +38,7 @@ class Simulation
     void add_space_object(SpaceObject *object);
     SpaceObject* get_object(std::string name);
     std::shared_ptr<std::map<SpiceDouble, ExtendedBodyState>> simulation_between(
-        SpiceDouble start_date, SpiceDouble end_date, std::string body_name, ExtendedBodyState body_state
+        SpiceDouble start_date, SpiceDouble end_date, SpiceDouble step, std::string body_name, ExtendedBodyState body_state
     );
 };
 

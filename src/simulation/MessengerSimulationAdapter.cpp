@@ -13,9 +13,9 @@ MessengerSimulationAdapter::MessengerSimulationAdapter(Simulation* simulation)
 
 // Если вдруг ломает что-то пофишку
 std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> MessengerSimulationAdapter::get_messenger_between_km(
-    SpiceDouble start_date, SpiceDouble end_date, ExtendedBodyState start_state) const
+    SpiceDouble start_date, SpiceDouble end_date, SpiceDouble step, ExtendedBodyState start_state) const
 {
-    auto result = simulation->simulation_between(start_date, end_date, "MESSENGER", start_state);
+    auto result = simulation->simulation_between(start_date, end_date, step, "MESSENGER", start_state);
     auto first = result->find(start_date);
     auto second = result->find(end_date);
     std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> messenger_map = std::make_unique<std::map<SpiceDouble, ExtendedBodyState>>();
