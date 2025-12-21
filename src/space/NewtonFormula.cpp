@@ -1,6 +1,5 @@
 #include "NewtonFormula.h"
 #include <cmath>
-#include <iostream>
 #include <utility>
 
 #include "../types/ExtendedBodyState.h"
@@ -178,10 +177,15 @@ Vec3d NewtonFormula::calculate_mercury_acceleration(SpiceDouble time, const Vec3
             continue;
         BodyState body_state = body->get_body_state(time * day);
         Vec3d r_vec = body_state.position - current_position;
-        long double r = r_vec.norm();
+        long double rx = r_vec.x, ry = r_vec.y, rz = r_vec.z;
+        long double r2 = rx*rx + ry*ry + rz*rz;
+        long double r3 = r2 * std::sqrt(r2);
+
         long double mu = body->get_gravitational_parameter();
-        long double r3 = std::pow(r, 3);
-        acceleration += mu * r_vec / r3;
+        long double coeff = mu / r3;
+        acceleration.x += coeff * rx;
+        acceleration.y += coeff * ry;
+        acceleration.z += coeff * rz;
     }
     return acceleration;
 }
@@ -193,10 +197,16 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
     for (SpaceObject* body : force_bodies) {
         BodyState body_state = body->get_body_state(time * day);
         Vec3d r_vec = body_state.position - mess_ssb;
-        long double r = r_vec.norm();
+        long double rx = r_vec.x, ry = r_vec.y, rz = r_vec.z;
+        long double r2 = rx*rx + ry*ry + rz*rz;
+        long double r = std::sqrt(r2);
+        long double r3 = r2 * r;
+
         long double mu = body->get_gravitational_parameter();
-        long double r3 = std::pow(r, 3);
-        acceleration += mu * r_vec / r3;
+        long double coeff = mu / r3;
+        acceleration.x += coeff * rx;
+        acceleration.y += coeff * ry;
+        acceleration.z += coeff * rz;
         std::string body_name = body->get_object_name();
         if (body_name == "MERCURY BARYCENTER") {
             mercury_acceleration = calculate_mercury_acceleration(time, body_state.position);

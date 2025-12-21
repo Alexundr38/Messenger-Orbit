@@ -15,6 +15,7 @@ class NewtonFormulaProxy final : public NewtonFormula
     double start_date;
     std::ofstream csv_file;
     int counter = 0;
+    int delimiter;
 public:
     NewtonFormulaProxy(const std::vector<SpaceObject*>& force_bodies, const std::string& object_name,
         const ExtendedBodyState& start_state, SpiceDouble step, std::string filename);
