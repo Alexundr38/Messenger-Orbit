@@ -139,12 +139,13 @@ ExtendedBodyState NewtonFormula::next_step(const ExtendedBodyState& current_stat
 
 Mat3d NewtonFormula::calculate_jacobian(SpiceDouble time, const Vec3d& position) const
 {
+    Vec3d pos_ssb = position + force_bodies[1]->get_body_state(time * day).position;;
     Mat3d jacobian;
     for (SpaceObject * body : force_bodies)
     {
         Vec3d body_pos = body->get_body_state(time*day).position;
         SpiceDouble gm = body->get_gravitational_parameter();
-        Vec3d diff = body_pos - position;
+        Vec3d diff = body_pos - pos_ssb;
         long double up11 = gm*(-2*diff.x*diff.x + diff.y*diff.y + diff.z*diff.z);
         long double up12 = -3*gm*diff.x*diff.y;
         long double up13 = -3*gm*diff.x*diff.z;

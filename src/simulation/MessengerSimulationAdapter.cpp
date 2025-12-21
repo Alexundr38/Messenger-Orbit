@@ -4,6 +4,8 @@
 
 #include "MessengerSimulationAdapter.h"
 
+#include "../utils/SpaceObjectManager.h"
+
 MessengerSimulationAdapter::MessengerSimulationAdapter(Simulation* simulation)
 {
     this->simulation = simulation;
@@ -11,7 +13,7 @@ MessengerSimulationAdapter::MessengerSimulationAdapter(Simulation* simulation)
 
 // Если вдруг ломает что-то пофишку
 std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> MessengerSimulationAdapter::get_messenger_between_km(
-    SpiceDouble start_date, SpiceDouble end_date, SpiceDouble step, ExtendedBodyState start_state) const
+    SpiceDouble start_date, SpiceDouble end_date, ExtendedBodyState start_state) const
 {
     auto result = simulation->simulation_between(start_date, end_date, "MESSENGER", start_state);
     auto first = result->find(start_date);
@@ -19,10 +21,11 @@ std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> MessengerSimulationAda
     std::unique_ptr<std::map<SpiceDouble, ExtendedBodyState>> messenger_map = std::make_unique<std::map<SpiceDouble, ExtendedBodyState>>();
     while (first != second)
     {
-        //if ((int)(first->first - start_date) % (int)step == 0)
-        //{
-        messenger_map->insert(*first);
-        //}
+        ExtendedBodyState state_ssb = first->second;
+        BodyState mercury = SpaceObjectManager::get_body_state_at_time(first->first*day, "MERCURY BARYCENTER");
+        state_ssb.position += mercury.position;
+        state_ssb.velocity += mercury.velocity;
+        messenger_map->insert(std::make_pair(first->first, state_ssb));
         first = std::next(first);
     }
     return std::move(messenger_map);
