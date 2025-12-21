@@ -44,9 +44,10 @@ public:
 
     [[nodiscard]] ExtendedBodyState next_step(const ExtendedBodyState& current_state) const;
     [[nodiscard]] Mat3d calculate_jacobian(SpiceDouble time, const Vec3d& position) const;
+    [[nodiscard]] Vec3d calculate_mercury_acceleration(SpiceDouble time, const Vec3d& mercury_position) const;
 
     [[nodiscard]] Vec3d calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const;
-    Vec3d calculate_acceleration_hp(SpiceDouble time, const Vec3d& current_position) const;
+    [[nodiscard]] Vec3d calculate_acceleration_hp(SpiceDouble time, const Vec3d& current_position) const;
     ExtendedBodyState calculate_to_target(ExtendedBodyState current_state, SpiceDouble target_time);
     static ExtendedBodyState interpolate(const ExtendedBodyState& first, const ExtendedBodyState& second, SpiceDouble current_time);
     void set_current_body_state(const ExtendedBodyState& body_state) override;

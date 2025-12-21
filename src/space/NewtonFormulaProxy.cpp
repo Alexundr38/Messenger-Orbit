@@ -49,7 +49,7 @@ void NewtonFormulaProxy::set_current_body_state(const ExtendedBodyState& body_st
     NewtonFormula::set_current_body_state(body_state);
     counter++;
 
-    if (counter % 12 == 0)
+    if (counter % 2 == 0)
     {
         csv_file << std::scientific << std::uppercase << std::setprecision(15);
         csv_file << body_state.position.x << ","

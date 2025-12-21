@@ -113,22 +113,22 @@ ExtendedBodyState NewtonFormula::next_step(const ExtendedBodyState& current_stat
     const double t0 = current_state.time;
     Vec3d k1_pos, k1_vel, k2_pos, k2_vel, k3_pos, k3_vel, k4_pos, k4_vel;
 
-    k1_vel = calculate_acceleration_hp(t0, y0_pos);
+    k1_vel = calculate_acceleration(t0, y0_pos);
     k1_pos = y0_vel;
 
     Vec3d pos2 = y0_pos + h * 0.5 * k1_pos;
     Vec3d vel2 = y0_vel + h * 0.5 * k1_vel;
-    k2_vel = calculate_acceleration_hp(t0 + h * 0.5, pos2);
+    k2_vel = calculate_acceleration(t0 + h * 0.5, pos2);
     k2_pos = vel2;
 
     Vec3d pos3 = y0_pos + h * 0.5 * k2_pos;
     Vec3d vel3 = y0_vel + h * 0.5 * k2_vel;
-    k3_vel = calculate_acceleration_hp(t0 + h * 0.5, pos3);
+    k3_vel = calculate_acceleration(t0 + h * 0.5, pos3);
     k3_pos = vel3;
 
     Vec3d pos4 = y0_pos + h * k3_pos;
     Vec3d vel4 = y0_vel + h * k3_vel;
-    k4_vel = calculate_acceleration_hp(t0 + h, pos4);
+    k4_vel = calculate_acceleration(t0 + h, pos4);
     k4_pos = vel4;
 
     Vec3d new_pos = y0_pos + (h / 6.0) * (k1_pos + 2.0*k2_pos + 2.0*k3_pos + k4_pos);
@@ -169,17 +169,37 @@ Mat3d NewtonFormula::calculate_jacobian(SpiceDouble time, const Vec3d& position)
     return jacobian;
 }
 
-Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
+Vec3d NewtonFormula::calculate_mercury_acceleration(SpiceDouble time, const Vec3d& current_position) const
+{
     Vec3d acceleration;
-    for (SpaceObject* body : force_bodies) {
+    for (SpaceObject * body : force_bodies)
+    {
+        if (body->get_object_name() == "MERCURY BARYCENTER")
+            continue;
         BodyState body_state = body->get_body_state(time * day);
         Vec3d r_vec = body_state.position - current_position;
         long double r = r_vec.norm();
         long double mu = body->get_gravitational_parameter();
         long double r3 = std::pow(r, 3);
         acceleration += mu * r_vec / r3;
+    }
+    return acceleration;
+}
+
+Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& current_position) const {
+    Vec3d acceleration;
+    Vec3d mercury_acceleration;
+    Vec3d mess_ssb = current_position + force_bodies[1]->get_body_state(time * day).position;
+    for (SpaceObject* body : force_bodies) {
+        BodyState body_state = body->get_body_state(time * day);
+        Vec3d r_vec = body_state.position - mess_ssb;
+        long double r = r_vec.norm();
+        long double mu = body->get_gravitational_parameter();
+        long double r3 = std::pow(r, 3);
+        acceleration += mu * r_vec / r3;
         std::string body_name = body->get_object_name();
         if (body_name == "MERCURY BARYCENTER") {
+            mercury_acceleration = calculate_mercury_acceleration(time, body_state.position);
             constexpr double R_mercury_AU = 2439.7 / au;  // Точный радиус
             constexpr double J2 = 6.0e-5;
 
@@ -197,7 +217,7 @@ Vec3d NewtonFormula::calculate_acceleration(SpiceDouble time, const Vec3d& curre
             }
         }
     }
-    return acceleration;
+    return acceleration - mercury_acceleration;
 }
 
 Vec3d NewtonFormula::calculate_acceleration_hp(SpiceDouble time, const Vec3d& current_position) const {

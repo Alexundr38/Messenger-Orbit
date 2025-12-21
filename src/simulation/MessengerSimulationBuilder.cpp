@@ -14,16 +14,16 @@ Simulation* MessengerSimulationBuilder::buildSimulation()
     SpiceDouble step = TimeConverter::from_string_to_tdb(PropertiesReader::get_property("forward-task", "simulation", "step"));
     SpiceDouble end_date = TimeConverter::from_string_to_tdb(PropertiesReader::get_property("forward-task", "simulation", "end-date"));
     std::cout << std::fixed << std::setprecision(0) << start_date << " " << step << " " << end_date << std::endl;
-    ExtendedBodyState start_state(
-        Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01),
-        Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03),
-            start_date
-        );
-    // ExtendedBodyState start_state( //mercury
-    //     Vec3d( -2.513247815185603E-05,  3.377504761546451E-06, -7.278515572401461E-06),
-    //     Vec3d(-4.947919086751768E-04, -1.350326724159897E-04, -1.655017080013835E-03),
+    // ExtendedBodyState start_state(
+    //     Vec3d( 6.383826027878831E-03,  2.725647594289967E-01,  1.444990253752345E-01),
+    //     Vec3d(-3.437382718770443E-02,  1.087859065804843E-03,  2.261564357222589E-03),
     //         start_date
     //     );
+    ExtendedBodyState start_state( //mercury
+        Vec3d( -2.513247815185603E-05,  3.377504761546451E-06, -7.278515572401461E-06),
+        Vec3d(-4.947919086751768E-04, -1.350326724159897E-04, -1.655017080013835E-03),
+            start_date
+        );
     auto newton = new NewtonFormulaProxy( "MESSENGER", start_state, step, "result.txt");
     newton->set_use_implicit(false);
     auto* simulation = new Simulation();
