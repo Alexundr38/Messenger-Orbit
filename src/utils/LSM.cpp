@@ -21,6 +21,7 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
     //t0 ???
 
     for (int iter = 0; iter < max_iterations; ++iter) {
+        std::cout << "LSM Iteration: " << iter << std::endl;
 
         // A, b
         Eigen::MatrixXd A(observation_data.size(), NUM_PARAMS);
@@ -65,13 +66,13 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
         Eigen::VectorXd dx = ATA.ldlt().solve(ATb);
 
         // Проверка сходимости
-        double norm_dx = dx.norm();
+        /*double norm_dx = dx.norm();
 
         if (norm_dx < convergence_tol) {
             // Сохранение ковариационной матрицы
             covariance = ATA.inverse();
             break;
-        }
+        }*/
 
         state.update(dx);
     }

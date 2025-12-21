@@ -169,6 +169,13 @@ Mat3d NewtonFormula::calculate_jacobian(SpiceDouble time, const Vec3d& position)
     return jacobian;
 }
 
+/*
+o: 209424.60257053401437588 c: 106168.02539842079568189 r: 103256.57717211321869399
+o: 209440.61722564700176008 c: 106168.01204954613058362 r: 103272.60517610087117646
+(-0.11327381830602690, -0.40656487003175015, -0.20537705531551162)
+(-0.11327381847511207, -0.40656486974578900, -0.20537705587239463)
+
+*/
 Vec3d NewtonFormula::calculate_mercury_acceleration(SpiceDouble time, const Vec3d& current_position) const
 {
     Vec3d acceleration;

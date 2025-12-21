@@ -95,13 +95,31 @@ BodyState SpaceObjectManager::get_body_state_at_time(const std::string& utc, con
 }
 
 BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::string& dsn_id) {
+    //BodyState earth_state = get_body_state_at_time(tdb, "EARTH BARYCENTER", "SSB");
     tdb *= day;
+    //BodyState earth_state = get_body_state_at_time(tdb, "EARTH BARYCENTER", "SSB");
     std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
     std::string dsn_name = "DSS-" + dsn_id;
     BodyState body_state;
 
+    //o: 209440.61722564700176008 c: 103280.13174275544588454 r: 106160.48548289155587554
+    //o: 209440.61722564700176008 c: 103280.13174275544588454 r: 106160.48548289155587554
 
+    /*
+    o: 209424.60257053401437588 c: 103280.14472851296886802 r: 106144.45784202104550786
+    o: 209440.61722564700176008 c: 103280.13174275544588454 r: 106160.48548289155587554
+    (-0.11327383026342592, -0.40656481835744608, -0.20537714674169266)
+    (-0.11327383261227059, -0.40656480906577931, -0.20537716388218151)
+     */
+
+    /*
+    o: 209424.60257053401437588 c: 106168.02539842079568189 r: 103256.57717211321869399
+    o: 209440.61722564700176008 c: 106168.01204954613058362 r: 103272.60517610087117646
+    (-0.11327381830602690, -0.40656487003175015, -0.20537705531551162)
+    (-0.11327381847511207, -0.40656486974578900, -0.20537705587239463)
+
+*/
 
     SpiceDouble et_j2000, et_j1950;
     SpiceDouble j2000_to_j1950;
@@ -115,6 +133,19 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
 
     SpiceDouble state[6];
     SpiceDouble lt;
+
+    /*
+    spkezr_c(
+        dsn_name.c_str(),
+        tdb - j2000_to_j1950 + 63195,
+        "J2000",
+        "LT+S",        // Используем LT для света (для земного наблюдателя)
+        "EARTH",       // Относительно Земли (вместо SSB)
+        state,
+        &lt
+    );
+*/
+
     spkezr_c(
         dsn_name.c_str(),
         tdb - j2000_to_j1950 + 63195,
@@ -127,6 +158,11 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
 
     body_state.position = {state[0] / au, state[1] / au, state[2] / au};
     body_state.velocity = {state[3] / au * day, state[4] / au * day, state[5] / au * day};
+
+/*
+    body_state.position = {state[0] / au + earth_state.position.x, state[1] / au + earth_state.position.y, state[2] / au + earth_state.position.z};
+    body_state.velocity = {state[3] / au * day + earth_state.velocity.x, state[4] / au * day + earth_state.velocity.y, state[5] / au * day + earth_state.velocity.z};
+*/
     return body_state;
 }
 
