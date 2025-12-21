@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <ios>
 #include <iosfwd>
-#include <SpiceZdf.h>
+#include <SpiceUsr.h>
 
 #include "Vec3d.h"
 

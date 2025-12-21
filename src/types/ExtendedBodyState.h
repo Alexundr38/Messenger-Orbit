@@ -8,7 +8,7 @@
 #include "Mat3d.h"
 
 
-struct ExtendedBodyState: public BodyState
+struct ExtendedBodyState: BodyState
 {
     Mat3d jacobian;
     Mat3d& getJacobian();

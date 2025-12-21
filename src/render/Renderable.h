@@ -2,14 +2,15 @@
 #define MESSENGERORBIT_RENDERER_H
 
 #include "../utils/PropertiesReader.h"
-#include "../types/BodyState.h"
+#include "../types/ExtendedBodyState.h"
 #include "../utils/Constants.h"
+
 
 class Renderable
 {
 protected:
     std::vector<Vec3d> history;
-    BodyState current_body_state;
+    ExtendedBodyState current_body_state;
     Vec3d color;
     float size = 1;
 
@@ -42,12 +43,12 @@ public:
         return size;
     }
 
-    virtual BodyState get_current_body_state() const
+    [[nodiscard]] virtual ExtendedBodyState get_current_body_state() const
     {
         return current_body_state;
     }
 
-    virtual void set_current_body_state(const BodyState& body_state)
+    virtual void set_current_body_state(const ExtendedBodyState& body_state)
     {
         current_body_state = body_state;
     }

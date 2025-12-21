@@ -41,7 +41,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(eigen glfw glm cspice yaml-cpp qd)
 find_package(OpenGL REQUIRED)
 
-add_executable(MessengerOrbit
+set(COMMON_SOURCES
         src/types/Vec3d.cpp
         src/types/BodyState.cpp
         src/types/BodyState.h
@@ -49,7 +49,6 @@ add_executable(MessengerOrbit
         src/space/SpaceObject.h
         src/utils/PropertiesReader.h
         src/utils/PathResolver.h
-#        src/main.cpp
         src/utils/SpaceObjectManager.cpp
         src/utils/SpaceObjectManager.h
         src/utils/TimeConverter.cpp
@@ -95,7 +94,6 @@ add_executable(MessengerOrbit
         src/simulation/SimulationTime.h
         src/simulation/MessengerSimulationBuilder.cpp
         src/simulation/MessengerSimulationBuilder.h
-        src/testMessengerSimulation.cpp
         src/converter/UnitsConverter.cpp
         src/converter/UnitsConverter.h
         src/simulation/MessengerSimulationAdapter.cpp
@@ -103,23 +101,38 @@ add_executable(MessengerOrbit
         src/types/ExtendedBodyState.cpp
         src/types/ExtendedBodyState.h
         src/utils/HighPrecision.h
+        src/simulation/BoostSimulation.cpp
+        src/simulation/BoostSimulation.h
+        src/simulation/BoostSimulationBuilder.cpp
+        src/simulation/BoostSimulationBuilder.h
+        src/types/HighPrecVec3d.h
+        src/types/HighPrecVec3d.h
 )
 
-target_include_directories(MessengerOrbit PRIVATE
+add_library(MessengerCommon STATIC ${COMMON_SOURCES})
+
+target_include_directories(MessengerCommon PUBLIC
         ${cspice_SOURCE_DIR}/include
         ${glm_SOURCE_DIR}
         ${eigen_SOURCE_DIR}
         /usr/include
 )
 
-target_link_directories(MessengerOrbit PRIVATE ${cspice_SOURCE_DIR}/lib)
-
-target_link_libraries(
-        MessengerOrbit
-        OpenGL::OpenGL
+target_link_directories(MessengerCommon PUBLIC ${cspice_SOURCE_DIR}/lib)
+target_link_libraries(MessengerCommon
         -l:cspice.a
         yaml-cpp
-        glfw
+)
 
-        m
+
+add_executable(MessengerOrbit src/testMessengerSimulation.cpp)
+target_link_libraries(MessengerOrbit
+        MessengerCommon
+)
+
+add_executable(MessengerOrbitRender src/main.cpp)
+target_link_libraries(MessengerOrbitRender
+        MessengerCommon
+        OpenGL::OpenGL
+        glfw
 )

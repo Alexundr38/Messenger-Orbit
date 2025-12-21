@@ -20,6 +20,6 @@ SpaceObjectEntity::SpaceObjectEntity(const std::string& object_name)
 BodyState SpaceObjectEntity::get_body_state(SpiceDouble tdb)
 {
     BodyState new_state = SpaceObjectManager::get_body_state_at_time(tdb, object_name);
-    set_current_body_state(new_state);
+    set_current_body_state(ExtendedBodyState(new_state));
     return new_state;
 }

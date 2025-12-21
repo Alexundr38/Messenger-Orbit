@@ -2,6 +2,7 @@
 // Created by magofrays on 12/13/25.
 //
 
+#include "simulation/BoostSimulationBuilder.h"
 #include "simulation/MessengerSimulationAdapter.h"
 #include "simulation/MessengerSimulationBuilder.h"
 #include "simulation/Simulation.h"
@@ -10,9 +11,10 @@
 
 int main(int argc, char* argv[])
 {
-    Simulation *simulation = MessengerSimulationBuilder().buildSimulation();
+    Simulation *simulation = BoostSimulationBuilder().buildSimulation();
+    simulation->run(true);
+    return 0;
     MessengerSimulationAdapter adapter(simulation);
-    // simulation->run(true);
     ExtendedBodyState start_body_state(
     Vec3d(-1.132738182132099E-01, -4.065648693088634E-01, -2.053770547787668E-01),
     Vec3d(2.028347765177638E-02, -3.414502168970862E-03, -5.274305280690317E-03),
