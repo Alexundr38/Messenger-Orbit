@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
     Simulation *simulation = BoostSimulationBuilder().buildSimulation();
     // simulation->run(true);
     // return 0;
-    SpiceDouble start_time = 1993302918.5;
+    SpiceDouble start_time = 1993302913.5;
     SpiceDouble end_time = 1993303873.5;
     MessengerSimulationAdapter adapter(simulation);
     ExtendedBodyState start_body_state(
@@ -22,15 +22,21 @@ int main(int argc, char* argv[])
     Vec3d(-1.976064346474170E-02, -2.167599514783350E-02, -8.323094213103985E-03),
     start_time / day
     );
+
+
+    //поместить фал с данными мессенджера по пути forward-task/msgr_120501_130430_recon_gsfc_1.bsp
+
+
+
     StateVector state = StateVector();
     StateVector out_state;
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 1; i++) {
         std::cout << "cur_pos: " << std::setprecision(17) << start_body_state.position << std::endl;
         std::cout << "cur_vel: " << std::setprecision(17) << start_body_state.velocity << std::endl;
         auto result = adapter.get_messenger_between_km(start_time/day, end_time/day, 10/day, start_body_state);
         state.add_state(BodyState(start_body_state.position, start_body_state.velocity, start_body_state.time));
         LSM* lsm = new LSM(state, *result, "for_c_2013_last.txt", start_time/day, end_time/day);
-        out_state = lsm->do_LSM(2);
+        out_state = lsm->do_LSM(3);
         std::cout << "cur_pos: " << std::setprecision(17) << out_state.state.position << std::endl;
         std::cout << "new_pos: " << std::setprecision(17) << start_body_state.position << std::endl;
         start_body_state.position = out_state.state.position;

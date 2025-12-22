@@ -8,11 +8,19 @@
 #include <SpiceZpr.h>
 
 #include "CSVReader.h"
+#include "SpaceObjectManager.h"
 
 DopplerComputer::DopplerComputer(std::map<SpiceDouble, ExtendedBodyState> &points) {
     this->light_time = new LightTimeSolver(points);
+
     std::map<SpiceDouble, ExtendedBodyState> jpl_points = CSVReader::read_csv_time("times.txt");
     this->light_time1 = new LightTimeSolver(jpl_points);
+
+    std::map<SpiceDouble, ExtendedBodyState> bsp_points;
+    for (std::pair <SpiceDouble, ExtendedBodyState> point : points) {
+        bsp_points[point.first] = ExtendedBodyState(SpaceObjectManager::get_body_state_at_time(point.first * day, "-236"));
+    }
+    this->light_time2 = new LightTimeSolver(bsp_points);
 }
 
 long double DopplerComputer::compute_doppler(SpiceDouble& t_recv, double &ref_freq,
@@ -24,8 +32,11 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv, double &ref_fr
     //SpiceDouble messenger_start_first = light_time->light_time_solve(t_recv_first, dsn_id);
     //SpiceDouble messenger_start_second = light_time->light_time_solve(t_recv_second, dsn_id);
 
-    SpiceDouble messenger_start_first = light_time1->light_time_solve(t_recv_first, dsn_id);
-    SpiceDouble messenger_start_second = light_time1->light_time_solve(t_recv_second, dsn_id);
+    //SpiceDouble messenger_start_first = light_time1->light_time_solve(t_recv_first, dsn_id);
+    //SpiceDouble messenger_start_second = light_time1->light_time_solve(t_recv_second, dsn_id);
+
+    SpiceDouble messenger_start_first = light_time2->light_time_solve(t_recv_first, dsn_id);
+    SpiceDouble messenger_start_second = light_time2->light_time_solve(t_recv_second, dsn_id);
 
     SpiceDouble first_time = t_recv_first - messenger_start_first;
     SpiceDouble second_time = t_recv_second - messenger_start_second;

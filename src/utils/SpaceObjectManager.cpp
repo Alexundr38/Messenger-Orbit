@@ -20,6 +20,7 @@ SpaceObjectManager::SpaceObjectManager()
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "dsn-coords").c_str());
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "add-dsn-coords").c_str());
     furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "sizes").c_str());
+    furnsh_c(PropertiesReader::get_property_path("forward-task", "space-object-manager", "messenger-bsp").c_str());
     reference_frame = PropertiesReader::get_property("forward-task", "space-object-manager", "reference-frame");
     aberration_correction = PropertiesReader::get_property("forward-task", "space-object-manager", "aberration-correction");
     observer_body = PropertiesReader::get_property("forward-task", "space-object-manager", "observer-body");

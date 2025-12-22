@@ -16,6 +16,7 @@ class DopplerComputer {
 private:
     LightTimeSolver* light_time;
     LightTimeSolver* light_time1;
+    LightTimeSolver* light_time2;
     //какой то ридер из csv, чтобы получить данные
 
 public:

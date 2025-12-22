@@ -7,6 +7,7 @@ forward-task:
     sizes: "forward-task/pck00011.tpc" # радиусы планет
     dsn-coords: "forward-task/earth_latest_high_prec.bpc"
     add-dsn-coords: "forward-task/earthstns_itrf93_201023.bsp"
+    messenger-bsp: "forward-task/msgr_120501_130430_recon_gsfc_1.bsp"
     reference-frame: "J2000"
     aberration-correction: "NONE"
     observer-body: "SSB" #1

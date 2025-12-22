@@ -37,7 +37,7 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
 
             // r
             double residual = obs1.full_observable - doppler_calc;
-            std::cout << "o: " << obs1.full_observable << " c: " << doppler_calc << " r: " << residual << std::endl;
+            std::cout << "t: " << obs1.time_tag_seconds << " o: " << obs1.full_observable << " c: " << doppler_calc << " r: " << residual << std::endl;
             b(i) = residual;
 
             // частные произдводные
