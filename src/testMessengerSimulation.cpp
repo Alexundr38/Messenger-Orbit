@@ -14,8 +14,8 @@ int main(int argc, char* argv[])
     Simulation *simulation = BoostSimulationBuilder().buildSimulation();
     // simulation->run(true);
     // return 0;
-    SpiceDouble start_time = 1993302918;
-    SpiceDouble end_time = 1993303873;
+    SpiceDouble start_time = 1993302918.5;
+    SpiceDouble end_time = 1993303873.5;
     MessengerSimulationAdapter adapter(simulation);
     ExtendedBodyState start_body_state(
     Vec3d(-3.018808873610819E-01,  1.391836383670322E-01,  1.057009733205437E-01),
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
         auto result = adapter.get_messenger_between_km(start_time/day, end_time/day, 10/day, start_body_state);
         state.add_state(BodyState(start_body_state.position, start_body_state.velocity, start_body_state.time));
         LSM* lsm = new LSM(state, *result, "for_c_2013_last.txt", start_time/day, end_time/day);
-        out_state = lsm->do_LSM(3);
+        out_state = lsm->do_LSM(2);
         std::cout << "cur_pos: " << std::setprecision(17) << out_state.state.position << std::endl;
         std::cout << "new_pos: " << std::setprecision(17) << start_body_state.position << std::endl;
         start_body_state.position = out_state.state.position;

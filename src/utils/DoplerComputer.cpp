@@ -24,8 +24,8 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv, double &ref_fr
     //SpiceDouble messenger_start_first = light_time->light_time_solve(t_recv_first, dsn_id);
     //SpiceDouble messenger_start_second = light_time->light_time_solve(t_recv_second, dsn_id);
 
-    SpiceDouble messenger_start_first = light_time->light_time_solve(t_recv_first, dsn_id);
-    SpiceDouble messenger_start_second = light_time->light_time_solve(t_recv_second, dsn_id);
+    SpiceDouble messenger_start_first = light_time1->light_time_solve(t_recv_first, dsn_id);
+    SpiceDouble messenger_start_second = light_time1->light_time_solve(t_recv_second, dsn_id);
 
     SpiceDouble first_time = t_recv_first - messenger_start_first;
     SpiceDouble second_time = t_recv_second - messenger_start_second;

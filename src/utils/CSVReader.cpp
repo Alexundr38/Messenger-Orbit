@@ -58,10 +58,10 @@ ObservationData CSVReader::read_line(std::string& line, double start_time, doubl
         fields.push_back(field);
     }
 
-    double current = std::stod(fields[0]) /day ;
-    if (std::stod(fields[0]) /day >= start_time && std::stod(fields[0]) /day <= end_time) {
+    double current_time = (std::stod(fields[0]) + std::stod(fields[1]) * 0.01) /day ;
+    if (current_time >= start_time && current_time <= end_time) {
         if (fields.size() == 12) {
-            data.time_tag_seconds = std::stod(fields[0]) / day;
+            data.time_tag_seconds = current_time;
             //data.record_time = 0;
             data.full_observable = std::stod(fields[7]) + std::stod(fields[8]) * 1e-9;
             data.receiving_station_id = fields[6];
