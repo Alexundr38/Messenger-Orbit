@@ -15,13 +15,14 @@ inline constexpr double C2 = 880.0 / 749.0;
 class DopplerComputer {
 private:
     LightTimeSolver* light_time;
+    LightTimeSolver* light_time1;
     //какой то ридер из csv, чтобы получить данные
 
 public:
     DopplerComputer(std::map<SpiceDouble, ExtendedBodyState> &points);
 
-    long double compute_doppler(SpiceDouble& t_recv_first, SpiceDouble& t_recv_second, double &ref_freq,
-                std::string& dsn_id, SpiceDouble& full_time);
+    long double compute_doppler(SpiceDouble& t_recv, double &ref_freq,
+                std::string& dsn_id, SpiceDouble& Tc);
 
     LightTimeSolver* get_light_time_solver();
 

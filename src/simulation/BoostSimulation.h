@@ -18,10 +18,10 @@ typedef std::array<long double, 6> state_type;
 class BoostSimulation: public Simulation
 {
 
-    adams_bashforth_moulton<4, state_type> abm_stepper;
+    adams_bashforth_moulton<8, state_type> abm_stepper;
     runge_kutta4<state_type> rk4_stepper;
     size_t init_steps_done = 0;
-    const size_t init_steps_needed = 4;
+    const size_t init_steps_needed = 8;
     class NewtonFormulaWrapper {
         NewtonFormula* newton_formula;
 

@@ -31,13 +31,14 @@ LightTimeSolver::LightTimeSolver(std::map<SpiceDouble, ExtendedBodyState> &point
 SpiceDouble LightTimeSolver::light_time_solve(SpiceDouble& t3_tdb, std::string& dsn_id) {
     BodyState state = SpaceObjectManager::get_DSN_state_at_time(t3_tdb, dsn_id);
     Vec3d messenger_point = spline_position->interpolate(t3_tdb);
+    //Vec3d messenger_point = SpaceObjectManager::get_body_state_at_time(t3_tdb, "MESSENGER");
     SpiceDouble dt = (state.position.distanceTo(messenger_point)) / C;
     SpiceDouble t2_tdb = t3_tdb - dt;
 
     for (int i = 0; i < 5; i++) {
-        t2_tdb = t3_tdb - dt;
         messenger_point = spline_position->interpolate(t2_tdb);
         dt = (state.position.distanceTo(messenger_point)) / C;
+        t2_tdb = t3_tdb - dt;
     }
 
     return t2_tdb;

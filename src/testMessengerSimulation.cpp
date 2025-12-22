@@ -14,22 +14,22 @@ int main(int argc, char* argv[])
     Simulation *simulation = BoostSimulationBuilder().buildSimulation();
     // simulation->run(true);
     // return 0;
-    SpiceDouble start_time = 1988381908;
-    SpiceDouble end_time = 1988384378;
+    SpiceDouble start_time = 1993302918;
+    SpiceDouble end_time = 1993303873;
     MessengerSimulationAdapter adapter(simulation);
     ExtendedBodyState start_body_state(
-    Vec3d(-1.132738182132099E-01, -4.065648693088634E-01, -2.053770547787668E-01),
-    Vec3d(2.028347765177638E-02, -3.414502168970862E-03, -5.274305280690317E-03),
+    Vec3d(-3.018808873610819E-01,  1.391836383670322E-01,  1.057009733205437E-01),
+    Vec3d(-1.976064346474170E-02, -2.167599514783350E-02, -8.323094213103985E-03),
     start_time / day
     );
     StateVector state = StateVector();
     StateVector out_state;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 3; i++) {
         std::cout << "cur_pos: " << std::setprecision(17) << start_body_state.position << std::endl;
         std::cout << "cur_vel: " << std::setprecision(17) << start_body_state.velocity << std::endl;
         auto result = adapter.get_messenger_between_km(start_time/day, end_time/day, 10/day, start_body_state);
         state.add_state(BodyState(start_body_state.position, start_body_state.velocity, start_body_state.time));
-        LSM* lsm = new LSM(state, *result, "2013.csv", start_time/day, end_time/day);
+        LSM* lsm = new LSM(state, *result, "for_c_2013_last.txt", start_time/day, end_time/day);
         out_state = lsm->do_LSM(3);
         std::cout << "cur_pos: " << std::setprecision(17) << out_state.state.position << std::endl;
         std::cout << "new_pos: " << std::setprecision(17) << start_body_state.position << std::endl;
@@ -66,3 +66,12 @@ SpiceDouble start_time = 2011020795;
 
 //-0.11327381821320991, -0.40656486930886337, -0.20537705477876680
 //-0.11327381668142248, -0.40656487040112670, -0.20537704700866269
+
+
+
+//1993302918 500 11 500 137079 5667936 25 -589472 -124111175 0 77000 1
+//1993302918,2013-03-01 15:15:18,-589472.124111175,-589472,-124111175,25,0,2,2299809660.0,137079,5667936,11,0,2,0.0
+
+
+//(-0.30188088736108187, 0.13918363836703221, 0.10570097332054371)
+//(-0.30188803760780084, 0.13921627138813316, 0.10563754269726123)

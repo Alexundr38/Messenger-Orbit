@@ -7,12 +7,22 @@
 #include "SpiceUsr.h"
 #include <SpiceZpr.h>
 
+#include "CSVReader.h"
+
 DopplerComputer::DopplerComputer(std::map<SpiceDouble, ExtendedBodyState> &points) {
     this->light_time = new LightTimeSolver(points);
+    std::map<SpiceDouble, ExtendedBodyState> jpl_points = CSVReader::read_csv_time("times.txt");
+    this->light_time1 = new LightTimeSolver(jpl_points);
 }
 
-long double DopplerComputer::compute_doppler(SpiceDouble& t_recv_first, SpiceDouble& t_recv_second, double &ref_freq,
-                std::string& dsn_id, SpiceDouble& full_time) {
+long double DopplerComputer::compute_doppler(SpiceDouble& t_recv, double &ref_freq,
+                std::string& dsn_id, SpiceDouble& Tc) {
+
+    SpiceDouble t_recv_first = t_recv - Tc/2;
+    SpiceDouble t_recv_second = t_recv + Tc/2;
+
+    //SpiceDouble messenger_start_first = light_time->light_time_solve(t_recv_first, dsn_id);
+    //SpiceDouble messenger_start_second = light_time->light_time_solve(t_recv_second, dsn_id);
 
     SpiceDouble messenger_start_first = light_time->light_time_solve(t_recv_first, dsn_id);
     SpiceDouble messenger_start_second = light_time->light_time_solve(t_recv_second, dsn_id);
@@ -34,9 +44,9 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv_first, SpiceDou
 
     SpiceDouble delta = (messenger_start_second - tai_second) - (messenger_start_first - tai_first); //(TDB _ TAI)[t2e] - (TDB _ TAI)[t2s]
 
-    full_time = messenger_start_second - messenger_start_first;
+    //full_time = messenger_start_second - messenger_start_first;
 
-    long double doppler_freq = C2 * ref_freq * (second_time - first_time + delta) / full_time;
+    long double doppler_freq = C2 * ref_freq * (second_time - first_time + delta) / Tc;
     //
     // middle_time = (messenger_start_second + messenger_start_first) / 2;
     //

@@ -26,7 +26,7 @@ public:
 
     StateVector do_LSM(int max_iterations = 10, double convergence_tol = 1e-6);
 
-    Eigen::VectorXd compute_partial_derivatives(SpiceDouble& full_time, ObservationData& obs_data1, ObservationData& obs_data2);
+    Eigen::VectorXd compute_partial_derivatives(ObservationData& obs_data1);
 
     ~LSM();
 };

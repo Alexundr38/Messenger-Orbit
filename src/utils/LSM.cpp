@@ -29,13 +29,11 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
         double total_residual_sq = 0.0;
 
         #pragma omp parallel for reduction(+:total_residual_sq)
-        for (size_t i = 0; i < observation_data.size() - 1; ++i) {
+        for (size_t i = 0; i < observation_data.size(); ++i) {
             ObservationData& obs1 = observation_data[i];
-            ObservationData& obs2 = observation_data[i+1];
 
-            SpiceDouble full_time;
             double doppler_calc = doppler_computer->compute_doppler(obs1.time_tag_seconds,
-                obs2.time_tag_seconds, obs1.full_ref_freq, obs1.receiving_station_id, full_time);
+                obs1.full_ref_freq, obs1.receiving_station_id, obs1.Tc);
 
             // r
             double residual = obs1.full_observable - doppler_calc;
@@ -43,7 +41,7 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
             b(i) = residual;
 
             // частные произдводные
-            Eigen::VectorXd derivatives = compute_partial_derivatives(full_time, obs1, obs2);
+            Eigen::VectorXd derivatives = compute_partial_derivatives(obs1);
             A.row(i) = derivatives;
 
             total_residual_sq += residual * residual;
@@ -79,21 +77,24 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
     return state;
 }
 
-Eigen::VectorXd LSM::compute_partial_derivatives(SpiceDouble& full_time, ObservationData& obs_data1, ObservationData& obs_data2) {
+Eigen::VectorXd LSM::compute_partial_derivatives(ObservationData& obs_data1) {
     Eigen::VectorXd derivatives(NUM_PARAMS);
-    long double d_f_d_q_scalar = C2 / full_time * obs_data1.full_ref_freq;
+    long double d_f_d_q_scalar = C2 / obs_data1.Tc * obs_data1.full_ref_freq;
     LightTimeSolver* light_time = this->doppler_computer->get_light_time_solver();
 
-    Mat3d d_r_d_q1 = light_time->get_spline_mat3d(obs_data1.time_tag_seconds);
-    Mat3d d_r_d_q2 = light_time->get_spline_mat3d(obs_data2.time_tag_seconds);
+    SpiceDouble t_recv_first = obs_data1.time_tag_seconds - obs_data1.Tc / 2;
+    SpiceDouble t_recv_second = obs_data1.time_tag_seconds + obs_data1.Tc / 2;
+
+    Mat3d d_r_d_q1 = light_time->get_spline_mat3d(t_recv_first);
+    Mat3d d_r_d_q2 = light_time->get_spline_mat3d(t_recv_second);
 
 
 
-    Vec3d r_norm_c_1 = (-1 / C) * (light_time->get_vec_2_3(obs_data1.time_tag_seconds, obs_data1.receiving_station_id).normalized());
-    Vec3d r_norm_c_2 = (-1 / C) * (light_time->get_vec_2_3(obs_data2.time_tag_seconds, obs_data1.receiving_station_id).normalized());
+    Vec3d r_norm_c_1 = (-1 / C) * (light_time->get_vec_2_3(t_recv_first, obs_data1.receiving_station_id).normalized());
+    Vec3d r_norm_c_2 = (-1 / C) * (light_time->get_vec_2_3(t_recv_second, obs_data1.receiving_station_id).normalized());
 
-    long double d_p_2_3_t1 = 1 + r_norm_c_1.dot(light_time->get_vec_r_C(light_time->light_time_solve(obs_data1.time_tag_seconds, obs_data1.receiving_station_id)));
-    long double d_p_2_3_t2 = 1 + r_norm_c_2.dot(light_time->get_vec_r_C(light_time->light_time_solve(obs_data2.time_tag_seconds, obs_data2.receiving_station_id)));
+    long double d_p_2_3_t1 = 1 + r_norm_c_1.dot(light_time->get_vec_r_C(light_time->light_time_solve(t_recv_first, obs_data1.receiving_station_id)));
+    long double d_p_2_3_t2 = 1 + r_norm_c_2.dot(light_time->get_vec_r_C(light_time->light_time_solve(t_recv_second, obs_data1.receiving_station_id)));
 
     Vec3d d_t2_d_q_1 = (r_norm_c_1 / d_p_2_3_t1) * d_r_d_q1; // * матрицу
     Vec3d d_t2_d_q_2 = (r_norm_c_2 / d_p_2_3_t2) * d_r_d_q2; // * матрицу

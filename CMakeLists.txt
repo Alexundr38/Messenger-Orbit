@@ -115,6 +115,8 @@ target_include_directories(MessengerCommon PUBLIC
         ${cspice_SOURCE_DIR}/include
         ${glm_SOURCE_DIR}
         ${eigen_SOURCE_DIR}
+        ${yaml-cpp_SOURCE_DIR}/include    # ← ДОБАВЬТЕ
+        ${yaml-cpp_BINARY_DIR}
         /usr/include
 )
 
