@@ -41,8 +41,8 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
             b(i) = residual;
 
             // частные произдводные
-            Eigen::VectorXd derivatives = compute_partial_derivatives(obs1);
-            A.row(i) = derivatives;
+            //Eigen::VectorXd derivatives = compute_partial_derivatives(obs1);
+            //A.row(i) = derivatives;
 
             total_residual_sq += residual * residual;
         }
@@ -50,9 +50,9 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
         double rms = sqrt(total_residual_sq / observation_data.size());
 
         // (A^T * A) * dx = A^T * b
-        Eigen::MatrixXd AT = A.transpose();
-        Eigen::MatrixXd ATA = AT * A;
-        Eigen::VectorXd ATb = AT * b;
+        //Eigen::MatrixXd AT = A.transpose();
+        //Eigen::MatrixXd ATA = AT * A;
+        //Eigen::VectorXd ATb = AT * b;
 
         // Регуляризация (добавление малого числа на диагональ)
         /*double lambda = 1e-10;
@@ -61,7 +61,7 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
         }*/
 
         // Решение системы
-        Eigen::VectorXd dx = ATA.ldlt().solve(ATb);
+        //Eigen::VectorXd dx = ATA.ldlt().solve(ATb);
 
         // Проверка сходимости
         /*double norm_dx = dx.norm();
@@ -72,7 +72,7 @@ StateVector LSM::do_LSM(int max_iterations, double convergence_tol) {
             break;
         }*/
 
-        state.update(dx);
+        //state.update(dx);
     }
     return state;
 }
@@ -93,8 +93,9 @@ Eigen::VectorXd LSM::compute_partial_derivatives(ObservationData& obs_data1) {
     Vec3d r_norm_c_1 = (-1 / C) * (light_time->get_vec_2_3(t_recv_first, obs_data1.receiving_station_id).normalized());
     Vec3d r_norm_c_2 = (-1 / C) * (light_time->get_vec_2_3(t_recv_second, obs_data1.receiving_station_id).normalized());
 
-    long double d_p_2_3_t1 = 1 + r_norm_c_1.dot(light_time->get_vec_r_C(light_time->light_time_solve(t_recv_first, obs_data1.receiving_station_id)));
-    long double d_p_2_3_t2 = 1 + r_norm_c_2.dot(light_time->get_vec_r_C(light_time->light_time_solve(t_recv_second, obs_data1.receiving_station_id)));
+    SpiceDouble tdb_tai_1, tdb_tai_2;
+    long double d_p_2_3_t1 = 1 + r_norm_c_1.dot(light_time->get_vec_r_C(light_time->light_time_solve(t_recv_first, obs_data1.receiving_station_id, &tdb_tai_1)));
+    long double d_p_2_3_t2 = 1 + r_norm_c_2.dot(light_time->get_vec_r_C(light_time->light_time_solve(t_recv_second, obs_data1.receiving_station_id, &tdb_tai_2)));
 
     Vec3d d_t2_d_q_1 = (r_norm_c_1 / d_p_2_3_t1) * d_r_d_q1; // * матрицу
     Vec3d d_t2_d_q_2 = (r_norm_c_2 / d_p_2_3_t2) * d_r_d_q2; // * матрицу

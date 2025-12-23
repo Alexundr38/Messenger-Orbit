@@ -106,20 +106,20 @@ Vec3d Spline::interpolate(SpiceDouble time) {
     int i = 0;
     int spline_size = splines_x.size() - 1;
 
-    if (time <= splines_x[0].start_dot) {
+    if (time <= splines_x[0].start_dot - 18262.5) {
         i = 0;
-    } else if (time >= splines_x[spline_size].start_dot) {
+    } else if (time >= splines_x[spline_size].start_dot - 18262.5) {
         i = spline_size;
     } else {
         for (int k = 0; k < spline_size; k++) {
-            if (time <= splines_x[k].start_dot) {
+            if (time <= splines_x[k].start_dot - 18262.5) {
                 i = k;
                 break;
             }
         }
     }
 
-    double dt = time - splines_x[i].start_dot;
+    double dt = time - splines_x[i].start_dot + 18262.5;
     long double x_a = splines_x[i].a;
     long double x_b = splines_x[i].b * dt;
     long double x_c = splines_x[i].c * dt * dt;

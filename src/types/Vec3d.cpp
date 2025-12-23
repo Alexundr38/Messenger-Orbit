@@ -15,6 +15,10 @@ long double Vec3d::squaredNorm() const {
     return x*x + y*y + z*z;
 }
 
+Vec3d Vec3d::absDiff(const Vec3d& other) const {
+    return Vec3d(fabs(x - other.x), fabs(y - other.y), fabs(z - other.z));
+}
+
 Vec3d Vec3d::normalized() const {
     double n = norm();
     if (n > 0) {

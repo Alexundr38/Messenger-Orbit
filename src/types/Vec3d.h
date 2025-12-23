@@ -14,6 +14,7 @@ struct Vec3d
     [[nodiscard]] long double norm () const;
     [[nodiscard]] long double squaredNorm() const;
     [[nodiscard]] Vec3d normalized() const;
+    [[nodiscard]] Vec3d absDiff(const Vec3d& other) const;
     void normalize();
 
     // Скалярное произведение

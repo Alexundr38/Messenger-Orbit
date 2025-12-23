@@ -18,7 +18,7 @@ DopplerComputer::DopplerComputer(std::map<SpiceDouble, ExtendedBodyState> &point
 
     std::map<SpiceDouble, ExtendedBodyState> bsp_points;
     for (std::pair <SpiceDouble, ExtendedBodyState> point : points) {
-        bsp_points[point.first] = ExtendedBodyState(SpaceObjectManager::get_body_state_at_time(point.first * day, "-236"));
+        bsp_points[point.first] = ExtendedBodyState(SpaceObjectManager::get_body_state_at_time((point.first - 18262.5) * day, "-236"));
     }
     this->light_time2 = new LightTimeSolver(bsp_points);
 }
@@ -32,14 +32,20 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv, double &ref_fr
     //SpiceDouble messenger_start_first = light_time->light_time_solve(t_recv_first, dsn_id);
     //SpiceDouble messenger_start_second = light_time->light_time_solve(t_recv_second, dsn_id);
 
-    //SpiceDouble messenger_start_first = light_time1->light_time_solve(t_recv_first, dsn_id);
-    //SpiceDouble messenger_start_second = light_time1->light_time_solve(t_recv_second, dsn_id);
+    //SpiceDouble messenger_start_first = light_time2->light_time_solve(t_recv_first, dsn_id);
+    //SpiceDouble messenger_start_second = light_time2->light_time_solve(t_recv_second, dsn_id);
 
-    SpiceDouble messenger_start_first = light_time2->light_time_solve(t_recv_first, dsn_id);
-    SpiceDouble messenger_start_second = light_time2->light_time_solve(t_recv_second, dsn_id);
+    //SpiceDouble first_time = t_recv_first - messenger_start_first;
+    //SpiceDouble second_time = t_recv_second - messenger_start_second;
 
-    SpiceDouble first_time = t_recv_first - messenger_start_first;
-    SpiceDouble second_time = t_recv_second - messenger_start_second;
+    SpiceDouble first_time_tdb_tai, second_time_tdb_tai;
+    SpiceDouble first_time = light_time2->light_time_solve(t_recv_first, dsn_id, &first_time_tdb_tai);
+    SpiceDouble second_time = light_time2->light_time_solve(t_recv_second, dsn_id, &second_time_tdb_tai);
+
+    SpiceDouble delta = first_time_tdb_tai - second_time_tdb_tai;
+
+    long double doppler_freq = C2 * ref_freq * (second_time - first_time + delta) / Tc;
+
 
 
     //fix time
@@ -50,14 +56,14 @@ long double DopplerComputer::compute_doppler(SpiceDouble& t_recv, double &ref_fr
     char utc_second[50];
     et2utc_c(messenger_start_second, "C", 6, 50, utc_second);*/
 
-    SpiceDouble tai_first = unitim_c(messenger_start_first, "TDB", "TAI");
-    SpiceDouble tai_second = unitim_c(messenger_start_second, "TDB", "TAI");
+    //SpiceDouble tai_first = unitim_c(messenger_start_first, "TDB", "TAI");
+    //SpiceDouble tai_second = unitim_c(messenger_start_second, "TDB", "TAI");
 
-    SpiceDouble delta = (messenger_start_second - tai_second) - (messenger_start_first - tai_first); //(TDB _ TAI)[t2e] - (TDB _ TAI)[t2s]
+    //SpiceDouble delta = (messenger_start_second - tai_second) - (messenger_start_first - tai_first); //(TDB _ TAI)[t2e] - (TDB _ TAI)[t2s]
 
     //full_time = messenger_start_second - messenger_start_first;
 
-    long double doppler_freq = C2 * ref_freq * (second_time - first_time + delta) / Tc;
+    //long double doppler_freq = C2 * ref_freq * (second_time - first_time + delta) / Tc;
     //
     // middle_time = (messenger_start_second + messenger_start_first) / 2;
     //

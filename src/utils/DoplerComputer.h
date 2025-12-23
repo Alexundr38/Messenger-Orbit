@@ -10,8 +10,6 @@
 #include "LightTimeSolver.h"
 #include "../types/BodyState.h"
 
-inline constexpr double C2 = 880.0 / 240.0;
-
 class DopplerComputer {
 private:
     LightTimeSolver* light_time;

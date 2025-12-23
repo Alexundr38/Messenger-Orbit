@@ -38,16 +38,16 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
     auto instance = get_instance();
     BodyState body_state;
 
-    SpiceDouble et_j2000, et_j1950;
+    /*SpiceDouble et_j2000, et_j1950;
     SpiceDouble j2000_to_j1950;
     str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
     str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
-    j2000_to_j1950 = et_j2000 - et_j1950;
+    j2000_to_j1950 = et_j2000 - et_j1950;*/
 
     body_state.time = tdb;
     SpiceDouble state[6];
     SpiceDouble lt;
-    spkezr_c(target_body.c_str(), tdb - j2000_to_j1950,
+    spkezr_c(target_body.c_str(), tdb,// - j2000_to_j1950,
         instance.reference_frame.c_str(),
         instance.aberration_correction.c_str(),
         instance.observer_body.c_str(),
@@ -67,17 +67,17 @@ BodyState SpaceObjectManager::get_body_state_at_time(SpiceDouble tdb, const std:
     auto instance = get_instance();
     BodyState body_state;
 
-    SpiceDouble et_j2000, et_j1950;
+    /*SpiceDouble et_j2000, et_j1950;
     SpiceDouble j2000_to_j1950;
     str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
     str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
-    j2000_to_j1950 = et_j2000 - et_j1950;
+    j2000_to_j1950 = et_j2000 - et_j1950;*/
 
 
     body_state.time = tdb;
     SpiceDouble state[6];
     SpiceDouble lt;
-    spkezr_c(target_body.c_str(), tdb - j2000_to_j1950,
+    spkezr_c(target_body.c_str(), tdb,
         instance.reference_frame.c_str(),
         instance.aberration_correction.c_str(),
         observer_body.c_str(),
@@ -97,7 +97,7 @@ BodyState SpaceObjectManager::get_body_state_at_time(const std::string& utc, con
 
 BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::string& dsn_id) {
     //BodyState earth_state = get_body_state_at_time(tdb, "EARTH BARYCENTER", "SSB");
-    tdb *= day;
+    //tdb *= day;
     //BodyState earth_state = get_body_state_at_time(tdb, "EARTH BARYCENTER", "SSB");
     std::lock_guard<std::mutex> lock(spice_mutex);
     auto instance = get_instance();
@@ -122,11 +122,11 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
 
 */
 
-    SpiceDouble et_j2000, et_j1950;
+    /*SpiceDouble et_j2000, et_j1950;
     SpiceDouble j2000_to_j1950;
     str2et_c("2000 JAN 01 12:00:00 TDB", &et_j2000);
     str2et_c("1950 JAN 01 00:00:00 TDB", &et_j1950);
-    j2000_to_j1950 = et_j2000 - et_j1950;
+    j2000_to_j1950 = et_j2000 - et_j1950;*/
 
 
     body_state.time = tdb;
@@ -149,7 +149,7 @@ BodyState SpaceObjectManager::get_DSN_state_at_time(SpiceDouble tdb, const std::
 
     spkezr_c(
         dsn_name.c_str(),
-        tdb - j2000_to_j1950 + 63195,
+        tdb,
         "J2000",
         "CN+S",
         "SOLAR SYSTEM BARYCENTER",

@@ -13,8 +13,8 @@
 #include "../types/ExtendedBodyState.h"
 
 #include "Spline.h"
-
-inline constexpr double C = (299792.458 / au) * day; // au/d
+#include "../space/RelativeFormula.h"
+#include "../space/SpaceObjectEntity.h"
 
 class LightTimeSolver {
 
@@ -22,10 +22,11 @@ class LightTimeSolver {
     Spline* spline_velocity;
     Spline* spline_jacobian;
 
+    RelativeFormula* relative_formula;
 public:
 
     LightTimeSolver(std::map<SpiceDouble, ExtendedBodyState>& points);
-    SpiceDouble light_time_solve(SpiceDouble& t3_tdb, std::string& dsn_id);
+    SpiceDouble light_time_solve(SpiceDouble& t3_utc, std::string& dsn_id, SpiceDouble* tdb_tai_t2);
     Vec3d get_vec_2_3(SpiceDouble& t3_tdb, std::string& dsn_id);
     Vec3d get_vec_r_C(SpiceDouble t3_tdb);
     Mat3d get_spline_mat3d(SpiceDouble time_tdb);

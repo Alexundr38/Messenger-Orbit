@@ -11,5 +11,7 @@
 constexpr inline long double au  = 149597870.7L;
 constexpr inline long double day = 86400.0L;
 constexpr inline long double color_max = 255;
+constexpr inline double C = (299792.458 / au) * day; // au/d
+constexpr inline double C2 = 880.0 / 240.0;
 
 #endif //MESSENGERORBIT_CONSTANTS_H

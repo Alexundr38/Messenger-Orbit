@@ -107,6 +107,8 @@ set(COMMON_SOURCES
         src/simulation/BoostSimulationBuilder.h
         src/types/HighPrecVec3d.h
         src/types/HighPrecVec3d.h
+        src/space/RelativeFormula.cpp
+        src/space/RelativeFormula.h
 )
 
 add_library(MessengerCommon STATIC ${COMMON_SOURCES})

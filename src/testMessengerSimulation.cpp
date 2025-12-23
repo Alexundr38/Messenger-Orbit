@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
         auto result = adapter.get_messenger_between_km(start_time/day, end_time/day, 10/day, start_body_state);
         state.add_state(BodyState(start_body_state.position, start_body_state.velocity, start_body_state.time));
         LSM* lsm = new LSM(state, *result, "for_c_2013_last.txt", start_time/day, end_time/day);
-        out_state = lsm->do_LSM(3);
+        out_state = lsm->do_LSM(1);
         std::cout << "cur_pos: " << std::setprecision(17) << out_state.state.position << std::endl;
         std::cout << "new_pos: " << std::setprecision(17) << start_body_state.position << std::endl;
         start_body_state.position = out_state.state.position;
