@@ -55,12 +55,12 @@ SpiceDouble RelativeFormula::get_relative_ro(SpiceDouble t2_tdb, SpiceDouble t3_
         SpiceDouble up = 0.0;
         SpiceDouble down = 0.0;
         if (body->get_object_name() == "SUN") {
-            up += 2 * gm / (C * C);// / day / day);
-            down += 2 * gm / (C * C);// / day / day);
+            up += 2 * gm / (C * C /* / day / day */ );
+            down += 2 * gm / (C * C /* / day / day */ );
         }
         up += body_pos_ssb.norm() + dsn_pos_ssb.norm() + diff.norm();
         down += body_pos_ssb.norm() + dsn_pos_ssb.norm() - diff.norm();
-        ro += log(up/down) * (2 * gm / (C * C * C ));///day / day / day));
+        ro += log(up/down) * (2 * gm / (C * C * C /* /day / day / day */ ));
     }
     return ro;
 }
