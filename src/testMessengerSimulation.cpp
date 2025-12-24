@@ -14,8 +14,11 @@ int main(int argc, char* argv[])
     Simulation *simulation = BoostSimulationBuilder().buildSimulation();
     // simulation->run(true);
     // return 0;
-    SpiceDouble start_time = 1993302913.5;
-    SpiceDouble end_time = 1993303873.5;
+
+    SpiceDouble start_time = 1993302913.5 - 251;
+    SpiceDouble end_time = 1993303873.5 - 251;
+
+
     MessengerSimulationAdapter adapter(simulation);
     ExtendedBodyState start_body_state(
     Vec3d(-3.018808873610819E-01,  1.391836383670322E-01,  1.057009733205437E-01),

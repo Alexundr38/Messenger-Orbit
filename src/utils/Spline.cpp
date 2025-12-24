@@ -14,7 +14,7 @@ void Spline::build_all_splines(std::vector<SpiceDouble>& times, std::vector<Vec3
     std::vector<long double> y;
     std::vector<long double> z;
     for (int i = 0; i < times.size(); i++) {
-        times[i] -= 18262.5 + (67.185393188305341 / day);
+        times[i] -= 18262.5;
         x.push_back(points[i].x);
         y.push_back(points[i].y);
         z.push_back(points[i].z);
@@ -68,8 +68,8 @@ std::vector<Spline::SplineData> Spline::build_spline(std::vector<SpiceDouble>& t
 
     std::vector<double> alpha(time_size - 1);
     for (int i = 1; i < time_size - 1; i++) {
-        alpha[i] = (3 / h[i]) * (spline_data[i+1].a - spline_data[i].a) -
-                   (3 / h[i-1]) * (spline_data[i].a - spline_data[i-1].a);
+        alpha[i] = (3.0 / h[i]) * (spline_data[i+1].a - spline_data[i].a) -
+                   (3.0 / h[i-1]) * (spline_data[i].a - spline_data[i-1].a);
     }
 
     std::vector<double> l(time_size);
@@ -85,7 +85,7 @@ std::vector<Spline::SplineData> Spline::build_spline(std::vector<SpiceDouble>& t
     z[time_size - 1] = 0;
 
     for (int i = 1; i < time_size - 1; i++) {
-        l[i] = 2 * (times[i+1] - times[i-1]) - (h[i] * mu[i-1]);
+        l[i] = 2 * (times[i+1] - times[i-1]) - (h[i-1] * mu[i-1]);
         mu[i] = h[i] / l[i];
         z[i] = (alpha[i] - h[i-1] * z[i-1]) / l[i];
     }
@@ -95,8 +95,8 @@ std::vector<Spline::SplineData> Spline::build_spline(std::vector<SpiceDouble>& t
     for (int i = time_size - 2; i >= 0; i--) {
         spline_data[i].c = z[i] - mu[i] * spline_data[i+1].c;
         spline_data[i].b = (spline_data[i+1].a - spline_data[i].a) / h[i] -
-                            - h[i] * (spline_data[i+1].c + 2 * spline_data[i].c) / 3;
-        spline_data[i].d = (spline_data[i+1].c - spline_data[i].c) / (3 * h[i]);
+                            h[i] * (spline_data[i+1].c + 2 * spline_data[i].c) / 3.0;
+        spline_data[i].d = (spline_data[i+1].c - spline_data[i].c) / (3.0 * h[i]);
     }
 
     spline_data.pop_back();
@@ -116,7 +116,7 @@ Vec3d Spline::interpolate(SpiceDouble time) {
     } else {
         for (int k = 1; k < spline_size; k++) {
             if (time <= splines_x[k].start_dot) {
-                i = k - 1;
+                i = k;
                 break;
             }
         }
