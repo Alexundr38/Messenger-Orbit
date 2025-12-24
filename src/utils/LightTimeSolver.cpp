@@ -51,7 +51,7 @@ SpiceDouble LightTimeSolver::light_time_solve(SpiceDouble& t3_utc, std::string& 
     //SpiceDouble jd_t3tdb = unitim_c ( t3_tdb_j2000, "TDB", "JDTDB");
 
     BodyState state = SpaceObjectManager::get_DSN_state_at_time(t3_tdb_j2000, dsn_id);
-    BodyState earth = SpaceObjectManager::get_body_state_at_time(t3_tdb_j2000, "EARTH");
+    //BodyState earth = SpaceObjectManager::get_body_state_at_time(t3_tdb_j2000, "EARTH");
 
 
     Vec3d messenger_point;
@@ -59,7 +59,7 @@ SpiceDouble LightTimeSolver::light_time_solve(SpiceDouble& t3_utc, std::string& 
     SpiceDouble t2_tdb = t3_tdb_j2000;
 
     for (int i = 0; i < 10; i++) {
-        //messenger_point = SpaceObjectManager::get_body_state_at_time(t2_tdb, "-236");
+        //messenger_point = SpaceObjectManager::get_body_state_at_time(t2_tdb, "-236").position;
         messenger_point = spline_position->interpolate(t2_tdb/day);
         /*dt = std::sqrt((state.position.x - messenger_point.position.x) *
                                (state.position.x - messenger_point.position.x) +

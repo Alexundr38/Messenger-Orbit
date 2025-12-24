@@ -7,11 +7,14 @@
 #include <iostream>
 #include <utility>
 
+#include "Constants.h"
+
 void Spline::build_all_splines(std::vector<SpiceDouble>& times, std::vector<Vec3d>& points){
     std::vector<long double> x;
     std::vector<long double> y;
     std::vector<long double> z;
     for (int i = 0; i < times.size(); i++) {
+        times[i] -= 18262.5 + (67.185393188305341 / day);
         x.push_back(points[i].x);
         y.push_back(points[i].y);
         z.push_back(points[i].z);
@@ -103,23 +106,23 @@ std::vector<Spline::SplineData> Spline::build_spline(std::vector<SpiceDouble>& t
 
 
 Vec3d Spline::interpolate(SpiceDouble time) {
-    int i = 0;
+    int i = 1;
     int spline_size = splines_x.size() - 1;
 
-    if (time <= splines_x[0].start_dot - 18262.5) {
+    if (time <= splines_x[0].start_dot) {
         i = 0;
-    } else if (time >= splines_x[spline_size].start_dot - 18262.5) {
+    } else if (time >= splines_x[spline_size].start_dot) {
         i = spline_size;
     } else {
-        for (int k = 0; k < spline_size; k++) {
-            if (time <= splines_x[k].start_dot - 18262.5) {
-                i = k;
+        for (int k = 1; k < spline_size; k++) {
+            if (time <= splines_x[k].start_dot) {
+                i = k - 1;
                 break;
             }
         }
     }
 
-    double dt = time - splines_x[i].start_dot + 18262.5;
+    double dt = time - splines_x[i].start_dot;
     long double x_a = splines_x[i].a;
     long double x_b = splines_x[i].b * dt;
     long double x_c = splines_x[i].c * dt * dt;

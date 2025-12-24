@@ -10,6 +10,7 @@ RelativeFormula::RelativeFormula(const std::string object_name)
     SpaceObject::set_object_name(object_name);
 }
 
+//неважно
 RelativeFormula::RelativeFormula(
     std::vector<SpaceObject*> force_bodies,
     const std::string & object_name
@@ -20,10 +21,12 @@ RelativeFormula::RelativeFormula(
     SpaceObject::set_object_name(object_name);
 }
 
+//неважно
 void RelativeFormula::set_object_name(const std::string& object_name) {
     SpaceObject::set_object_name(object_name);
 }
 
+//неважно
 BodyState RelativeFormula::get_body_state(const SpiceDouble tdb) {
     if (body_states->empty())
     {
@@ -33,6 +36,7 @@ BodyState RelativeFormula::get_body_state(const SpiceDouble tdb) {
     return result;
 }
 
+//неважно
 void RelativeFormula::set_current_body_state(const ExtendedBodyState& body_state)
 {
     Renderable::set_current_body_state(body_state);
@@ -47,10 +51,15 @@ SpiceDouble RelativeFormula::get_relative_ro(SpiceDouble t2_tdb, SpiceDouble t3_
     SpiceDouble ro = 0.0;
     for (SpaceObject * body : force_bodies)
     {
-        Vec3d body_pos_ssb = body->get_body_state(t2_tdb).position;
-        Vec3d dsn_pos_ssb = SpaceObjectManager::get_DSN_state_at_time(t3_tdb, dsn_id).position;
+        Vec3d body_pos_t2 = body->get_body_state(t2_tdb).position;
+        Vec3d body_pos_t3 = body->get_body_state(t3_tdb).position;
+        Vec3d dsn_pos_t3 = SpaceObjectManager::get_DSN_state_at_time(t3_tdb, dsn_id).position;
+        Vec3d messenger_pos_t2 = SpaceObjectManager::get_body_state_at_time(t2_tdb, "-236").position;
+        Vec3d r2 = messenger_pos_t2.absDiff(body_pos_t2);
+        Vec3d r3 = dsn_pos_t3.absDiff(body_pos_t3);
+
         SpiceDouble gm = body->get_gravitational_parameter();
-        Vec3d diff = body_pos_ssb.absDiff(dsn_pos_ssb);
+        Vec3d r23 = r2.absDiff(r3);
 
         SpiceDouble up = 0.0;
         SpiceDouble down = 0.0;
@@ -58,8 +67,8 @@ SpiceDouble RelativeFormula::get_relative_ro(SpiceDouble t2_tdb, SpiceDouble t3_
             up += 2 * gm / (C * C /* / day / day */ );
             down += 2 * gm / (C * C /* / day / day */ );
         }
-        up += body_pos_ssb.norm() + dsn_pos_ssb.norm() + diff.norm();
-        down += body_pos_ssb.norm() + dsn_pos_ssb.norm() - diff.norm();
+        up += r2.norm() + r3.norm() + r23.norm();
+        down += r2.norm() + r3.norm() - r23.norm();
         ro += log(up/down) * (2 * gm / (C * C * C /* /day / day / day */ ));
     }
     return ro;
