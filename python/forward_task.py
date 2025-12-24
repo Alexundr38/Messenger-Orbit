@@ -11,7 +11,7 @@ def open_file(file_path):
     return df
 
 horizon = open_file("data/horizons_results_mercury.txt")
-simulation = open_file("data/result.txt")
+simulation = open_file("data/simulation_results.txt")
 
 if horizon is None or simulation is None:
     print("Не удалось загрузить один или оба файла.")
@@ -19,11 +19,6 @@ else:
     horizon_position_norm = np.sqrt((horizon['x']- simulation['x'])**2 + (horizon['y']- simulation['y'])**2 + (horizon['z']- simulation['z'])**2)
     horizon_velocity_norm = np.sqrt((horizon['vx']- simulation['vx'])**2 + (horizon['vy']- simulation['vy'])**2 + (horizon['vz']- simulation['vz'])**2)
 
-    # simulation_position_norm = np.sqrt(simulation['x']**2 + simulation['y']**2 + simulation['z']**2)
-    # simulation_velocity_norm = np.sqrt(simulation['vx']**2 + simulation['vy']**2 + simulation['vz']**2)
-
-    # diff_position = (horizon_position_norm -simulation_position_norm)
-    # diff_velocity = (horizon_velocity_norm - simulation_velocity_norm)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
 

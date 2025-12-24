@@ -47,7 +47,7 @@ void RenderSystem::draw_path(const std::vector<Vec3d>& history, Vec3d center)
 {
     for (int i = 0; i < history.size(); i++)
     {
-        Vec3d point = history.at(i)-center;
+        Vec3d point = history.at(i);//-center;
         RenderFunctions::draw_dot(point/proportion, Vec3d(1, 0, 1), 1);
     }
 }
@@ -57,13 +57,20 @@ void RenderSystem::render()
     RenderFunctions::pre_render();
     {
         double simulation_time = render_objects[0]->get_current_body_state().time;
-        // center = SpaceObjectManager::get_body_state_at_time(simulation_time, "MERCURY BARYCENTER").position;
-        center = render_objects[render_objects.size()-1]->get_current_body_state().position;
+        center = SpaceObjectManager::get_body_state_at_time(simulation_time, "MERCURY BARYCENTER").position;
+        // center += render_objects[render_objects.size()-1]->get_current_body_state().position;
         glLoadMatrixf(glm::value_ptr(camera->GetViewMatrix()));
 
         for (auto render_object : render_objects)
         {
             auto pos = (render_object->get_current_body_state().position - center)/proportion;
+            if (dynamic_cast<SpaceObject*>(render_object)->get_object_name() == "MESSENGER")
+            {
+                pos = (render_object->get_current_body_state().position - center);
+                pos += SpaceObjectManager::get_body_state_at_time(simulation_time, "MERCURY").position;
+                pos /= proportion;
+            }
+
             RenderFunctions::draw_sphere_wireframe(pos, render_object->get_color(), render_object->get_size()/au/proportion); //0.01f);
             auto history = render_object->get_history();
             draw_path(history, center);

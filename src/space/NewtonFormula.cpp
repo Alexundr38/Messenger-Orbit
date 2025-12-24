@@ -100,7 +100,7 @@ BodyState NewtonFormula::get_body_state(const SpiceDouble tdb) {
     }
     auto upper = body_states->upper_bound(tdb);
     auto result = calculate_to_target(std::prev(upper)->second, tdb);
-    // add_history_point(result.position);
+    add_history_point(result.position);
     set_current_body_state(result);
     return result;
 }
